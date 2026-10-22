@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -49568,7 +49568,40 @@ function makeModel2(s){const LPS=[],IDRS=[];
  dynoconsole:()=>{p('shade',0,0,1.6,1.0,.007,.002);p('dark',0,0,1.35,.68,0,.96);p('chrome',0,.02,1.4,.74,.96,.04);
   for(const s of[-.36,.36]){p('dark',s,-.12,.54,.06,1.0,.42);p('polb',s,-.09,.48,.02,1.05,.32)}
   p('ember',-.36,-.08,.42,.01,1.15,.08);p('neonC',.36,-.08,.42,.01,1.18,.1);
-  p('frd',0,.18,.32,.22,1.0,.06);p('yel',.48,.18,.12,.12,1.0,.08);sol(1.4,.78)}};
+  p('frd',0,.18,.32,.22,1.0,.06);p('yel',.48,.18,.12,.12,1.0,.08);sol(1.4,.78)},
+ sdesk:()=>{p('shade',0,0,.95,1.15,.007,.002);p('wood2',0,-.18,.72,.52,.68,.04);p('metal',0,-.18,.64,.44,.54,.14);
+  for(const s of[-.3,.3])for(const z of[-.38,.02])p('metal',s,z,.04,.04,0,.68);
+  p('white',-.12,-.18,.26,.32,.72,.02);p('blue',.14,-.16,.2,.26,.72,.03);p('yel',.02,-.28,.16,.02,.72,.02);
+  p('wood',0,.32,.46,.44,.42,.04);p('wood',0,.52,.46,.04,.46,.42);
+  for(const s of[-.2,.2])for(const z of[.14,.5])p('metal',s,z,.04,.04,0,.42);sol(.76,1.05)},
+ chalkboard:A=>{A=A||3.6;p('wood',0,0,A+.16,.08,.88,1.36);p('green',0,.03,A,.04,.94,1.24);p('wood2',0,.07,A+.12,.1,.84,.05);
+  p('white',-.35,.08,.18,.04,.89,.02);p('yel',.2,.08,.18,.04,.89,.02);
+  p('white',-A*.28,.055,A*.28,.01,1.65,.025);p('white',-A*.28,.055,A*.22,.01,1.45,.025);p('neonC',A*.18,.055,A*.24,.01,1.55,.32)},
+ cafetable:A=>{A=A||3.2;p('shade',0,0,A+.3,1.85,.007,.002);p('cream',0,0,A,.82,.72,.05);p('metal',0,0,A-.1,.74,.68,.04);
+  for(const s of[-1,1]){p('wood2',0,s*.68,A,.34,.42,.04);for(const x of[-A*.38,0,A*.38]){p('metal',x,0,.06,.76,0,.72);p('metal',x,s*.68,.05,.3,0,.42)}}
+  for(let i=-1;i<=1;i++){const x=i*(A*.3);p('red',x,-.2,.38,.28,.77,.02);p('white',x-.06,-.2,.14,.14,.79,.02);p('blue',x+.12,-.22,.07,.07,.79,.1);
+   p('blue',x,.2,.38,.28,.77,.02);p('white',x+.06,.2,.14,.14,.79,.02)}sol(A,1.65)},
+ servline:A=>{A=A||4.6;p('shade',0,0,A+.3,1.3,.007,.002);p('metal',0,0,A,.86,0,.9);p('chrome',0,.02,A+.08,.94,.9,.05);
+  p('chrome',0,.56,A,.24,.78,.03);p('glass',0,.28,A-.2,.03,1.25,.45);p('glass',0,.08,A-.2,.42,1.68,.03);
+  for(const x of[-A*.45,0,A*.45])p('chrome',x,.28,.04,.04,.95,.75);
+  for(let i=-2;i<=2;i++){const x=i*(A*.18);p('dark',x,-.04,.58,.46,.95,.04);p(['ember','yel','green','frd','cream'][(i+2)%5],x,-.04,.52,.4,.99,.02)}sol(A,1.15)},
+ labbench:A=>{A=A||2.8;p('shade',0,0,A+.2,1.35,.007,.002);p('wood',0,0,A-.1,.92,0,.86);p('dark',0,0,A,1.02,.86,.06);
+  p('metal',0,0,.46,.38,.91,.02);p('brass',-.18,0,.04,.04,.93,.24);p('brass',.18,0,.04,.04,.93,.24);
+  p('neonC',-A*.32,-.18,.16,.16,.92,.22);p('neonP',-A*.22,.14,.14,.14,.92,.26);p('ember',A*.28,-.15,.16,.16,.92,.2);
+  p('dark',A*.12,.18,.22,.28,.92,.04);p('chrome',A*.12,.18,.06,.06,.96,.28);
+  for(const x of[-A*.32,A*.32])for(const s of[-.68,.68]){p('metal',x,s,.06,.06,0,.58);p('dark',x,s,.32,.32,.58,.05)}sol(A,1.45)},
+ skeleton:()=>{p('dark',0,0,.46,.46,0,.06);p('metal',0,0,.04,.04,.06,1.78);
+  p('cream',0,.06,.22,.18,1.58,.24);p('dark',-.05,.16,.04,.02,1.68,.04);p('dark',.05,.16,.04,.02,1.68,.04);
+  p('cream',0,.06,.06,.06,.92,.66);for(let i=0;i<5;i++)p('cream',0,.06,.28,.16,1.12+i*.08,.04);
+  p('cream',0,.06,.26,.16,.88,.1);for(const s of[-.16,.16]){p('cream',s,.06,.05,.05,1.02,.48);p('cream',s*.65,.06,.06,.06,.12,.76)}sol(.55,.55)},
+ bballhoop:()=>{p('blue',0,-.38,.36,.36,0,2.2);p('metal',0,-.38,.18,.18,2.2,1.25);p('metal',0,-.1,.14,.55,3.25,.14);
+  p('white',0,.2,.06,.06,2.65,1.15);p('glass',0,.18,1.82,.05,2.65,1.12);
+  p('white',0,.21,1.86,.06,2.63,.04);p('white',0,.21,1.86,.06,3.75,.04);p('white',-.91,.21,.06,.06,2.63,1.16);p('white',.91,.21,.06,.06,2.63,1.16);
+  p('frd',0,.22,.58,.04,2.82,.44);p('orng',0,.48,.48,.48,2.78,.05);p('white',0,.48,.42,.42,2.42,.36);sol(.9,.9)},
+ bleachers:A=>{A=A||5.4;p('shade',0,0,A+.2,2.1,.007,.002);
+  for(let r=0;r<4;r++){const z=-.68+r*.45,y=.36+(3-r)*.36;
+   p('wood2',0,z,A,.36,y,.05);p('metal',-A*.44,z,.06,.36,0,y);p('metal',0,z,.06,.36,0,y);p('metal',A*.44,z,.06,.36,0,y)}sol(A,1.95)},
+ globe:()=>{p('brass',0,0,.22,.22,0,.06);p('brass',0,0,.04,.04,.06,.38);p('polb',0,0,.28,.28,.16,.28);p('green',.04,.08,.16,.12,.22,.14);p('frd',.26,.04,.1,.1,0,.1)}};
  for(let l=0;l<lv;l++){fy=l?l*FH:.06;CL=l;const cy=cyL(l),ly=s.ly||cy;
   for(const r of s.R||[]){const ty=(r[4]||'').split('|'),T0=ty[l?1:0]||ty[0];if(T0&&T0!=='x')add(T0,r[0],r[1],fy-.03,fy+.004,r[2],r[3]);
    const nx=Math.max(1,Math.round((r[1]-r[0])/8)),nz=Math.max(1,Math.round((r[3]-r[2])/8));
@@ -50514,11 +50547,180 @@ for(const f of MILX.FL)MILB.lamps.push(f);
  sn([['IN MEMORIAM',34,34],['7TH OUTPOST · THEY HELD THE LINE',15,76]],'#14181c','#cfd4cf',512,100,2.6,.55,-3.5,2.2,3.12,0);
  sn([['WE HOLD THE LINE',34,34],['REPORT ALL INFECTED — DO NOT ENGAGE ALONE',14,76]],'#8f1d18','#f5e6c8',512,100,2.6,.55,3.5,2.2,3.12,0);
  {const mt=new T.MeshStandardMaterial({map:tex(512,320,(g,W,Hh)=>{g.fillStyle='#10231a';g.fillRect(0,0,W,Hh);g.strokeStyle='#7dffa0';g.lineWidth=4;g.strokeRect(4,4,W-8,Hh-8);g.fillStyle='#7dffa0';g.font='bold 22px monospace';g.textAlign='center';g.fillText('TACTICAL MAP · RIVERSIDE SECTOR',W/2,32);
-   for(let n=1;n<=24;n++){const col=(n-1)%6,row=Math.floor((n-1)/6),x=40+col*72,y=50+row*62,m=n===22;g.fillStyle=m?'#d4af37':row<2?'#2d4a38':'#1f3a2a';g.fillRect(x,y,62,50);g.strokeStyle=m?'#fff':'#3d6a4c';g.lineWidth=m?3:1;g.strokeRect(x,y,62,50);g.fillStyle=m?'#111':'#9fe8b4';g.font='bold 15px monospace';g.fillText(String(n),x+31,y+22);if(m){g.font='bold 11px monospace';g.fillText('FORT',x+31,y+38)}}
+   for(let n=1;n<=24;n++){const col=(n-1)%6,row=Math.floor((n-1)/6),x=40+col*72,y=50+row*62,m=n===22,sch=n===14;g.fillStyle=m?'#d4af37':sch?'#ffd24c':row<2?'#2d4a38':'#1f3a2a';g.fillRect(x,y,62,50);g.strokeStyle=(m||sch)?'#fff':'#3d6a4c';g.lineWidth=(m||sch)?3:1;g.strokeRect(x,y,62,50);g.fillStyle=(m||sch)?'#111':'#9fe8b4';g.font='bold 15px monospace';g.fillText(String(n),x+31,y+22);if(m){g.font='bold 11px monospace';g.fillText('FORT',x+31,y+38)}else if(sch){g.font='bold 11px monospace';g.fillText('SCH',x+31,y+38)}}
    g.fillStyle='#ff5a3c';for(const[x,y]of[[120,190],[300,120],[200,260],[410,200],[90,100]]){g.beginPath();g.arc(x,y,6,0,6.283);g.fill()}g.font='13px monospace';g.fillText('● INFECTED CONTACTS',W/2,Hh-16)}),roughness:.7,emissive:new T.Color(0x0a1a10)});
   const mp=new T.Mesh(new T.PlaneGeometry(5,3.1),mt);mp.position.set(-5.88,2.2,-7);mp.rotation.y=PH;MILB.grp.add(mp)}
 }
 MODELS.push(MILB);
+
+// 14: BLACKPINE HIGH SCHOOL (v0.22.3 port of v0.21.0) — Massive 3-Story Walkable Campus on Plot 14 (w:34, d:22, fl:3, lv:3):
+// Floor 1: Main Trophy & Locker Hallway, Security Arch, Principal's Office, Nurse's Infirmary (+60 HP & Medkit), School Cafeteria & Hot-Lunch Kitchen (+40 HP), Full-Size Basketball Gymnasium with Bleachers, Hoops & Scoreboard.
+// Floor 2: Math, English & History Classrooms (Student Desks, Chalkboards, Globes), Chemistry/Biology Science Lab (Epoxy Lab Benches, Microscopes, Skeleton, Periodic Table & Ammo Synthesis Bench), School Library & Computer Lab.
+// Floor 3: Band & Music Hall (Grand Piano, Drum Kit, Amps & PA Jukebox / School Bell), Industrial Wood & Metal Shop Class (Workbenches, Welder, Tool Chests & Free Resource Dispenser), Art Studio, Student Lounge & Restrooms.
+// Exterior: Rooftop Clock & Bell Tower, Bus Drop-Off Zone with Driveable Yellow School Bus #16, Bike Rack with Student Motorbike, Outdoor Basketball Court, Playground Swings & Slide, Flagpole & School Zone Crosswalk.
+const SCHB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x,z,w,l,y,h)=>a(k,x-w/2,x+w/2,y,y+h,z-l/2,z+l/2),po=11,pi=10.7,H=12;
+ const W=(ax,pos,f,u0,u1,y0,y1,d,m)=>ax=='x'?a(m,u0,u1,y0,y1,f>0?pos:pos-d,f>0?pos+d:pos):a(m,f>0?pos:pos-d,f>0?pos+d:pos,y0,y1,u0,u1);
+ // Classical Collegiate Red-Brick & Limestone Belt Courses, Pilasters & Parapet Coping
+ a('stone',-17.12,-1.9,0,.85,po,po+.12);a('stone',1.9,17.12,0,.85,po,po+.12);
+ for(const y of[3.88,7.88,11.75])a('cream',-17.18,17.18,y,y+.26,-11.18,11.18);
+ for(const px of[-16.8,-10.5,-5.2,5.2,10.5,16.8])for(const sz of[-1,1])a('stone',px-.32,px+.32,0,H,sz*11.02-.12,sz*11.02+.12);
+ // Grand Neoclassical 4-Column School Entrance Portico & Clock Pediment (x = -4.6..4.6, z = po..po+3.2)
+ a('conc',-4.8,4.8,.03,.24,po+.58,po+3.2);a('conc',-3.2,3.2,0,.14,po+3.2,po+4.2);
+ for(const px of[-4.2,-2.1,2.1,4.2]){
+  a('stone',px-.34,px+.34,.24,.85,po+2.75,po+3.18);
+  a('cream',px-.24,px+.24,.85,4.35,po+2.82,po+3.12);
+  a('stone',px-.32,px+.32,4.35,4.6,po+2.75,po+3.18);
+  c(px-.34,px+.34,po+2.75,po+3.18);
+ }
+ a('cream',-4.9,4.9,4.6,5.15,po+.58,po+3.3);a('slate',-5.0,5.0,5.15,5.45,po+.58,po+3.38);
+ // Rooftop Collegiate Clock & Bell Tower (x = -2.8..2.8, z = 4.2..9.2, y = H..H+6.8)
+ a('brick',-2.6,2.6,H+.4,H+3.6,4.5,8.9);a('cream',-2.8,2.8,H+3.5,H+3.85,4.3,9.1);
+ // Open belfry arches with Hanging Bronze School Bell inside
+ for(const sx of[-2.2,2.2])for(const sz of[4.9,8.5])a('stone',sx-.28,sx+.28,H+3.85,H+5.45,sz-.28,sz+.28);
+ a('brass',-.55,.55,H+4.15,H+5.05,6.15,7.25);a('dark',-.15,.15,H+3.95,H+4.15,6.55,6.85);
+ a('slate',-3.0,3.0,H+5.45,H+6.1,4.1,9.3);a('slate',-2.1,2.1,H+6.1,H+6.75,5.0,8.4);a('gold',-.12,.12,H+6.75,H+7.8,6.58,6.82);
+ // Glowing 4-Sided Clock Faces on the Clock Tower
+ for(const[x0,x1,z0,z1]of[[-1.1,1.1,8.92,8.98],[-1.1,1.1,4.42,4.48],[-2.66,-2.6,5.6,7.8],[2.6,2.66,5.6,7.8]]){
+  a('cream',x0,x1,H+1.35,H+2.95,z0,z1);a('dark',(x0+x1)/2-.06,(x0+x1)/2+.06,H+2.1,H+2.78,z0-.02,z1+.02);a('dark',x0+.2,x1-.2,H+2.08,H+2.18,z0-.02,z1+.02);
+ }
+ // Rooftop Solar Array, HVAC Chillers & Greenhouse Dome
+ for(let i=0;i<5;i++){const rx=-14.5+i*2.8;a('dark',rx,rx+2.2,H+.45,H+.95,-8.5,-5.5);a('polb',rx+.08,rx+2.12,H+.52,H+.98,-8.4,-5.6)}
+ a('metal',8.5,13.5,H+.4,H+1.9,-8.5,-4.5);a('glass',-14.5,-8.5,H+.4,H+2.2,2.5,7.5);
+
+ // ---- EXTERIOR CAMPUS & FORECOURT (z = po..po+8.5): Bus Drop-Off Lane, Crosswalk, Flagpole, Bike Rack, Playground & Outdoor Court ----
+ a('conc',-17.5,17.5,0,.04,po,po+8.2);
+ // Yellow School Bus Drop-Off Zone hatching & crosswalk stripes (x = -13.5..-4.5, z = po+3.5..po+6.5)
+ a('yel',-14.0,-4.5,.042,.048,po+3.6,po+3.8);a('yel',-14.0,-4.5,.042,.048,po+6.6,po+6.8);
+ for(let x=-3.2;x<=3.2;x+=.85)a('yel',x,x+.42,.042,.048,po+4.4,po+7.8);
+ // Illuminated School Marquee Sign on the East Lawn (x = 7.2, z = po+4.6)
+ a('brick',5.4,9.0,0,.95,po+4.2,po+5.0);a('dark',5.2,9.2,.95,2.55,po+4.1,po+5.1);a('slate',5.0,9.4,2.55,2.82,po+4.0,po+5.2);c(5.1,9.3,po+4.0,po+5.2);
+ // Tall Campus Flagpole with American/State & School Spirit Flags (x = 11.2, z = po+4.8)
+ a('stone',10.7,11.7,0,.55,po+4.3,po+5.3);a('metal',11.12,11.28,.55,11.5,po+4.72,po+4.88);a('gold',11.05,11.35,11.5,11.8,po+4.65,po+4.95);
+ a('frd',11.28,13.6,10.2,11.2,po+4.78,po+4.82);a('polb',11.28,12.3,10.65,11.2,po+4.77,po+4.83);a('yel',11.28,13.2,9.2,9.9,po+4.78,po+4.82);c(10.7,11.7,po+4.3,po+5.3);
+ // Steel Bicycle & Motorbike Rack on the East Forecourt (x = 14.2, z = po+2.8)
+ a('metal',12.6,16.2,.04,.1,po+2.2,po+3.4);for(let x=12.8;x<=16.0;x+=.55)a('chrome',x,x+.06,.1,.85,po+2.3,po+3.3);c(12.6,16.2,po+2.2,po+3.4);
+ // West Side Playground: Swing Set, Slide & See-Saw (x = -15.8..-11.8, z = po+1.6..po+3.2)
+ a('metal',-16.2,-12.2,2.45,2.55,po+2.15,po+2.25);
+ for(const x of[-16.15,-12.25]){a('metal',x,x+.08,0,2.5,po+1.4,po+3.0);c(x-.1,x+.18,po+1.4,po+3.0)}
+ for(const x of[-15.1,-13.6]){a('dark',x-.02,x+.02,.55,2.45,po+2.18,po+2.22);a('dark',x+.38,x+.42,.55,2.45,po+2.18,po+2.22);a('frd',x-.05,x+.45,.5,.56,po+2.05,po+2.35)}
+ a('yel',-12.25,-11.4,.05,1.55,po+1.6,po+2.8);
+ // Back Campus Emergency Diesel Generator, Transformer Pad & Dumpsters (z = -13.6..-11.1)
+ a('conc',-9.5,-4.5,0,.2,-13.4,-11.1);a('yel',-9.2,-4.8,.2,1.85,-13.1,-11.3);a('dark',-9.0,-5.0,1.85,2.05,-12.9,-11.5);c(-9.4,-4.6,-13.3,-11.2);
+ a('green',4.5,8.2,0,1.35,-13.2,-11.4);a('dark',4.4,8.3,1.35,1.45,-13.3,-11.3);c(4.4,8.3,-13.3,-11.3);
+
+ // ---- FLOOR 1 INTERIOR DETAILS: Security Metal Detector, Water Fountains, Fire Alarms, Gymnasium Court Markings & Scoreboard ----
+ // Walk-through Security Metal Detector Arch inside Main Entrance (x = 0, z = 8.4)
+ a('metal',-1.05,-.9,.06,2.25,8.2,8.6);a('metal',.9,1.05,.06,2.25,8.2,8.6);a('dark',-1.08,1.08,2.25,2.45,8.18,8.62);
+ a('pwG',-.85,.85,2.3,2.4,8.61,8.64);
+ // Hallway Drinking Water Fountains & Fire Alarm Pull Stations (x = -5.06 and 5.06)
+ for(const z of[1.2,5.8]){
+  W('z',-5.06,1,z-.22,z+.22,.55,1.05,.28,'chrome');W('z',-5.06,1,z-.06,z+.06,1.05,1.18,.22,'brass');
+  W('z',5.06,-1,z-.12,z+.12,1.25,1.52,.06,'frd');W('z',5.06,-1,z-.08,z+.08,1.32,1.42,.08,'white');
+ }
+ // Gymnasium Hardwood Court Lines (x = 5.4..16.5, z = -2.3..10.5, y = 0.062)
+ a('white',5.5,16.4,.061,.065,4.05,4.15); // Midcourt line
+ a('frd',9.8,12.2,.061,.065,2.9,5.3);a('pl',10.0,12.0,.062,.066,3.1,5.1); // Center jump circle
+ for(const[z0,z1]of[[-2.2,.4],[7.8,10.4]]){a('frd',9.6,12.4,.061,.065,z0,z1);a('white',9.5,12.5,.062,.066,z0,z0+.08);a('white',9.5,12.5,.062,.066,z1-.08,z1)}
+ // Gymnasium Electronic Wall Scoreboard on East Wall (x = 16.64, z = 2.5..5.7, y = 2.2..3.5)
+ W('z',16.66,-1,2.4,5.8,2.15,3.45,.12,'dark');W('z',16.66,-1,2.55,3.6,2.55,3.1,.15,'ember');W('z',16.66,-1,4.6,5.65,2.55,3.1,.15,'neonC');W('z',16.66,-1,3.8,4.4,2.65,3.15,.15,'neonA');
+ // Gymnasium Padded Wall Mats under hoops
+ for(let x=8.2;x<=13.6;x+=.95){W('x',-2.38,1,x,x+.85,.1,2.05,.08,x%1.9<.95?'blue':'yel');W('x',10.66,-1,x,x+.85,.1,2.05,.08,x%1.9<.95?'blue':'yel')}
+
+ // ---- FLOOR 2 INTERIOR DETAILS: Science Lab Fume Hood, Periodic Table, Classroom Maps & Library Reference Desk ----
+ // Glass-enclosed Chemical Fume Hood in Science Lab (x = -16.4..-14.2, z = -9.8..-7.8, y = 4.06..6.4)
+ a('metal',-16.55,-15.5,4.06,6.35,-9.8,-7.8);a('glass',-15.52,-15.46,4.95,6.15,-9.7,-7.9);a('neonC',-16.4,-15.6,6.05,6.12,-9.6,-8.0);
+ // Emergency Safety Shower & Eyewash Station in Science Lab (-6.0, -9.8, y = 4.06)
+ a('yel',-6.05,-5.95,4.06,6.4,-9.95,-9.85);a('yel',-6.2,-5.8,4.95,5.08,-10.0,-9.7);
+
+ // ---- FLOOR 3 INTERIOR DETAILS: Band Room Raised Stage, Acoustic Panels, Art Studio Easels & Shop Class Exhaust Hood ----
+ a('wood',-16.55,-11.2,8.06,8.38,2.2,8.8);a('brass',-11.22,-11.14,8.32,8.4,2.2,8.8);
+ for(let i=0;i<6;i++)W('z',-16.66,1,2.2+i*1.1,3.0+i*1.1,9.1,10.4,.06,i%2?'frd':'dark');
+ // Art Studio Wooden Easels with Painted Canvases (Floor 3 East Wing, x = 7.5..14.5, z = 2.5..7.5, y = 8.06)
+ for(const[ex,ez,col]of[[8.2,4.2,'neonP'],[10.8,4.2,'polb'],[13.4,4.2,'ember'],[9.5,7.2,'neonC'],[12.2,7.2,'gold']]){
+  a('wood2',ex-.3,ex+.3,8.06,9.85,ez,ez+.18);a('white',ex-.42,ex+.42,8.95,9.75,ez-.06,ez);a(col,ex-.32,ex+.32,9.15,9.62,ez-.08,ez-.06);
+ }
+ return{X,XC}})();
+
+const SCHOOL=makeModel2({w:34,d:22,fl:3,lv:3,dw:3.8,dh:3.2,mat:wt2('#7d3b2e',0),sign:['BLACKPINE HIGH SCHOOL','#14284b','#ffd24c'],curt:0,board:0,door:{canopy:1,right:'frame',glass:1},
+ P:[
+  // Floor 1 Partitions: Central Locker Hallway (-5.2..5.2), Cafeteria & Kitchen (-16.7..-5.2), Admin & Nurse's Infirmary (-5.2..10.2, z=-10.7..-2.5), Gymnasium (5.2..16.7, z=-2.5..10.7)
+  ['z',-5.2,-10.7,10.7,[-6.8,1.5,7.2],[0]],['z',5.2,-2.5,10.7,[1.5,7.2],[0]],['x',-2.5,-16.7,10.2,[-11.5,-1.5,2.5,7.8],[0]],['z',1.2,-10.7,-2.5,[-6.5],[0]],['z',10.2,-10.7,-2.5,[-6.8],[0]],
+  // Floor 2 Partitions: West Classrooms (-16.7..-5.2, z=-2.5..10.7), Science Lab (-16.7..-5.2, z=-10.7..-2.5), Central Hall & History Classroom (-5.2..5.2), Library & Computer Lab (5.2..16.7)
+  ['z',-5.2,-10.7,10.7,[-6.8,1.2,7.2],[1]],['z',5.2,-2.5,10.7,[1.2,7.2],[1]],['x',-2.5,-16.7,10.2,[-11.2,0,7.5],[1]],['x',4.2,-16.7,-5.2,[-11.2],[1]],['x',3.5,-5.2,5.2,[0],[1]],['z',10.2,-10.7,-2.5,[-6.8],[1]],
+  // Floor 3 Partitions: Band & Music Hall (-16.7..-5.2, z=-2.5..10.7), Shop Class (-16.7..-5.2, z=-10.7..-2.5), Student Lounge & Restrooms (-5.2..5.2), Art Studio & Drama (5.2..16.7)
+  ['z',-5.2,-10.7,10.7,[-6.8,1.5,7.2],[2]],['z',5.2,-2.5,10.7,[1.5,7.2],[2]],['x',-2.5,-16.7,10.2,[-11.2,-2.2,3.2,7.5],[2]],['z',0,-10.7,-2.5,[-6.5],[2]],['z',10.2,-10.7,-2.5,[-6.8],[2]]
+ ],
+ R:[
+  [-5.2,5.2,-2.5,10.7,'tile|tile'],[-16.7,-5.2,-2.5,10.7,'tile|pl'],[-16.7,-5.2,-10.7,-2.5,'tile|tile'],
+  [-5.2,10.2,-10.7,-2.5,'carp|carp'],[5.2,16.7,-2.5,10.7,'pl|carp']
+ ],
+ X:SCHB.X,XC:SCHB.XC,
+ F:[
+  // ---- FLOOR 1 (GROUND): Trophy & Locker Hallway, Cafeteria & Kitchen, Principal's Office, Nurse's Infirmary, Full Basketball Gymnasium ----
+  [['locker',-4.7,-1.0,1,4],['locker',-4.7,4.2,1,4],['locker',4.7,-1.0,3,4],['locker',4.7,4.2,3,4],
+   ['trophy',-3.2,9.8,2],['trophy',3.2,9.8,2],['bench',-3.2,-1.8,0],['bench',3.2,-1.8,0],['plant',-4.4,10.0],['plant',4.4,10.0],['cool',4.5,9.2,3],
+   // Cafeteria & Commercial Kitchen (West Wing)
+   ['cafetable',-13.2,7.5,0,3.4],['cafetable',-8.5,7.5,0,3.4],['cafetable',-13.2,3.5,0,3.4],['cafetable',-8.5,3.5,0,3.4],['cafetable',-13.2,-.2,0,3.4],
+   ['servline',-8.5,-1.6,0,4.4],['till',-6.1,-1.6,0],['vend',-5.8,9.8,2],['vend',-7.0,9.8,2],['bin',-15.8,9.8,0],
+   ['island',-11.5,-6.5,0,3.0],['stove',-15.8,-9.8,0],['stove',-14.8,-9.8,0],['counter',-12.5,-9.8,0,3.2],['fridge',-9.8,-9.8,0],['fridge',-8.8,-9.8,0],['prack',-15.8,-6.2,1,3.6],['sink',-6.0,-8.5,3],
+   // Main Office & Principal's Suite (Back Center-West)
+   ['regdesk',-2.2,-4.8,0,3.6],['desk',-3.4,-8.6,0],['chair',-3.4,-7.6,0],['safe',-4.6,-9.9,0],['cab',-.6,-9.9,0],['cab',.2,-9.9,0],['sofa',-.6,-6.8,3],['plant',-4.5,-3.2],
+   // Nurse's Infirmary / Clinic (Back Center-East)
+   ['hbed',3.2,-8.8,0,1],['hbed',6.4,-8.8,0],['curtain',4.8,-8.8,1,2.4],['medcart',8.8,-9.2,0],['iv',2.1,-8.8],['mon',4.2,-9.8],['desk',8.6,-4.8,2],['sink',2.0,-3.2,2],['wchair',9.2,-6.8,3],
+   // Full-Size Gymnasium & Fitness Center (East Wing)
+   ['bballhoop',11.0,-2.1,0],['bballhoop',11.0,10.1,2],['bleachers',15.5,4.2,3,5.6],['bleachers',6.4,4.2,1,4.2],
+   ['weights',7.2,9.5,2],['treadm',14.8,9.5,2],['treadm',13.4,9.5,2],['hbag',6.2,-1.4,0],['dumb',15.8,-1.4,3]],
+
+  // ---- FLOOR 2: Math & English Classrooms, Chemistry/Biology Science Lab, History Seminar Room, School Library & Computer Lab ----
+  [['locker',-4.7,0,1,4],['locker',4.7,0,3,4],['bench',-3.2,2.6,0],['bench',3.2,2.6,0],['trophy',0,2.8,0],['cool',4.5,2.6,3],
+   // Room 201: Mathematics Classroom (Front-West)
+   ['chalkboard',-11.0,10.52,2,4.2],['desk',-14.2,8.8,2],['globe',-14.2,8.8],['bshelf',-16.2,7.2,1,2.2],
+   ['sdesk',-13.5,6.8,0],['sdesk',-11.0,6.8,0],['sdesk',-8.5,6.8,0],['sdesk',-13.5,5.1,0],['sdesk',-11.0,5.1,0],['sdesk',-8.5,5.1,0],
+   // Room 202: English & Literature Classroom (Mid-West)
+   ['chalkboard',-11.0,4.02,2,4.2],['desk',-14.2,2.4,2],['bshelf',-16.2,.5,1,2.8],
+   ['sdesk',-13.5,.6,0],['sdesk',-11.0,.6,0],['sdesk',-8.5,.6,0],['sdesk',-13.5,-1.1,0],['sdesk',-11.0,-1.1,0],['sdesk',-8.5,-1.1,0],
+   // Room 203: History & Civics Classroom (Front-Center)
+   ['chalkboard',0,10.52,2,3.8],['desk',-2.8,8.8,2],['globe',-2.8,8.8],
+   ['sdesk',-2.2,6.8,0],['sdesk',0,6.8,0],['sdesk',2.2,6.8,0],['sdesk',-2.2,5.0,0],['sdesk',0,5.0,0],['sdesk',2.2,5.0,0],
+   // Room 204: Chemistry, Biology & Physics Lab (Back-West)
+   ['chalkboard',-11.0,-2.68,0,4.0],['labbench',-12.8,-5.5,0,3.2],['labbench',-8.2,-5.5,0,3.2],['labbench',-12.8,-8.6,0,3.2],['labbench',-8.2,-8.6,0,3.2],
+   ['skeleton',-15.6,-4.2],['cab',-16.2,-6.2,1],['cab',-5.8,-6.2,3],['hdrum',-15.8,-10.0],
+   // Room 205: Computer Lab & Faculty Study (Back-Center)
+   ['desk',-3.2,-5.2,0],['desk',-.4,-5.2,0],['desk',2.4,-5.2,0],['desk',5.2,-5.2,0],
+   ['desk',-3.2,-8.6,0],['desk',-.4,-8.6,0],['desk',2.4,-8.6,0],['desk',5.2,-8.6,0],['wboard',1.0,-10.52,0],['vend',8.8,-9.8,0],
+   // Room 206: School Library & Media Center (East Wing)
+   ['shelf',8.2,9.8,2,3.6],['shelf',13.2,9.8,2,3.6],['shelf',16.2,6.5,3,3.4],['shelf',16.2,2.2,3,3.4],['shelf',8.2,-1.8,0,3.4],
+   ['dining',10.8,6.2,0,2.8],['dining',10.8,2.2,0,2.8],['recep',13.2,-1.2,0,2.8],['sofa',6.4,4.2,1],['plant',6.2,9.8]],
+
+  // ---- FLOOR 3: Music & Band Rehearsal Hall, Industrial Wood & Metal Shop Class, Art Studio, Student Lounge & Restrooms ----
+  [['locker',-4.7,0,1,4],['locker',4.7,0,3,4],['trophy',-2.4,-1.8,0],['trophy',2.4,-1.8,0],
+   // Room 301: Band, Choir & Music Hall (West Wing)
+   ['piano',-14.2,6.8,1],['drumkit',-14.2,3.8,1],['ampstack',-15.8,8.8,1],['ampstack',-15.8,1.8,1],['djbooth',-11.8,5.4,1],
+   ['chair',-8.8,7.5,3],['chair',-8.8,5.8,3],['chair',-8.8,4.1,3],['chair',-7.2,7.5,3],['chair',-7.2,5.8,3],['chair',-7.2,4.1,3],['jukebox',-6.2,9.8,2],
+   // Room 302: Industrial Wood & Metal Shop Class (Back-West)
+   ['wbench',-13.5,-9.8,0,3.6],['wbench',-8.8,-9.8,0,3.4],['toolchest',-16.1,-6.8,1,2.2],['toolchest',-16.1,-4.2,1,2.0],
+   ['welder',-6.2,-8.6,3],['comp',-6.2,-4.5,3],['oilrack',-11.2,-3.2,2,2.4],['prack',-11.2,-6.4,0,3.8],['ext',-5.6,-3.2,3],
+   // Room 303: Student Recreation Lounge & Arcade (Front-Center)
+   ['pool',0,7.2,0],['sofa',-3.8,6.8,1],['sofa',3.8,6.8,3],['arcade',-3.8,9.8,2],['arcade',-2.6,9.8,2],['vend',3.8,9.8,2],['tv',0,9.9,2],
+   // Room 304: Fine Arts & Drama Studio (East Wing)
+   ['table',10.8,1.2,0,2.8,1.1],['shelf',16.1,8.2,3,3.2],['shelf',16.1,3.8,3,3.2],['chandelier',10.8,5.5],['sofa',6.4,8.6,2],['plant',15.8,10.0],
+   // Room 305: Student Restrooms & Detention Study Hall (Back-Center)
+   ['wc',-4.2,-9.8,0],['wc',-2.8,-9.8,0],['wc',-1.4,-9.8,0],['sink',-4.2,-3.2,2],['sink',-2.6,-3.2,2],
+   ['sdesk',2.2,-5.5,0],['sdesk',5.2,-5.5,0],['sdesk',2.2,-8.2,0],['sdesk',5.2,-8.2,0],['chalkboard',4.2,-10.52,0,3.2],['desk',8.2,-6.8,3]]]
+});
+SCHOOL.name='Blackpine High School';SCHOOL.mast=5.4;
+{const ssn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;SCHOOL.grp.add(m);return m};
+ const s0=ssn([['🎓 BLACKPINE HIGH SCHOOL 🎓',34,34],['HOME OF THE TIMBERWOLVES · EST. 1964 · DISTRICT 7',19,74]],'#14284b','#ffd24c',512,100,5.4,.78,0,5.55,11.08,0);s0.name='sign';
+ const s1=ssn([['BLACKPINE HIGH · PLOT 14 CAMPUS',34,32],['GYM · CAFETERIA · SCIENCE LAB · LIBRARY · BAND · SHOP',19,66],['EMERGENCY SHELTER & SURVIVOR SUPPLY HUB INSIDE',19,98]],'#0f1e36','#ffffff',512,125,3.8,1.15,7.2,1.75,16.14,0);s1.name='sign';
+ ssn([['SCHOOL ZONE',40,38],['SPEED LIMIT 15 · WATCH FOR BUSES',20,76]],'#e0b000','#16161a',512,100,2.4,.52,-14.8,2.1,16.5,0);
+ ssn([['TIMBERWOLVES GYMNASIUM',36,36],['HOME 68  ·  PERIOD 4  ·  GUEST 64',22,74]],'#14284b','#ffd24c',512,100,3.2,.62,11.0,3.15,-2.36,0);
+ ssn([['CAFETERIA & HOT LUNCH LINE',34,34],['TODAY: HOT TRAY LUNCH (+40 HP) — PRESS F',20,74]],'#7a1f1f','#fff8d6',512,100,3.2,.58,-8.5,2.85,-2.36,0);
+ ssn([['NURSE\'S INFIRMARY · RM 104',34,34],['FREE FIRST-AID (+60 HP) & MEDKITS — PRESS F',20,74]],'#1d5e3a','#ffffff',512,100,2.8,.54,4.8,2.85,-2.62,Math.PI);
+ ssn([['PERIODIC TABLE OF ELEMENTS · RM 204 SCIENCE LAB',22,26],['H   He  Li  Be  B   C   N   O   F   Ne  Na  Mg  Al  Si  P   S   Cl  Ar',15,62],['K   Ca  Sc  Ti  V   Cr  Mn  Fe  Co  Ni  Cu  Zn  Ga  Ge  As  Se  Br  Kr',15,92],['PRESS F AT LAB BENCH TO SYNTHESIZE AMMO & MEDKITS',18,132]],'#10241e','#7dffa0',512,160,3.4,.95,-11.0,6.15,-10.58,0);
+ ssn([['INDUSTRIAL SHOP CLASS · RM 302',32,34],['PRESS F AT WORKBENCH FOR +30W +20S +15M SUPPLIES',19,74]],'#d9a516','#16161a',512,100,3.4,.62,-11.0,10.85,-10.58,0);
+ ssn([['BAND & CHOIR HALL · RM 301',34,34],['PRESS F AT PA CONSOLE FOR SCHOOL BELL & JUKEBOX',19,74]],'#3a184b','#ff6ad5',512,100,3.4,.62,-11.0,10.85,-2.36,0)}
+MODELS.push(SCHOOL);
+
 
 // ===== v0.21.3 FORT GATE CODE HUNT — scraps of paper hidden in four buildings (read with F; see the Fort Harvest runtime block) =====
 {const paper=(grp,x,y,z,ry,w,h,flat,bg)=>{const cw=192,ch=Math.max(64,Math.round(192*h/w)),c=document.createElement('canvas');c.width=cw;c.height=ch;const g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,cw,ch);g.strokeStyle='rgba(60,40,20,.6)';g.lineWidth=2;for(let k=0;k<5;k++){g.beginPath();g.moveTo(14,22+k*(ch-36)/4);g.lineTo(cw-14-(k%2)*34,24+k*(ch-36)/4);g.stroke()}g.fillStyle='rgba(120,30,20,.55)';g.beginPath();g.arc(cw-30,ch-24,9,0,6.283);g.fill();
@@ -50568,7 +50770,7 @@ MODELS[0].name='Riverside Apartments';MODELS[1].name='Corner Store';MODELS[2].na
 const PLOT_OF={
  'Riverside Apartments':1,'Corner Store':2,'Police Station':3,'St. Mercy Hospital':4,'Fire Station 7':5,'Riverside Power Station':6,
  '42 Maple Crest (Family House)':7,'Northgate Offices':8,'14 Hawthorne Manor (Victorian Estate)':9,'North Depot Warehouse':10,'88 Birch Lane (Prepper Ranch)':11,'The Rusty Anchor (Bar & Music Hall)':12,
- 'Redline Auto & Speed Shop (Garage)':16,'Fort Harvest Military Outpost':22
+ 'Redline Auto & Speed Shop (Garage)':16,'Fort Harvest Military Outpost':22,'Blackpine High School':14
 };
 // Plots 1-6: south side of Main St (z -630) · 7-12: north side of Main St · 13-18: north side of the next street up (z -700) · 19-24: north side of z -770.
 // (Power poles run along Main St, so plots 1-12 get the short service drops; buildings moved to 13-24 work too but with long drop wires.)
@@ -52286,6 +52488,55 @@ mkV('car',10,18,0);mkV('motorbike',BIKE.x,BIKE.z,BIKE.h);
   act:()=>{for(const v of VEH)if(Math.hypot(v.x-garI.x,v.z-garI.z)<30)v.fb=v.fmax;
    blip(420,.12,'triangle');toast('⛽ Tank topped off with 110-Octane Racing Fuel!',2.5)}});
 }}
+{const schI=insts.find(q=>q.m===SCHOOL);if(schI){
+ const s=schI.s,wx=lx=>schI.x+lx*s,wz=lz=>schI.z+lz*s;
+ // Open the main double glass school entrance doors by default so players can walk right in!
+ const sd0=bdoors.find(d=>d.I===schI&&!d.idoor);if(sd0&&!sd0.open)toggleBDoor(sd0);
+ // Spawn a driveable Yellow School Bus ("District 7 School Bus #16") in the front bus drop-off lane + a rideable student motorbike by the bike rack!
+ const bus=mkV('car',wx(-9.2),wz(16.2),s>0?Math.PI/2:-Math.PI/2);
+ bus.S=Object.assign({},bus.S,{n:'District 7 School Bus #16',hp:1600,top:21,acc:7.2,cam3:9.5,cam3h:2.2});bus.hp=1600;bus.fmax=24;bus.fb=24;
+ // Attach a custom Yellow School Bus upper coachwork shell onto bus.tilt so it looks unmistakably like a classic yellow school bus!
+ {const bg=new T.Group(),mY=new T.MeshStandardMaterial({color:0xe8a818,roughness:.45,metalness:.25}),mK=new T.MeshStandardMaterial({color:0x181a1e,roughness:.6}),mG=new T.MeshStandardMaterial({color:0x223240,roughness:.2,metalness:.5,transparent:true,opacity:.55}),mR=new T.MeshBasicMaterial({color:0xff2818}),mA=new T.MeshBasicMaterial({color:0xffb818});
+  const bxB=(w,h,d,m,x,y,z)=>{const q=new T.Mesh(new T.BoxGeometry(w,h,d),m);q.position.set(x,y,z);q.castShadow=true;bg.add(q)};
+  bxB(2.12,1.38,3.65,mY,0,1.62,.28);bxB(2.04,.16,3.72,mY,0,2.36,.26);
+  bxB(2.16,.09,3.68,mK,0,1.18,.28);bxB(2.16,.07,3.68,mK,0,1.52,.28);
+  for(let z=-1.1;z<=1.65;z+=.68)for(const sx of[-1.07,1.07])bxB(.04,.48,.52,mG,sx,1.86,z);
+  bxB(1.88,.55,.05,mG,0,1.86,-1.56);bxB(1.88,.55,.05,mG,0,1.86,2.12);
+  for(const sx of[-.72,.72]){bxB(.22,.16,.06,mR,sx,2.32,-1.58);bxB(.22,.16,.06,mR,sx,2.32,2.14);bxB(.18,.14,.06,mA,sx*.65,2.32,-1.58)}
+  bxB(.04,.38,.38,mR,-1.12,1.55,-.85); // Stop sign paddle on left side
+  bus.tilt.add(bg)}
+ const sbike=mkV('motorbike',wx(14.4),wz(15.6),s>0?0:Math.PI);
+ sbike.S=Object.assign({},sbike.S,{n:'Varsity Dirtbike',top:28,acc:9.2});
+ // Interactive School Stations across Floors 1, 2 & 3:
+ // 1. Floor 1 Nurse's Infirmary First-Aid & Medkit Station
+ nodes.push({x:wx(5.2),z:wz(-7.8),t:'ctl',amt:1,max:1,g:null,rad:3.4,
+  pr:()=>'F: Nurse\'s Infirmary First-Aid Station — Full Heal (+100 HP) + Take 2 Medkits',
+  act:()=>{pHP=100;inv.medkit=Math.min(5,inv.medkit+2);blip(520,.1,'triangle');blip(680,.14,'sine');toast('🏥 School Nurse Infirmary: Restored to 100 HP & received +2 Medkits!',3.2)}});
+ // 2. Floor 1 Cafeteria Hot Lunch Serving Line
+ nodes.push({x:wx(-8.5),z:wz(-0.4),t:'ctl',amt:1,max:1,g:null,rad:3.4,
+  pr:()=>'F: Grab a Hot Cafeteria Tray Lunch & Chocolate Milk (+45 HP)',
+  act:()=>{pHP=Math.min(100,pHP+45);blip(440,.09,'triangle');toast('🍔 Ate a hot Blackpine High cafeteria lunch (+45 HP)!',2.8)}});
+ // 3. Floor 1 Principal's PA & Emergency Lockdown Console
+ nodes.push({x:wx(-2.2),z:wz(-4.2),t:'ctl',amt:1,max:1,g:null,rad:3.0,
+  pr:()=>'F: Principal\'s PA & Emergency Grid Console — Ring School Bell & Toggle Campus Power',
+  act:()=>{blip(660,.18,'square');setTimeout(()=>blip(550,.25,'square'),200);if(typeof setGrid==='function'&&!POWER.on)setGrid(true);toast('🔔 RING! All-Campus PA Broadcast & Emergency Power Activated!',3.5)}});
+ // 4. Floor 1 Gymnasium Scoreboard & Buzzer Console
+ nodes.push({x:wx(11.0),z:wz(4.1),t:'ctl',amt:1,max:1,g:null,rad:3.6,
+  pr:()=>'F: Sound Gymnasium Game Buzzer & Shoot a Half-Court 3-Pointer!',
+  act:()=>{blip(140,.45,'sawtooth');toast('🏀 SWISH! Buzzer-beater 3-pointer for the Blackpine Timberwolves!',3.0)}});
+ // 5. Floor 2 Chemistry & Science Lab Synthesis Bench (works on Floor 2!)
+ nodes.push({x:wx(-10.5),z:wz(-5.5),t:'ctl',amt:1,max:1,g:null,rad:3.8,
+  pr:()=>'F: Science Lab Synthesis Bench — Craft Full Ammo Refill + 1 Medkit',
+  act:()=>{for(const w of WP){w.mag=w.g.mag;w.res=Math.max(w.res,w.g.mag*5)}inv.medkit=Math.min(5,inv.medkit+1);blip(480,.1,'triangle');blip(720,.15,'sine');toast('🧪 Chemistry Lab: Synthesized full ammo magazines & +1 Medkit!',3.2)}});
+ // 6. Floor 3 Industrial Shop Class Resource & Salvage Bench + Band Room Jukebox
+ nodes.push({x:wx(-11.0),z:wz(-8.2),t:'ctl',amt:1,max:1,g:null,rad:4.0,
+  pr:()=>'F: Shop Class Supply Rack — Collect +30 Wood, +20 Stone, +15 Metal (auto-stashes overflow)',
+  act:()=>{const add=(k,q)=>{const rm=Math.max(0,CAP-(carry.w+carry.s+carry.m)),b=Math.min(q,rm);carry[k]+=b;stored[k]+=(q-b)};add('w',30);add('s',20);add('m',15);blip(360,.1,'square');toast('🛠️ Shop Class: Collected +30 Wood, +20 Stone & +15 Metal!',3.2)}});
+ nodes.push({x:wx(-11.8),z:wz(5.4),t:'ctl',amt:1,max:1,g:null,rad:3.6,
+  pr:()=>'F: Open Band Hall PA Mixer & 6-Track Jukebox (or press J anytime)',
+  act:()=>MUSIC.openJukebox()});
+}}
+
 car.visible=false;
 // ---- weapons: Blackpine stats + models + recoil/slide/mag animation
 const GST=[['pistol','Pistol',{dmg:22,rate:.35,mag:10,auto:0,spread:.012,pellets:1,range:70,reload:1.1,kick:.02},60],['revolver','Revolver',{dmg:45,rate:.55,mag:6,auto:0,spread:.01,pellets:1,range:80,reload:2,kick:.05},36],['shotgun','Shotgun',{dmg:9,rate:.85,mag:5,auto:0,spread:.07,pellets:7,range:30,reload:2.2,kick:.05},25],['pump','Pump Shotgun',{dmg:11,rate:.95,mag:6,auto:0,spread:.065,pellets:8,range:34,reload:2.4,kick:.05},30],['smg','SMG',{dmg:13,rate:.09,mag:30,auto:1,spread:.035,pellets:1,range:55,reload:1.6,kick:.012},150],['thompson','Thompson',{dmg:16,rate:.12,mag:20,auto:1,spread:.03,pellets:1,range:60,reload:1.7,kick:.014},100],['ak','Assault Rifle',{dmg:26,rate:.11,mag:30,auto:1,spread:.03,pellets:1,range:100,reload:2,kick:.02},120],['sar','Semi-Auto Rifle',{dmg:30,rate:.18,mag:16,auto:0,spread:.015,pellets:1,range:110,reload:1.8,kick:.03},64],['rifle','Rifle',{dmg:40,rate:.6,mag:8,auto:0,spread:.004,pellets:1,range:140,reload:1.9,kick:.04},40]];
@@ -53214,10 +53465,12 @@ const MUSIC=(()=>{
  const hbar=document.createElement('div');
  hbar.id='hbar';
  hbar.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 10px);display:flex;flex-wrap:wrap;justify-content:center;gap:6px;z-index:35;background:rgba(10,12,14,.78);padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.25)';
- const goH=(I,dy,insideBar)=>{if(!foot)exitV();const D=I.m.door;if(insideBar==='bay1'){pl.set(I.x-7.5*I.s,0,I.z+4.2*I.s);yaw=I.s>0?Math.PI/2:-Math.PI/2;pit=-.05;toast('Inside Plot 16 Garage Bay 1 — press E to drive the Redline Custom V8!',3.5);return}if(insideBar){pl.set(I.x+1.5*I.s,0,I.z+5.8*I.s);yaw=I.s>0?Math.PI:0;pit=-.02}else{pl.set(I.x,dy||0,I.z+(D.po+5.2)*I.s);yaw=I.s>0?0:Math.PI;pit=-.04}toast('Teleported to '+I.m.name,3)};
+ const goH=(I,dy,insideBar)=>{if(!foot)exitV();const D=I.m.door;if(insideBar==='bus'){pl.set(I.x-9.2*I.s,0,I.z+13.2*I.s);yaw=I.s>0?Math.PI:0;pit=-.04;toast('🚌 Beside District 7 School Bus #16 on Plot 14 — press E to drive the School Bus, or walk into Blackpine High School!',3.8);return}if(insideBar==='bay1'){pl.set(I.x-7.5*I.s,0,I.z+4.2*I.s);yaw=I.s>0?Math.PI/2:-Math.PI/2;pit=-.05;toast('Inside Plot 16 Garage Bay 1 — press E to drive the Redline Custom V8!',3.5);return}if(insideBar){pl.set(I.x+1.5*I.s,0,I.z+5.8*I.s);yaw=I.s>0?Math.PI:0;pit=-.02}else{pl.set(I.x,dy||0,I.z+(D.po+5.2)*I.s);yaw=I.s>0?0:Math.PI;pit=-.04}toast('Teleported to '+I.m.name,3)};
  [
   ['🏁 Plot 16 Garage',12,false,'rgba(175,45,35,.85)'],
   ['🎖️ Plot 22 Fort Harvest',13,false,'rgba(70,85,50,.88)'],
+  ['🏫 Plot 14 School',14,false,'rgba(25,75,145,.9)'],
+  ['🚌 School Bus #16',14,'bus','rgba(215,155,15,.9)'],
   ['🚗 Garage Drive-In Car',12,'bay1','rgba(200,95,20,.85)'],
   ['🍺 The Rusty Anchor Bar',11,false,'rgba(145,35,85,.78)'],
   ['🎸 Inside Bar Stage',11,true,'rgba(110,40,145,.78)'],
@@ -53446,6 +53699,7 @@ function drawCompass(P){const g=cg,W=840,H=84,span=170,ppd=W/span;cam.getWorldDi
  for(let a=a0;a<=a1;a+=5){const x=W/2+(a-hd)*ppd,n=((a%360)+360)%360,big=n%45===0,mid=n%15===0;g.fillStyle=n===0?'#ff6050':'rgba(232,228,216,'+(big?.95:mid?.7:.4)+')';g.fillRect(x-1,big?54:mid?58:62,2,big?14:mid?10:6);if(big){g.font='bold 20px system-ui';g.fillText(CN[n/45],x,H-1)}}
  g.fillStyle='#e0a030';g.beginPath();g.moveTo(W/2-8,44);g.lineTo(W/2+8,44);g.lineTo(W/2,54);g.fill();
  const L=[['🏠',TCX(),TCZ()],['⛏',QX,QZ],['🪵',SMX,SMZ],['✝',GX,GZ]];if(plantI)L.push(['⚡',plantI.x,plantI.z]);if(barI2)L.push(['🍺',barI2.x,barI2.z]);const garI2=insts.find(q=>q.m===GARAGE);if(garI2)L.push(['🔧',garI2.x,garI2.z]);
+ const schI2=insts.find(q=>q.m===SCHOOL);if(schI2)L.push(['🏫',schI2.x,schI2.z]);
  for(const p of L){const dx=p[1]-P.x,dz=p[2]-P.z,d=Math.hypot(dx,dz),b=Math.atan2(dx,-dz)*180/Math.PI,off=((b-hd+540)%360)-180;if(Math.abs(off)>span/2-5)continue;const x=W/2+off*ppd;
   g.font='26px system-ui';g.fillStyle='#fff';g.fillText(p[0],x,27);g.font='bold 14px system-ui';g.fillStyle='rgba(232,228,216,.9)';g.fillText(d<1000?Math.round(d)+'m':(d/1000).toFixed(1)+'k',x,43)}}
 // ---- crosshair + hints
