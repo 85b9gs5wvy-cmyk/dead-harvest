@@ -6,7 +6,7 @@
 
 A single-file 3D survival game that runs in your browser. Click **PLAY** above to launch it, no install needed.
 
-**Current version:** v0.22.1
+**Current version:** v0.22.2
 
 ## Controls (PC)
 - Click the game to lock the mouse, then move with WASD and look with the mouse.

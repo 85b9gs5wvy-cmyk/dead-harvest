@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -51210,6 +51210,19 @@ for(const x of[7,22]){qb(mYel,x,4.5,-27.2,.5,9,.5);qb(mYel,x,4.5,-30.8,.5,9,.5);
 qb(mYel,14.5,9.6,-29,16,.8,.8);qb(mStD,14.5,9.2,-29,15.4,.2,.3);{const tr=new T.Group();tr.position.set(12,8.8,-29);q_Q.add(tr);bx(1.4,.5,1,mStD,0,.3,0,tr);q_cyl(tr,mSt,.03,.03,5,0,-2.3,0,0,0,6);bx(.5,.6,.5,mStD,0,-4.9,0,tr);q_beacon(tr,0,.62,0)}
 qb(mCd,14.5,.1,-33.5,17,.2,2);
 // ---- flush merged geometry, dust emitters, animation tick, admin hooks
+// ---- v0.22.2: PERIMETER FENCE round the whole quarry compound + lift gate (F at the gate post, from either side)
+{const FX0=-128,FX1=38,FZ=58,W=[['DANGER',44,70],['KEEP OUT',32,130]];
+ qFence(FX0,-FZ,FX1,-FZ);qFence(FX0,FZ,FX1,FZ);qFence(FX0,-FZ,FX0,FZ);qFence(FX1,-FZ,FX1,-20);qFence(FX1,20,FX1,FZ);
+ qwall((FX0+FX1)/2,-FZ,(FX1-FX0)/2,.25);qwall((FX0+FX1)/2,FZ,(FX1-FX0)/2,.25);qwall(FX0,0,.25,FZ);qwall(FX1,-39,.25,19);qwall(FX1,39,.25,19);
+ for(const x of[-110,-75,-40,-5,25]){q_postSign(x,-FZ-.3,Math.PI,W,'#b3201a','#f2f4f8');q_postSign(x,FZ+.3,0,W,'#b3201a','#f2f4f8')}
+ for(const z of[-35,0,35])q_postSign(FX0-.3,z,-Math.PI/2,W,'#b3201a','#f2f4f8');
+ q_postSign(40,-24,Math.PI/2,[['AUTHORISED',34,70],['PERSONNEL',34,130]],'#e0b000','#16161a');q_postSign(40,24,Math.PI/2,[['HIGH VOLTAGE',30,70],['NO ENTRY',34,130]],'#b3201a','#f2f4f8');
+ const gt=new T.Group();gt.position.set(38,0,0);q_Q.add(gt);const ft=fenceT.clone();ft.needsUpdate=true;ft.repeat.set(11.2/1.5,1.6);
+ const lf=new T.Mesh(new T.PlaneGeometry(11.2,2.4),new T.MeshStandardMaterial({map:ft,transparent:true,alphaTest:.25,side:T.DoubleSide,roughness:.6,metalness:.4}));lf.rotation.y=-Math.PI/2;lf.position.y=1.3;gt.add(lf);
+ for(const y of[.1,2.5])bx(.1,.1,11.2,mSt,0,y,0,gt);for(const z of[-5.5,0,5.5])bx(.1,2.6,.1,mSt,0,1.3,z,gt);bx(.14,.5,2.6,mHaz,0,1.3,0,gt);
+ const G=window.QG={t:0,v:0,g:gt,box:{x:QX+38,z:QZ,hw:.25,hd:5.6}};boxes.push(G.box);
+ G.set=o=>{if(!o&&Math.abs(pl.x-G.box.x)<1.6&&Math.abs(pl.z-QZ)<6){toast('Something is in the gateway',2);return false}G.t=o?1:0;const i=boxes.indexOf(G.box);if(o&&i>=0)boxes.splice(i,1);if(!o&&i<0)boxes.push(G.box);blip(o?240:160,.2,'square');toast('Quarry gate '+(o?'OPEN':'CLOSED'),2);return true};
+ nodes.push({x:QX+38,z:QZ-3.4,t:'ctl',amt:1,max:1,g:null,rad:3.4,pr:()=>'F: '+(G.t?'close':'open')+' the quarry gate',act:()=>G.set(!G.t)})}
 qflush();
 const q_dustT=tex(32,32,(g,w,h)=>{const r=g.createRadialGradient(16,16,0,16,16,16);r.addColorStop(0,'rgba(190,175,150,.9)');r.addColorStop(1,'rgba(190,175,150,0)');g.fillStyle=r;g.fillRect(0,0,w,h)}),q_dusts=[];
 function q_mkDust(x,y,z,n,sp,hh){const P=new Float32Array(n*3),V=[];for(let i=0;i<n;i++){P[i*3]=R(-sp,sp);P[i*3+1]=R(0,hh);P[i*3+2]=R(-sp,sp);V.push([R(-.2,.2),R(.5,1.2),R(-.2,.2)])}const G=new T.BufferGeometry();G.setAttribute('position',new T.BufferAttribute(P,3));const p=new T.Points(G,new T.PointsMaterial({map:q_dustT,size:3,transparent:true,opacity:.35,depthWrite:false}));p.position.set(x,y,z);p.frustumCulled=false;q_Q.add(p);q_dusts.push({p,P,V,n,sp,hh})}
@@ -51471,15 +51484,56 @@ const mkCtl=(m,x,z)=>{const g=new T.Group();g.position.set(x,0,z);scene.add(g);b
  bk(g,mDark,-2,.45,-.1,1.3,.9,.7);bk(g,mYel,-2,.93,-.1,1.4,.06,.8);bk(g,mG,-1.6,1.05,-.1,.3,.2,.2);plate(g,'UPGRADES','',-2,1.6,.05,1,.34);wall(ux,z-.1,.75,.5);
  nodes.push({x:ux,z:z+.8,t:'up',amt:1,max:1,g:null,pr:()=>m.lv>=2?'Fully upgraded (Lv3)':'F: upgrade to Lv'+(m.lv+2)+' — '+ctxt(UC[m.k][m.lv])+' (faster · more yield · bigger bay · less wear)',act:()=>{if(m.lv>=2){toast('Already max level',2);return}const c=UC[m.k][m.lv];if(!canPay(c)){toast('Need '+ctxt(c),2.5);return}pay(c);m.lv++;toast(m.n+' upgraded to Lv'+(m.lv+1),3);blip(520,.15,'triangle');m.draw();m.upd()}})};
 const mkOut=(m,x,z)=>{nodes.push({x,z,t:'out',amt:1,max:1,g:null,pr:()=>{const s=[];for(const q in m.out)if(m.out[q]>=1)s.push(Math.floor(m.out[q])+' '+rN[q]);return 'F: collect '+(s.join(' + ')||'(empty — start the '+m.n.toLowerCase()+')')},act:tot=>{let f=CAP-tot;if(f<=0){toast('Bag full — take it to the stash',2.5);return}const got=[];for(const q in m.out){const a=Math.min(Math.floor(m.out[q]),f);if(a>0){m.out[q]-=a;carry[q]+=a;f-=a;got.push('+'+a+' '+rN[q])}}if(got.length){toast(got.join(' '),2);blip(420,.08,'triangle');m.upd();m.draw()}else toast('Nothing ready — start the '+m.n.toLowerCase(),2.5)}})};
+
+function QYOPS(){
+ window.QMODE=[{n:'ECO',y:.7,w:.6,nz:.6},{n:'STANDARD',y:1,w:1,nz:1},{n:'OVERDRIVE',y:1.5,w:1.8,nz:1.4}];window.QYP=()=>!!(window.QYS&&window.QYS.live);
+ const m=q0,OX=QX+28,OZ=QZ+30,g=new T.Group();g.position.set(OX,0,OZ);scene.add(g);m.mode=1;m.tot={s:0,m:0};m.noise=110;
+ bk(g,gM(0x3f5b3d,.8),0,1.3,0,6,2.6,2.4);bk(g,gM(0x2b2f33,.6,.5),0,2.7,0,6.3,.2,2.7);bk(g,mDark,0,.1,-2,5,.2,1.4);bk(g,mYel,0,.55,-2.7,1,1.1,.6);bk(g,mDark,0,1.2,-2.65,.9,.12,.55).rotation.x=.5;
+ wall(OX,OZ,3.1,1.3);wall(OX,OZ-2.7,.55,.4);
+ m.lamp=new T.MeshBasicMaterial({color:0xff3020});const L=new T.Mesh(new T.SphereGeometry(.14,10,8),m.lamp);L.position.set(-2.4,2.2,-1.3);g.add(L);
+ const c=document.createElement('canvas');c.width=320;c.height=200;m.cx=c.getContext('2d');m.tx=new T.CanvasTexture(c);m.tx.encoding=T.sRGBEncoding;
+ const sc=new T.Mesh(new T.PlaneGeometry(3.4,2.1),new T.MeshBasicMaterial({map:m.tx}));sc.position.set(0,1.45,-1.22);sc.rotation.y=Math.PI;g.add(sc);
+ m.draw=()=>{const q=m.cx,P=QYP();q.fillStyle='#07140c';q.fillRect(0,0,320,200);q.font='bold 16px monospace';q.fillStyle='#7dffa0';q.fillText('RIDGELINE QUARRY  Lv'+(m.lv+1),8,20);
+  q.fillStyle=P?'#7dffa0':'#ff5040';q.fillText(P?'POWER OK':'NO POWER',8,42);q.fillStyle=m.jam?'#ff5040':m.on?'#7dffa0':'#ffd060';q.fillText(m.jam?'JAMMED':m.on?(m.run>.85?'RUNNING '+QMODE[m.mode].n:'SPINNING UP'):'IDLE',8,64);
+  bar(q,92,'WEAR',m.wear/100,m.wear>75?'#ff4030':'#40c0ff');q.fillStyle='#7dffa0';q.fillText('BAY S'+Math.floor(m.out.s)+' M'+Math.floor(m.out.m)+' /'+cap(m),8,120);q.fillText('TOTAL S'+m.tot.s+' M'+m.tot.m,8,144);q.fillText('F at kiosk: operations',8,180);m.tx.needsUpdate=true};
+ const BS='display:block;width:100%;margin-top:6px;padding:10px;text-align:left;border-radius:8px;border:1px solid rgba(255,255,255,.3);color:#e8e4d8;font-size:14px;',P=document.createElement('div');
+ P.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);max-height:88vh;overflow:auto;background:rgba(14,20,16,.96);color:#e8e4d8;border:2px solid #e0b000;border-radius:12px;padding:12px;z-index:60;display:none;font:14px system-ui,sans-serif';document.body.appendChild(P);
+ const G=()=>window.QG,btn=(a,l,en,bg)=>'<button data-a="'+a+'" '+(en?'':'disabled ')+'style="'+BS+'background:'+(bg||'rgba(60,110,50,.55)')+';opacity:'+(en?1:.45)+'">'+l+'</button>',
+ render=()=>{const pw=QYP(),full=m.out.s>=cap(m),up=m.lv<2?UC.qy[m.lv]:null,why=!POWER.on?'the grid is down — energise it first':!window.QYS.brk?'the quarry main breaker is OPEN — close it at the meter box by the entrance road':'waiting for power to reach the quarry…',qm=QMODE[m.mode];
+  P.innerHTML='<div style="font-weight:700;font-size:16px">RIDGELINE QUARRY · OPERATIONS<span data-a="x" style="float:right;cursor:pointer;padding:0 6px">✕</span></div>'
+  +'<div style="margin-top:6px;color:'+(pw?'#7dffa0':'#ff6a50')+'">'+(pw?'⚡ Power OK · drawing '+Math.round((30+m.lv*10)*qm.y*(m.on?1:0))+' kW':'✖ NO POWER — '+why)+'</div>'
+  +'<div style="margin-top:4px">State: <b>'+(m.jam?'JAMMED':m.on?(m.run>.85?'RUNNING':'SPINNING UP'):'IDLE')+'</b> · Level '+(m.lv+1)+' · Wear '+Math.round(m.wear)+'%</div>'
+  +'<div style="margin-top:4px">Bay: '+Math.floor(m.out.s)+' stone · '+Math.floor(m.out.m)+' metal (cap '+cap(m)+') · Lifetime: '+m.tot.s+' stone, '+m.tot.m+' metal</div>'
+  +'<div style="display:flex;gap:6px;margin-top:8px">'+QMODE.map((o,i)=>'<button data-a="m'+i+'" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.3);color:#e8e4d8;background:'+(i===m.mode?'rgba(180,120,40,.8)':'transparent')+'">'+o.n+'</button>').join('')+'</div>'
+  +'<div style="opacity:.7;font-size:12px;margin-top:2px">'+qm.n+': yield ×'+qm.y+' · wear ×'+qm.w+' · noise ×'+qm.nz+'</div>'
+  +btn('go',m.jam?'⚠ JAMMED — repair first':m.on?'■ Shut the quarry down':'▶ Start the quarry',m.on||(pw&&!m.jam&&!full),m.on?'rgba(150,50,40,.6)':'')
+  +btn('col','🎒 Collect everything from the bay to my bag',m.out.s>=1||m.out.m>=1)+btn('ship','🏠 Ship the bay to the farm stash (10% lost on the road)',m.out.s>=1||m.out.m>=1)
+  +btn('svc','🔧 Service & lube (3 metal) — wear back to 0%',m.wear>=20&&!m.jam&&canPay({m:3}))+(m.jam?btn('rep','🛠 Repair the jam (5 metal)',canPay({m:5})):'')
+  +btn('up',up?'⬆ Upgrade to Lv'+(m.lv+2)+' — '+ctxt(up)+' (faster · more yield · bigger bay · less wear)':'Fully upgraded (Lv3)',!!up&&canPay(up||{}))
+  +btn('gate',(G().t?'🔒 Close':'🔓 Open')+' the perimeter gate',true,'rgba(70,80,110,.6)')},
+ act=a=>{const pw=QYP();if(a==='x')return QYPANEL(false);
+  if(a==='go'){if(m.on)m.on=0;else if(pw&&!m.jam&&m.out.s<cap(m))m.on=1;blip(m.on?180:140,.25,'sawtooth');toast('Quarry '+(m.on?'starting — it will be loud':'shut down'),2.5)}
+  else if(a[0]==='m'&&a.length===2){m.mode=+a[1];m.noise=110*QMODE[m.mode].nz;blip(380,.08,'triangle')}
+  else if(a==='col'){let f=CAP-(carry.w+carry.s+carry.m);const got=[];for(const q of['s','m']){const n=Math.min(Math.floor(m.out[q]),f);if(n>0){m.out[q]-=n;carry[q]+=n;f-=n;got.push('+'+n+' '+rN[q])}}toast(got.length?got.join(' '):'Bag full — ship it to the stash instead',2.5);m.upd()}
+  else if(a==='ship'){const got=[];for(const q of['s','m']){const n=Math.floor(m.out[q]);if(n>0){m.out[q]-=n;const k=Math.floor(n*.9);stored[q]+=k;got.push('+'+k+' '+rN[q])}}toast('Hauled to the stash: '+got.join(' '),3);blip(300,.1,'triangle');m.upd()}
+  else if(a==='svc'){pay({m:3});m.wear=0;toast('Serviced — wear reset',2);blip(520,.1,'triangle')}
+  else if(a==='rep'){pay({m:5});m.jam=0;m.wear=15;toast('Jam cleared',2);blip(300,.1,'square')}
+  else if(a==='up'&&m.lv<2){const u=UC.qy[m.lv];if(canPay(u)){pay(u);m.lv++;toast('Quarry upgraded to Lv'+(m.lv+1),3);blip(520,.15,'triangle');m.upd()}}
+  else if(a==='gate')G().set(!G().t);m.draw()};
+ P.onclick=e=>{const a=e.target.closest('[data-a]');if(!a||a.disabled)return;act(a.dataset.a);if(P.style.display==='block')render()};for(const ev of['pointerdown','touchstart','mousedown'])P.addEventListener(ev,e=>e.stopPropagation());
+ window.QYPANEL=o=>{P.style.display=o?'block':'none';if(o){render();if(document.exitPointerLock)document.exitPointerLock()}};
+ nodes.push({x:OX,z:OZ-3.5,t:'ctl',amt:1,max:1,g:null,rad:3.2,pr:()=>'F: quarry operations console'+(QYP()?(m.on?' · running':''):' · ⚡ NO POWER'),act:()=>QYPANEL(true)});
+ let qt=0,qd=0;window.QYT=dt=>{const G0=window.QG;if(G0){G0.v+=(G0.t-G0.v)*Math.min(1,dt*1.6);G0.g.position.y=G0.v*2.8}
+  qt-=dt;if(qt<=0){qt=.4;if(P.style.display==='block'){if(!foot||Math.hypot(pl.x-OX,pl.z-OZ)>12)QYPANEL(false);else render()}if(Math.hypot(pl.x-OX,pl.z-OZ)<45)m.draw()}}}
 const s0=MS.sm,q0=MS.qy;mkCtl(s0,SMX-3.5,SMZ-.9);const stk=new T.Group();stk.position.set(SMX+11.9,0,SMZ-.4);scene.add(stk);bk(stk,mWD,0,.07,0,1.6,.14,3);for(let i=0;i<10;i++)bk(stk,mP,0,.22+i*.14,0,1.3,.12,2.8);wall(SMX+11.9,SMZ-.4,.9,1.6);mkOut(s0,SMX+11.9,SMZ+1.5);
 s0.upd=()=>{const n=Math.ceil(s0.out.w/cap(s0)*10-.01);stk.children.forEach((c,i)=>{if(i)c.visible=i<=n})};
-mkCtl(q0,QX+26.5,QZ+13.5);const pS=new T.Mesh(new T.ConeGeometry(1.9,1.7,10),mG),pO=new T.Mesh(new T.ConeGeometry(1.7,1.5,9),mO);for(const[p,x]of[[pS,-2.3],[pO,2.3]]){p.position.set(QX+26.5+x,0,QZ+18);p.castShadow=true;scene.add(p)}wall(QX+26.5,QZ+18,4.2,1.8);mkOut(q0,QX+26.5,QZ+20.4);
+QYOPS();const pS=new T.Mesh(new T.ConeGeometry(1.9,1.7,10),mG),pO=new T.Mesh(new T.ConeGeometry(1.7,1.5,9),mO);for(const[p,x]of[[pS,-6.5],[pO,6.5]]){p.position.set(QX+28+x,0,QZ+27);p.castShadow=true;scene.add(p);wall(QX+28+x,QZ+27,2,2)}mkOut(q0,QX+28,QZ+24.6);
 q0.upd=()=>{const a=q0.out.s/cap(q0),b=q0.out.m/(cap(q0)/2);pS.visible=a>.01;pO.visible=b>.01;pS.scale.setScalar(Math.max(.05,a));pS.position.y=.85*Math.max(.05,a);pO.scale.setScalar(Math.max(.05,b));pO.position.y=.75*Math.max(.05,b)};
-s0.yield=()=>{s0.out.w=Math.min(cap(s0),s0.out.w+Math.round(5*LVY[s0.lv]))};q0.yield=()=>{q0.out.s=Math.min(cap(q0),q0.out.s+Math.round(5*LVY[q0.lv]));if(q0.cnt%2==0)q0.out.m=Math.min(cap(q0)/2,q0.out.m+Math.round(2*LVY[q0.lv]))};
+s0.yield=()=>{s0.out.w=Math.min(cap(s0),s0.out.w+Math.round(5*LVY[s0.lv]))};q0.yield=()=>{const f=LVY[q0.lv]*QMODE[q0.mode].y,a=Math.max(1,Math.round(5*f));q0.out.s=Math.min(cap(q0),q0.out.s+a);q0.tot.s+=a;if(q0.cnt%2==0){const b=Math.max(1,Math.round(2*f));q0.out.m=Math.min(cap(q0)/2,q0.out.m+b);q0.tot.m+=b}};
 for(const k in MS){MS[k].upd();MS[k].draw()}
-window.mechTick=dt=>{for(const k in MS){const m=MS[k];if(m.on&&m.out[m.main]>=cap(m)){m.on=0;toast(m.n+' stopped — output bay full',3);m.draw()}if(m.on&&m.fuel<=0){m.on=0;toast(m.n+' ran out of fuel',3);m.draw()}
+window.mechTick=dt=>{if(window.QYT)window.QYT(dt);for(const k in MS){const m=MS[k];if(m.on&&m.out[m.main]>=cap(m)){m.on=0;toast(m.n+' stopped — output bay full',3);m.draw()}if(m.k==='qy'){if(m.on&&!QYP()){m.on=0;toast('⚡ Quarry stopped — NO POWER',3.5);blip(110,.4,'sawtooth');m.draw()}}else if(m.on&&m.fuel<=0){m.on=0;toast(m.n+' ran out of fuel',3);m.draw()}
  m.run+=((m.on?1:0)-m.run)*Math.min(1,dt*(m.on?.5:.3));if(!m.on&&m.run<.01)m.run=0;ld(m.lamp,m.jam?((performance.now()/300|0)%2?0xff3020:0x401008):m.on?(m.run>.85?0x30ff60:0xffc020):0xff3020);
- if(m.on&&m.run>.6){m.tm+=dt;if(m.tm>=LVI[m.lv]){m.tm=0;m.cnt++;m.yield();m.fuel=Math.max(0,m.fuel-1);m.wear+=m.wr*LVW[m.lv];m.upd();if(m.wear>=100){m.on=0;m.jam=1;toast(m.n+' JAMMED! Repair it at the console (5 metal)',4);blip(110,.4,'sawtooth')}}
+ if(m.on&&m.run>.6){m.tm+=dt;if(m.tm>=LVI[m.lv]){m.tm=0;m.cnt++;m.yield();m.fuel=Math.max(0,m.fuel-1);m.wear+=m.wr*LVW[m.lv]*(m.k==='qy'?QMODE[m.mode].w:1);m.upd();if(m.wear>=100){m.on=0;m.jam=1;toast(m.n+' JAMMED! Repair it at the console (5 metal)',4);blip(110,.4,'sawtooth')}}
   m.nz-=dt;if(m.nz<=0){m.nz=2.5;for(const z of zs)if(!z.dead&&Math.hypot(z.x-m.x,z.z-m.z)<m.noise)z.al=true}}
  m.sd-=dt;if(m.sd<=0){m.sd=.5;if(Math.hypot(pl.x-m.x,pl.z-m.z)<40)m.draw()}}}}
 function resTick(dt){gcd-=dt;mechTick(dt);qTick(dt*MS.qy.run);smTick(dt*MS.sm.run);gyTick(dt);
@@ -52576,7 +52630,7 @@ const LON=new T.Color(0xfff0c8),LOFF=new T.Color(0x34322e),tmpL=new T.Color();
  {const fxQ=[];for(const[x,z]of[[16,-8],[-12,10],[4,-17],[-5,2]])fxQ.push({x:QX+x,y:8.8,z:QZ+z,l:0,k:3.2});
   for(const th of[1.1,2.3,3.5,4.7])fxQ.push({x:PIT_X+(PIT_RT+4)*Math.cos(th),y:8.8,z:PIT_Z+(PIT_RT+4)*Math.sin(th),l:0,k:3.2});
   fxQ.push({x:QX+31.5,y:3.0,z:QZ-5.5,l:0,k:2},{x:QX+38,y:5.8,z:QZ,l:0,k:2.4});
-  const Sq=mkSite('qy','Ridgeline Quarry',mLmp,fxQ,cumTap+qP.c[6]);for(const f of fxQ)spillAt(Sq,f.x,f.z,f.y>8?11:6);
+  const Sq=mkSite('qy','Ridgeline Quarry',mLmp,fxQ,cumTap+qP.c[6]);window.QYS=Sq;for(const f of fxQ)spillAt(Sq,f.x,f.z,f.y>8?11:6);
   mkService(Sq,qpx+.16,qpz[2],Math.PI/2);
   const fxS=[];for(const[x,z]of[[-26,-14],[-26,28],[28,24],[45,-22],[8,12]])fxS.push({x:SMX+x,y:8.6,z:SMZ+z,l:0,k:3.2});
   for(const x of[-6,2,8])for(const z of[-11,-3])fxS.push({x:SMX+x,y:5,z:SMZ+z,l:0,k:2});
