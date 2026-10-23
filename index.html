@@ -53866,5 +53866,186 @@ addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProje
  if(hb2){hb2.addEventListener('click',e=>{if(e.target.closest('button'))hb2.classList.remove('open')});
   addEventListener('pointerdown',e=>{if(hb2.classList.contains('open')&&!hb2.contains(e.target)&&!pin.contains(e.target))hb2.classList.remove('open')},true)}
  setInterval(()=>fl.classList.toggle('hide',!foot),250)}
-</script></body></html>
+</script>
+<script id="story-config">
+/* ===== STORY CONFIG — edit this to change the story. The runtime below plays these steps in order. ===== */
+window.STORY_CONFIG={
+ enabled:true,
+ startHour:15,            // clock hour the story begins (3 PM)
+ nightfallHour:19,        // clock hour night "officially" falls (7 PM)
+ popupSec:6,
+ flashlightAtStart:false,
+ fortKeypadNeedsPower:true,
+ spawn:{x:-23.7,z:-1.4,lookAt:{x:-26,z:-3.5}},
+ pole:{x:-5,z:14},                       // transformer pole; the other three run along the road from it
+ barnBoxOffset:{x:-3.2,z:10.3},          // breaker box on the barn's front wall (relative to barn centre)
+ places:{barn:{x:-26,z:4,radius:9},fort:{radius:7}},
+ text:{
+  keypadDead:'The keypad is dead. The grid has to be switched back on first.',
+  nightfall:{title:'NIGHTFALL',text:'The sun is gone. Get back to the barn before they come out.',secs:7},
+  nightfallObjective:'Night has fallen — get back to the barn!'
+ },
+ steps:[
+  {id:'calm',clock:'hold',state:{grid:true,barn:'on'},
+   objective:'Look around the farm',
+   popup:{title:'DEAD HARVEST',text:'The grid is humming. For once, the barn is warm and the lights are on.',secs:5},
+   goal:{wait:7}},
+  {id:'surge',clock:'hold',onEnter:'surge',
+   objective:'…',
+   popup:{title:'⚡ POWER SURGE',text:'Something just blew down the line. Every pole is dead and the grid is down.',secs:6},
+   goal:{wait:5}},
+  {id:'barn',clock:'hold',target:'barnBox',
+   objective:'Flip the breaker on the barn wall',
+   popup:{title:'RESET THE BREAKER',text:'Find the grey BARN MAIN breaker box on the front wall. Press F to flip it.',secs:6}},
+  {id:'barnLights',clock:'hold',onEnter:'barnLightsOn',onExit:'barnBurst',
+   objective:'Stand by…',
+   popup:{title:'IT HOLDS… MAYBE',text:'The lights flicker on. Wait and see if the wiring survives.',secs:4},
+   goal:{wait:7}},
+  {id:'plant',clock:'countdown',countdownSec:420,target:'plant',onExit:'restoreBarn',
+   objective:'Reach the power plant and START the grid',
+   popup:{title:'IT’S THE GRID',text:'The wiring was fine — the line is the problem. Head to the power plant and restart the grid. Use the 📍 fast-travel button if the walk is too long.',secs:9},
+   goal:{plantBreaker:true}},
+  {id:'fort',clock:'countdown',countdownSec:260,target:'fort',
+   objective:'Get to Fort Harvest',
+   popup:{title:'GRID ONLINE',text:'Power is flowing again. The barn is lit up. The signal on the radio keeps repeating: “Fort Harvest.”',secs:7},
+   goal:{reach:'fort'}},
+  {id:'gate',clock:'countdown',countdownSec:260,target:'fort',
+   objective:'Find the 4 digits of the gate code',
+   popup:{title:'LOCKED GATE',text:'The keypad needs a 4-digit code. Search the area for the digits.',secs:6},
+   goal:{gateOpen:true}},
+  {id:'return',clock:'free',target:'barn',
+   objective:'Return to the barn',
+   popup:{title:'THE GATE IS OPEN',text:'Whatever was inside is yours now. Get back to the farm before dark.',secs:6},
+   goal:{reach:'barn'}},
+  {id:'end',clock:'free',
+   objective:'…',
+   popup:{title:'SAFE — FOR NOW',text:'You made it home. The night is long, and the dead are restless.<br><br><i>End of Chapter 1.</i>',secs:10}}
+ ]
+};
+</script>
+<script id="story-runtime">
+/* ===== STORY RUNTIME (v0.23.0) — plays the steps in STORY_CONFIG. You should not need to edit this. ===== */
+(function(){
+const C=window.STORY_CONFIG;if(!C||!C.enabled)return;
+try{
+const PI=Math.PI,rnd=(a,b)=>a+Math.random()*(b-a);
+const nf=hr=>((hr%24)-6+24)%24/24;
+const NF=nf(C.nightfallHour);
+const findNode=s=>nodes.find(n=>{try{return String(n.pr()).includes(s)}catch(e){return false}});
+const plantN=findNode('START the grid')||findNode('SHUT DOWN the grid'),keypadN=findNode('Gate keypad'),genN=findNode('black-start generator');
+const FG=()=>window.FORT_GATE,fortB=()=>(window.ALLBK||[]).find(b=>b.m&&b.m.name==='Fort Harvest Military Outpost');
+const barnG=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x-BARN.x)<.01&&Math.abs(o.position.z-BARN.z)<.01);
+const bLights=barnG?barnG.children.filter(c=>c.isPointLight):[],bBase=bLights.map(l=>l.intensity),bBulbs=new Set();
+if(barnG)barnG.traverse(o=>{const m=o.material;if(m&&m.isMeshBasicMaterial&&m.color.getHex()===0xffe2a8)bBulbs.add(m)});
+const css=document.createElement('style');css.textContent='#sObj{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);transform:translateX(-50%);max-width:44vw;padding:6px 12px;border-radius:9px;background:rgba(0,0,0,.55);border:1px solid rgba(255,210,90,.55);color:#f4ecd0;font:600 13px/1.25 system-ui;text-align:center;z-index:40;pointer-events:none;display:none}#sObj b{display:block;color:#ffd24c;font:700 10px system-ui;letter-spacing:1.5px;margin-bottom:2px}#sPop{position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(440px,84vw);padding:14px 18px;border-radius:12px;background:rgba(8,10,8,.86);border:1px solid rgba(255,210,90,.6);color:#ece6d0;font:15px/1.4 system-ui;text-align:center;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s}#sPop h3{margin:0 0 6px;color:#ffd24c;font:800 20px system-ui;letter-spacing:1px}#sFlash{position:fixed;inset:0;background:#fff;opacity:0;z-index:39;pointer-events:none;transition:opacity .35s}';document.head.appendChild(css);
+const mk=(id)=>{const d=document.createElement('div');d.id=id;document.body.appendChild(d);return d},oEl=mk('sObj'),pEl=mk('sPop'),fEl=mk('sFlash');
+let popT=0;const popup=p=>{if(!p)return;pEl.innerHTML='<h3>'+p.title+'</h3>'+p.text;pEl.style.opacity=1;popT=p.secs||C.popupSec;try{blip(520,.12,'triangle');setTimeout(()=>blip(700,.14,'triangle'),130)}catch(e){}};
+const flash=a=>{fEl.style.transition='none';fEl.style.opacity=a;requestAnimationFrame(()=>{fEl.style.transition='opacity .45s';fEl.style.opacity=0})};
+const gT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.35,'rgba(255,255,255,.55)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new T.CanvasTexture(c)})();
+const cloud=(n,size,color,add,op)=>{const geo=new T.BufferGeometry(),pos=new Float32Array(n*3).fill(-9999);geo.setAttribute('position',new T.BufferAttribute(pos,3));const p=new T.Points(geo,new T.PointsMaterial({map:gT,size,color,transparent:true,depthWrite:false,blending:add?T.AdditiveBlending:T.NormalBlending,opacity:op}));p.frustumCulled=false;scene.add(p);return{pos,geo,list:[],n}};
+const SP=cloud(260,.28,0xffcf7a,true,1),SM=cloud(160,2.6,0x4a4a4a,false,.4);
+const emit=(c,x,y,z,vx,vy,vz,life,g)=>{if(c.list.length>=c.n)c.list.shift();c.list.push({x,y,z,vx,vy,vz,life,g})};
+const sparks=(x,y,z,n,s)=>{for(let i=0;i<n;i++)emit(SP,x,y,z,rnd(-1,1)*s,rnd(.2,1.1)*s,rnd(-1,1)*s,rnd(.5,1.4),9)};
+const smoke=(x,y,z,n)=>{for(let i=0;i<n;i++)emit(SM,x+rnd(-.2,.2),y,z+rnd(-.2,.2),rnd(-.25,.25),rnd(.7,1.5),rnd(-.25,.25),rnd(2.5,4.5),-.1)};
+const stepCloud=(c,dt)=>{for(let i=c.list.length-1;i>=0;i--){const p=c.list[i];p.life-=dt;if(p.life<=0){c.list.splice(i,1);continue}p.vy-=p.g*dt;p.x+=p.vx*dt;p.y=Math.max(.05,p.y+p.vy*dt);p.z+=p.vz*dt}for(let i=0;i<c.n;i++){const p=c.list[i];if(p){c.pos[i*3]=p.x;c.pos[i*3+1]=p.y;c.pos[i*3+2]=p.z}else c.pos[i*3+1]=-9999}c.geo.attributes.position.needsUpdate=true};
+const glow=(x,y,z,col,size)=>{const s=new T.Sprite(new T.SpriteMaterial({map:gT,color:col,blending:T.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));s.position.set(x,y,z);s.scale.set(.01,.01,.01);s.userData={t:9,size};scene.add(s);return s};
+const pop=(s,size)=>{s.userData.t=0;s.userData.size=size||12};
+const wood=new T.MeshStandardMaterial({color:0x5b4630,roughness:1}),metal=new T.MeshStandardMaterial({color:0x6e7378,roughness:.6,metalness:.4}),porc=new T.MeshStandardMaterial({color:0xd8d4c8,roughness:.5}),grey=new T.MeshStandardMaterial({color:0x8b9096,roughness:.7});
+const P0=C.pole,POLES=[],ZS=[P0.z+18,P0.z,P0.z-18,P0.z-36];
+const labelTex=(t)=>{const c=document.createElement('canvas');c.width=128;c.height=96;const g=c.getContext('2d');g.fillStyle='#d9b21c';g.fillRect(0,0,128,96);g.fillStyle='#1a1a1a';g.font='bold 22px sans-serif';g.textAlign='center';g.fillText('⚡ DANGER',64,38);g.font='16px sans-serif';g.fillText(t,64,66);return new T.CanvasTexture(c)};
+ZS.forEach((z,i)=>{const g=new T.Group();g.position.set(P0.x,0,z);scene.add(g);const add=(geo,mat,x,y,zz)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,zz);m.castShadow=true;g.add(m);return m};
+add(new T.CylinderGeometry(.15,.2,9.6,10),wood,0,4.8,0);add(new T.BoxGeometry(2.6,.14,.14),wood,0,9.0,0);
+const ins=[-.9,0,.9].map(x=>add(new T.CylinderGeometry(.05,.07,.24,8),porc,x,9.18,0));
+const can=add(new T.CylinderGeometry(.34,.34,.9,14),metal,.5,8.0,0);add(new T.CylinderGeometry(.08,.08,.5,8),metal,.5,8.62,0);
+const fb=add(new T.BoxGeometry(.2,.62,.46),metal,.27,1.7,0);
+const hinge=new T.Group();hinge.position.set(.39,1.7,-.23);g.add(hinge);const door=new T.Mesh(new T.BoxGeometry(.03,.58,.44),new T.MeshStandardMaterial({color:0x7d848a,roughness:.5,metalness:.4}));door.position.set(0,0,.22);hinge.add(door);
+const lab=new T.Mesh(new T.PlaneGeometry(.34,.26),new T.MeshBasicMaterial({map:labelTex('7.2 kV')}));lab.position.set(.02,.04,.22);lab.rotation.y=PI/2;hinge.add(lab);
+const lamp=add(new T.SphereGeometry(.035,8,6),new T.MeshBasicMaterial({color:0x35ff6a}),.4,1.95,.12);
+const tube=add(new T.CylinderGeometry(.03,.03,.3,8),new T.MeshStandardMaterial({color:0xb09a6a}),.34,1.62,-.05);
+const gl=glow(P0.x+.5,8.0,z,0xcfe6ff,14),gl2=glow(P0.x+.4,1.75,z,0xffe9b0,5);
+boxes.push({x:P0.x,z,hw:.3,hd:.3});
+POLES.push({g,ins,can,door:hinge,lamp,tube,gl,gl2,x:P0.x,z,dead:false,fall:0,sizzle:0,doorT:0,tubeV:0});});
+const wireMat=new T.LineBasicMaterial({color:0x111111}),WIRES=[];
+const drawWire=(w,sag,drop)=>{const A=w.a,B=w.b,pts=[];for(let k=0;k<=10;k++){const t=k/10;pts.push(A.x+(B.x-A.x)*t,A.y+(B.y-A.y)*t-4*sag*t*(1-t),A.z+(B.z-A.z)*t)}if(drop){const n=pts.length;pts[n-2]=.12}const geo=w.obj.geometry;geo.setAttribute('position',new T.Float32BufferAttribute(pts,3));geo.computeBoundingSphere()};
+for(let i=0;i<POLES.length-1;i++)for(const dx of[-.9,0,.9]){const w={a:new T.Vector3(P0.x+dx,9.3,POLES[i].z),b:new T.Vector3(P0.x+dx,9.3,POLES[i+1].z),obj:new T.Line(new T.BufferGeometry(),wireMat),span:i};scene.add(w.obj);w.obj.frustumCulled=false;drawWire(w,.5);WIRES.push(w)}
+const blowPole=(p,big)=>{if(p.dead)return;p.dead=true;p.sizzle=20;p.doorT=.0001;p.tubeV=2.5;pop(p.gl,big?20:12);pop(p.gl2,7);p.lamp.material.color.setHex(0x601010);for(const i of p.ins)i.material=grey;p.can.material=new T.MeshStandardMaterial({color:0x1b1b1b,roughness:1,emissive:0x331100});
+const x=p.x+.4,z=p.z;sparks(x,1.8,z,60,5);sparks(p.x+.5,8,z,70,6);smoke(p.x+.5,8.4,z,16);smoke(x,1.9,z,8);
+try{blip(70,.45,'sawtooth');setTimeout(()=>blip(1300,.06,'square'),60);setTimeout(()=>blip(900,.05,'square'),140);setTimeout(()=>blip(160,.3,'sawtooth'),220)}catch(e){}
+const d=Math.hypot(pl.x-p.x,pl.z-p.z);if(d<70)flash(Math.min(.9,70/(d+30)*.55))};
+const BB=C.barnBoxOffset,bbx=BARN.x+BB.x,bbz=BARN.z+BB.z,barn={closed:true,mode:'on',temp:0,lever:null,lamp:null};
+{const g=new T.Group();g.position.set(bbx,0,bbz);scene.add(g);const add=(geo,mat,x,y,z)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;g.add(m);return m};
+add(new T.BoxGeometry(.58,.8,.2),metal,0,1.55,0);add(new T.BoxGeometry(.66,.06,.3),metal,0,1.99,.04);add(new T.CylinderGeometry(.03,.03,2.4,8),metal,.2,3.0,-.05);
+const lab=new T.Mesh(new T.PlaneGeometry(.46,.2),new T.MeshBasicMaterial({map:(()=>{const c=document.createElement('canvas');c.width=256;c.height=100;const x=c.getContext('2d');x.fillStyle='#d9a516';x.fillRect(0,0,256,100);x.fillStyle='#1a1a1a';x.font='bold 30px sans-serif';x.textAlign='center';x.fillText('BARN MAIN',128,44);x.font='bold 24px sans-serif';x.fillText('BREAKER',128,80);return new T.CanvasTexture(c)})()}));lab.position.set(0,1.78,.11);g.add(lab);
+const slot=add(new T.BoxGeometry(.1,.34,.03),new T.MeshStandardMaterial({color:0x111111}),0,1.4,.105);
+barn.lever=new T.Group();barn.lever.position.set(0,1.4,.12);g.add(barn.lever);const lv=new T.Mesh(new T.BoxGeometry(.05,.3,.05),new T.MeshStandardMaterial({color:0xc02020}));lv.position.y=.12;barn.lever.add(lv);
+barn.lamp=add(new T.SphereGeometry(.04,8,6),new T.MeshBasicMaterial({color:0x35ff6a}),.2,1.6,.11);
+barn.glow=glow(bbx,1.5,bbz+.3,0x7fffa0,1.6);barn.glow.userData.t=9;boxes.push({x:bbx,z:bbz,hw:.35,hd:.2})}
+const bnode={x:bbx,z:bbz+.9,t:'ctl',amt:1,max:1,g:null,rad:2.4,pr:()=>barn.closed?'F: Trip the barn breaker':'F: Flip the barn breaker ON',act:()=>flipBarn()};nodes.push(bnode);
+const gridUp=()=>POWER.on&&POWER.wave>=POWER.len*.5;
+function flipBarn(){barn.closed=!barn.closed;try{blip(barn.closed?330:200,.1,'square')}catch(e){}
+if(!barn.closed){barn.mode='off';toast('Barn breaker tripped',2);return}
+if(S.cur&&S.cur.id==='barn'){advance();return}
+if(gridUp()){barn.mode='on';toast('Barn breaker closed — lights on',2)}else{barn.mode='off';toast('Breaker closed, but there is no power on the line.',3)}}
+const burstBarn=()=>{if(!barnG)return;for(const z of[-8.2,-4.1,0,4.1]){const w=new T.Vector3(BARN.x,3.95,BARN.z+z);sparks(w.x,w.y,w.z,28,3.5);smoke(w.x,w.y,w.z,3)}
+for(const l of bLights)l.intensity=bBase[bLights.indexOf(l)]*5;flash(.35);barn.mode='off';barn.closed=false;try{blip(90,.5,'sawtooth');setTimeout(()=>blip(1500,.05,'square'),80);setTimeout(()=>blip(1100,.05,'square'),170)}catch(e){}};
+const barnTarget=()=>barn.mode==='off'||!barn.closed?0:1;
+const gridOn=()=>{POWER.did=true;if(!POWER.on){POWER.on=true}POWER.wave=(POWER.len2||1)+40};
+const gridOff=()=>{if(POWER.on)setGrid(false)};
+const setState=st=>{if(!st)return;if(st.grid===true)gridOn();else if(st.grid===false)gridOff();if(st.barn==='on'){barn.closed=true;barn.mode='on'}else if(st.barn==='off'){barn.mode='off';barn.closed=false}};
+let hold=true,speed=1;const _env=env;env=function(dt){const d0=dayT;_env(dt);if(hold)dayT=d0;else if(speed!==1)dayT=d0+(dayT-d0)*speed;tick(dt)};
+const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else if(s.clock==='countdown'){hold=false;speed=dayT<NF?Math.max(.02,(NF-dayT)*270/(s.countdownSec||120)):1}else{hold=false;speed=1}};
+const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(typeof t==='object')return t;return null};
+const mkr=new T.Group();mkr.visible=false;scene.add(mkr);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;mkr.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;mkr.add(b);mkr.userData.d=d}
+const timeline=[],after=(s,f)=>timeline.push({t:s,f});
+const FXN={
+surge(){const order=[1,0,2,3];order.forEach((i,k)=>after(k*.55,()=>{blowPole(POLES[i],i===1);if(i===1){gridOff();barn.closed=false;barn.mode='off'}}));
+after(.9,()=>{for(const w of WIRES)if(w.span===1&&w.a.x===P0.x){w.b.y=.15;drawWire(w,.3,true)}});after(1.6,()=>{if(plantN)try{blip(180,.6,'sawtooth')}catch(e){}})},
+barnLightsOn(){barn.closed=true;barn.mode='temp';barn.temp=C.steps.find(s=>s.id==='barnLights').goal.wait;toast('💡 The barn lights flicker on…',3)},
+barnBurst(){burstBarn()},
+restoreBarn(){after(2.5,()=>{barn.closed=true;barn.mode='on';toast('💡 Power is back at the barn.',3)})}};
+const S=window.STORY={cfg:C,cur:null,idx:-1,t:0,steps:()=>C.steps.map(s=>s.id),goto:id=>{const i=typeof id==='number'?id:C.steps.findIndex(s=>s.id===id);if(i<0)return'unknown step';enter(i);return'→ '+C.steps[i].id},skip:()=>advance()};
+function enter(i){if(S.cur&&S.cur.onExit&&FXN[S.cur.onExit])FXN[S.cur.onExit]();S.idx=i;S.cur=C.steps[i];S.t=0;setState(S.cur.state);clockFor(S.cur);if(S.cur.onEnter&&FXN[S.cur.onEnter])FXN[S.cur.onEnter]();popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z);S.tgt=t;
+if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
+function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
+const reached=(t,r)=>{const p=place(t);return p&&Math.hypot(pl.x-p.x,pl.z-p.z)<r};
+const goalMet=s=>{const g=s.goal||{};if(g.wait!=null)return S.t>=g.wait;if(g.plantBreaker)return POWER.on;if(g.reach){const r=g.radius||(g.reach==='barn'?C.places.barn.radius:C.places.fort.radius);return reached(g.reach,r)}if(g.gateOpen){const f=FG();return !!f&&(!f.locked||f.open)}return false};
+if(C.fortKeypadNeedsPower&&keypadN){const a0=keypadN.act,p0=keypadN.pr,powered=()=>{const b=fortB();return !b||!!b.live};
+keypadN.pr=()=>{const f=FG();return f&&f.locked&&!powered()?'F: Gate keypad — NO POWER (switch the grid on)':p0()};
+keypadN.act=()=>{const f=FG();if(f&&f.locked&&!powered()){toast(C.text.keypadDead,4);try{blip(150,.25,'square')}catch(e){}return}a0()}}
+let nightShown=false;
+function tick(dt){
+for(let i=timeline.length-1;i>=0;i--){timeline[i].t-=dt;if(timeline[i].t<=0){const f=timeline[i].f;timeline.splice(i,1);try{f()}catch(e){console.error(e)}}}
+for(const p of POLES){for(const g of[p.gl,p.gl2]){const u=g.userData;if(u.t<2){u.t+=dt;const k=Math.max(0,1-u.t/.7);g.material.opacity=k;g.scale.setScalar(u.size*(.4+u.t*1.2))}else g.material.opacity=0}
+if(p.doorT>0){p.doorT=Math.min(1,p.doorT+dt*5);p.door.rotation.y=-p.doorT*2.1}
+if(p.tubeV){p.tubeV-=dt*9;p.tube.position.y=Math.max(.04,p.tube.position.y+p.tubeV*dt);p.tube.position.x+=dt*.3;p.tube.rotation.z+=dt*4;if(p.tube.position.y<=.04)p.tubeV=0}
+if(p.sizzle>0){p.sizzle-=dt;if(Math.random()<dt*1.1){sparks(p.x+.4,1.8,p.z,12,2.6);if(Math.random()<.5)sparks(p.x+.5,8,p.z,8,3);try{blip(rnd(900,1500),.03,'square')}catch(e){}}if(Math.random()<dt*.9)smoke(p.x+.5,8.3,p.z,1)}}
+stepCloud(SP,dt);stepCloud(SM,dt);
+{const tg=barnTarget(),lt=barn.mode==='temp';if(lt){barn.temp-=dt}
+let k=tg;if(lt&&barn.temp<2.2)k=Math.random()<.5?.15:1;
+bLights.forEach((l,i)=>{l.intensity+=(bBase[i]*k-l.intensity)*Math.min(1,dt*(k<l.intensity?12:6))});
+for(const m of bBulbs)m.color.setHex(k>.5?0xffe2a8:0x2a2620);
+if(barn.lever)barn.lever.rotation.x=barn.closed?-.75:.75;if(barn.lamp)barn.lamp.material.color.setHex(!barn.closed?0xff3020:(barn.mode==='off'?0xffc020:0x35ff6a));
+if(barn.glow){const u=barn.glow.userData;if(S.cur&&S.cur.id==='barn'){u.t=0;barn.glow.material.opacity=.35+.35*Math.sin(performance.now()/260);barn.glow.scale.setScalar(1.6)}else barn.glow.material.opacity=0}}
+if(!S.cur)return;S.t+=dt;
+if(popT>0){popT-=dt;if(popT<=0)pEl.style.opacity=0}
+if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
+const ri=C.steps.findIndex(s=>s.id==='return');
+if(ri>=0&&S.idx>=ri&&!nightShown&&dayT>=NF&&dayT<.9){nightShown=true;speed=1;popup(C.text.nightfall)}
+if(S.cur.clock==='countdown'&&nightShown)speed=1;
+{let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
+if(S.cur.id==='return'&&nightShown)o=C.text.nightfallObjective;
+if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
+if(S.tgt)sub=Math.round(Math.hypot(S.tgt.x-pl.x,S.tgt.z-pl.z))+' m';
+if(S.cur.clock==='countdown'&&!nightShown&&dayT<NF){const sec=Math.max(0,Math.round((NF-dayT)*270/speed));sub+=(sub?' · ':'')+'nightfall in '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
+if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(sub?'<br><span style="color:#ffd24c;font-weight:700">'+sub+'</span>':'')}else oEl.style.display='none'}
+if(goalMet(S.cur))advance()}
+// ---------------- START ----------------
+POWER.did=true;POWER.on=true;POWER.wave=(POWER.len2||1)+40;
+dayT=nf(C.startHour);day=1;hold=true;
+if(!C.flashlightAtStart){flOn=false;const b=document.getElementById('gfl');if(b)b.classList.add('off')}
+{const sp=C.spawn;pl.set(sp.x,0,sp.z);yaw=Math.atan2(-(sp.lookAt.x-sp.x),-(sp.lookAt.z-sp.z));pit=0}
+enter(0);
+}catch(e){console.error('[story] failed to start:',e);window.STORY_ERROR=e}
+})();
+</script>
 </body></html>
