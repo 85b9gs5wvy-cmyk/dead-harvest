@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -49603,10 +49603,13 @@ function makeModel2(s){const LPS=[],IDRS=[];
    p('wood2',0,z,A,.36,y,.05);p('metal',-A*.44,z,.06,.36,0,y);p('metal',0,z,.06,.36,0,y);p('metal',A*.44,z,.06,.36,0,y)}sol(A,1.95)},
  globe:()=>{p('brass',0,0,.22,.22,0,.06);p('brass',0,0,.04,.04,.06,.38);p('polb',0,0,.28,.28,.16,.28);p('green',.04,.08,.16,.12,.22,.14);p('frd',.26,.04,.1,.1,0,.1)}};
  for(let l=0;l<lv;l++){fy=l?l*FH:.06;CL=l;const cy=cyL(l),ly=s.ly||cy;
-  for(const r of s.R||[]){const ty=(r[4]||'').split('|'),T0=ty[l?1:0]||ty[0];if(T0&&T0!=='x')add(T0,r[0],r[1],fy-.03,fy+.004,r[2],r[3]);
+  const HOLE=l>0?ramps[l-1]:null,UP=l<lv-1?ramps[l]:null,inH=(x,z,w,d,h)=>h&&x+w>h.x0-.1&&x<h.x1+.1&&z+d>h.z0-.1&&z<h.z1+.1;
+  const dd=(...a)=>inH(a[1],a[5],a[2]-a[1],a[6]-a[5],HOLE)||add(...a);
+  const cutR=(x0,x1,z0,z1)=>{const h=HOLE;if(!h||x1<=h.x0||x0>=h.x1||z1<=h.z0||z0>=h.z1)return[[x0,x1,z0,z1]];const o=[],a=Math.max(x0,h.x0),b=Math.min(x1,h.x1);if(x0<h.x0)o.push([x0,h.x0,z0,z1]);if(x1>h.x1)o.push([h.x1,x1,z0,z1]);if(z0<h.z0)o.push([a,b,z0,h.z0]);if(z1>h.z1)o.push([a,b,h.z1,z1]);return o};
+  for(const r of s.R||[]){const ty=(r[4]||'').split('|'),T0=ty[l?1:0]||ty[0];if(T0&&T0!=='x')for(const q of cutR(r[0],r[1],r[2],r[3]))add(T0,q[0],q[1],fy-.03,fy+.004,q[2],q[3]);
    const nx=Math.max(1,Math.round((r[1]-r[0])/8)),nz=Math.max(1,Math.round((r[3]-r[2])/8));
-   for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){const x=r[0]+(r[1]-r[0])*(i+.5)/nx,z=r[2]+(r[3]-r[2])*(j+.5)/nz;const LY=r[5]||ly;add('lamp',x-.6,x+.6,LY-.1,LY,z-.15,z+.15);LPS.push([x,LY-.14,z,l]);if(s.ly&&!r[5])add('dark',x-.03,x+.03,LY,H-1,z-.03,z+.03)}
-   for(let i=0,n=2+(sr()*3|0);i<n;i++){const x=R(r[0]+.8,r[1]-1.4),z=R(r[2]+.8,r[3]-1.4),q=sr();if(q<.4)add('blood',x,x+.5+sr(),fy+.006,fy+.009,z,z+.4+sr()*.8);else if(q<.8)add('white',x,x+.35,fy+.007,fy+.009,z,z+.45);else add('card',x,x+.4,fy+.006,fy+.012,z,z+.4)}}
+   for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){const x=r[0]+(r[1]-r[0])*(i+.5)/nx,z=r[2]+(r[3]-r[2])*(j+.5)/nz;const LY=r[5]||ly;if(inH(x-.6,z-.15,1.2,.3,UP))continue;add('lamp',x-.6,x+.6,LY-.1,LY,z-.15,z+.15);LPS.push([x,LY-.14,z,l]);if(s.ly&&!r[5])add('dark',x-.03,x+.03,LY,H-1,z-.03,z+.03)}
+   for(let i=0,n=2+(sr()*3|0);i<n;i++){const x=R(r[0]+.8,r[1]-1.4),z=R(r[2]+.8,r[3]-1.4),q=sr();if(q<.4)dd('blood',x,x+.5+sr(),fy+.006,fy+.009,z,z+.4+sr()*.8);else if(q<.8)dd('white',x,x+.35,fy+.007,fy+.009,z,z+.45);else dd('card',x,x+.4,fy+.006,fy+.012,z,z+.4)}}
   const bz=[[-hw+t+.04,hw-t-.04,-hd+t+.04,-hd+t+.07],[-hw+t+.04,-hw+t+.07,-hd+t,hd-t],[hw-t-.07,hw-t-.04,-hd+t,hd-t]];for(const q of bz)add('trim',q[0],q[1],fy,fy+.12,q[2],q[3]);
   for(const e of(s.F||[])[Math.min(l,(s.F||[]).length-1)]||[]){cx=e[1];cz=e[2];oo=e[3]||0;FN[e[0]](e[4],e[5])}}
  const grp=new T.Group(),MM=Object.assign({wall:s.mat},M2);for(const k in B){const m=new T.Mesh(mergeBoxes(B[k]),MM[k]);m.castShadow=['wall','roof','conc','metal'].includes(k);m.receiveShadow=true;grp.add(m)}
@@ -49840,7 +49843,7 @@ const FB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x,
  // bay doors: rolled up (right one jammed half-down), jambs, headers, warning lamps
  for(const[b0,b1]of[[-12.4,-6.6],[6.6,12.4]]){a('trim',b0-.12,b0,0,3.6,pi-.06,po+.06);a('trim',b1,b1+.12,0,3.6,pi-.06,po+.06);a('trim',b0-.12,b1+.12,3.5,3.62,pi-.06,po+.06);
   a('metal',b0,b1,3.15,3.5,pi-.6,pi-.1);for(const x of[b0,b1-.06])a('metal',x,x+.06,0,3.5,pi-.12,pi);a('rl',(b0+b1)/2-.2,(b0+b1)/2+.2,3.7,3.9,po+.05,po+.15)}
- for(let y=2.3;y<3.2;y+=.3)a(y>2.9?'dark':'metal',6.6,12.4,y,y+.25,po-.12,po-.04);a('metal',9.2,10.4,1.5,2.3,po-.12,po-.04);
+ 
  // bay floors: safety lines, drains, oil, gear dropped, exhaust drops
  for(const tx of[-9.5,9.5]){for(const s of[-1,1])a('yel',tx+s*2.1-.05,tx+s*2.1+.05,.061,.064,-1.2,9.4);a('dark',tx-3.6,tx+3.6,.061,.064,-.9,-.78);a('dark',tx+.7,tx+.85,1.2,3.7,-.8,-.65);a('dark',tx+.7,tx+.85,.3,1.2,-.8,-.4);a('dark',tx-2.9,tx+2.9,.0605,.0625,9.3,9.45)}
  a('dark',-10.8,-8.2,.0605,.0625,.8,2.2);a('dark',8.2,10.6,.0605,.0625,-1,.6);a('blood',-12,-11.2,.062,.065,6,7.4);
@@ -49896,6 +49899,37 @@ const FB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x,
  W('x',.1,1,-5,-3.6,5.7,6.5,.6,'metal');W('x',.1,1,-3.5,1.4,5.6,6.4,.35,'wd');for(let u=-3.5;u<1.4;u+=.7)W('x',.45,1,u,u+.02,5.6,6.4,.02,'dark');
  W('z',14.66,-1,3.2,9,5,6.5,.03,'glass');W('z',14.66,-1,3.15,3.25,5,6.5,.05,'trim');W('z',14.66,-1,8.95,9.05,5,6.5,.05,'trim');a('dark',5.4,14.5,4.005,4.012,2.2,9.5);
  W('x',-9.66,1,.3,3.1,5.1,6.2,.03,'glass');W('x',-9.66,1,-13.2,-12.2,5.4,6.1,.04,'wd');W('x',-9.66,1,-11.9,-11.2,5.5,6,.04,'wd');W('x',-9.66,1,-11,-10.3,5.5,5.9,.04,'brass');
+ // ===== v0.22.4 FIRE STATION DETAIL PASS =====
+ for(const[b0,b1]of[[-12.4,-6.6],[6.6,12.4]]){
+  for(const x of[b0+.1,b1-.16]){a('metal',x,x+.06,3.72,3.8,3.5,9.6);a('metal',x-.04,x+.1,3.7,3.74,3.5,3.56);a('metal',x-.04,x+.1,3.7,3.74,6.2,6.26)}
+  a('metal',b0+.3,b1-.3,3.62,3.68,4.4,4.5);
+  const px=b0<0?-5.9:5.9;a('dark',px-.12,px+.12,1.15,1.65,pi-.1,pi);a('green',px-.07,px-.02,1.45,1.55,pi-.12,pi-.1);a('red',px+.02,px+.07,1.45,1.55,pi-.12,pi-.1);a('yel',px-.07,px+.07,1.25,1.33,pi-.12,pi-.1);
+  const px2=b0<0?-13:13;a('dark',px2-.12,px2+.12,1.15,1.65,pi-.1,pi);a('green',px2-.07,px2-.02,1.45,1.55,pi-.12,pi-.1);a('red',px2+.02,px2+.07,1.45,1.55,pi-.12,pi-.1);
+  a('white',(b0+b1)/2-.4,(b0+b1)/2+.4,3.72,3.88,pi-.04,pi)}
+ for(const tx of[-9.5,9.5])for(const s of[-1,1]){q('wood2',tx+s*1.2,7.9,.16,.3,0,.14);q('wood2',tx+s*1.2,6.7,.16,.3,0,.14)}
+ // turnout-gear rack on the bay-1 wall: hooks bar, coats, helmets, boot shelf
+ W('z',-5.3,-1,4.7,7.7,2.2,2.26,.1,'metal');W('z',-5.3,-1,4.7,7.7,.9,.95,.5,'metal');
+ for(let i=0;i<5;i++){const u=4.8+i*.58;W('z',-5.3,-1,u,u+.42,1.15,2.15,.16,'yel');W('z',-5.3,-1,u,u+.42,1.5,1.6,.18,'white');W('z',-5.3,-1,u+.08,u+.34,.95,1.1,.2,i%2?'red':'dark');W('z',-5.3,-1,u+.04,u+.16,.2,.9,.3,'dark');W('z',-5.3,-1,u+.24,u+.36,.2,.9,.3,'dark')}
+ // bay-2 wall: AED/first-aid cabinet, pull station, wall phone, boot tray
+ W('z',5.3,1,5.0,5.6,1.2,1.8,.14,'white');W('z',5.3,1,5.25,5.35,1.35,1.65,.16,'green');W('z',5.3,1,5.15,5.45,1.46,1.54,.16,'green');
+ W('z',5.3,1,6.3,6.5,1.2,1.45,.1,'red');W('z',5.3,1,6.34,6.46,1.28,1.34,.12,'white');
+ W('z',5.3,1,7.3,7.6,1.4,1.8,.12,'dark');W('z',5.3,1,7.35,7.55,1.7,1.76,.15,'metal');
+ W('z',5.3,1,3.9,6.3,.06,.1,.5,'dark');for(let i=0;i<5;i++)W('z',5.3,1,4+i*.45,4.2+i*.45,.1,.4,.2,'dark');
+ // dispatch: wall whiteboard, radio chargers, cable tray, wall map frame
+ W('z',5.1,-1,-9.2,-6.2,1.3,2.3,.04,'white');W('z',5.1,-1,-9.25,-6.15,1.25,1.3,.05,'metal');W('z',5.1,-1,-9.25,-6.15,2.3,2.35,.05,'metal');
+ for(let i=0;i<5;i++)W('z',5.1,-1,-9+i*.55,-8.6+i*.55,1.55+(i%2)*.4,1.7+(i%2)*.4,.05,i==3?'red':'dark');
+ for(let i=0;i<5;i++){a('dark',-.9+i*.3,-.7+i*.3,.94,1.2,-9.6,-9.45);a('green',-.84+i*.3,-.8+i*.3,1.2,1.24,-9.58,-9.54)}
+ a('metal',-5,5,3.75,3.8,-9.6,-9.2);a('metal',-5,5,3.7,3.8,-2.7,-2.6);
+ // gear room: hose coil stack, helmet shelf, boot rack
+ for(let i=0;i<4;i++)q('red',-7.3,-3.3,.9,.9,i*.18,.16);q('metal',-7.3,-3.3,.3,.3,0,.7);
+ W('x',-9.6,1,-14.4,-12.2,2.0,2.06,.45,'metal');for(let i=0;i<5;i++)W('x',-9.6,1,-14.3+i*.42,-14.0+i*.42,2.06,2.32,.3,i%2?'red':'yel');
+ // lobby / exterior
+ a('brass',-14.1,-13.5,.55,.95,po,po+.2);a('brass',-14.2,-13.4,.95,1.05,po,po+.22);a('red',-14.05,-13.55,.95,.99,po+.01,po+.23);a('metal',-14.05,-13.95,.35,.55,po+.03,po+.12);
+ a('red',2.1,2.6,1.4,1.9,po,po+.1);a('dark',2.18,2.52,1.5,1.8,po+.1,po+.11);
+ // upper: framed notices, bunk number plates, coat hooks, kitchen towels
+ for(let i=0;i<3;i++)W('z',-14.66,1,1.2+i*2.8,1.9+i*2.8,6.6,6.85,.03,'white');
+ for(let i=0;i<4;i++)W('z',5.3,1,5+i*.9,5.3+i*.9,5.4,6.4,.04,i%2?'card':'wd');
+ W('x',.1,1,2.2,2.5,5.2,5.9,.12,'white');W('x',.1,1,2.28,2.42,5.3,5.8,.14,'metal');
  return{X,XC}})();
 const FIRE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.4,dh:3,mat:wt2('#8a4a3a',0),sign:['FIRE STATION 7','#a81f1b','#f2f4f8'],board:1,door:{canopy:1,right:'frame',glass:1},bays:[[-12.4,-6.6,3.5],[6.6,12.4,3.5]],
  P:[['z',-5.2,-2.5,9.7,[3.5],[0]],['z',5.2,-2.5,9.7,[3.5],[0]],['x',-2.5,-14.7,-5.2,[-10.6],[0]],['x',-2.5,5.2,14.7,[7],[0]],['x',-2.5,-5.2,5.2,[0],[0]],['z',-5.2,-9.7,-2.5,[-6],[0]],['z',-9.8,-9.7,-2.5,[-6],[0]],['z',5.2,-9.7,-2.5,[-5],[0]],
@@ -49907,15 +49941,16 @@ const FIRE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.4,dh:3,mat:wt2('#8a4a3a',0),sign
    ['regdesk',0,.6,0,4.4],['chair',-3.8,5.5,0],['chair',-3.8,6.5,0],['bench',-3.4,7.9,2],['plant',-4.5,9],['plant',4.5,9],['vend',4.7,6.5,3],['barr',-2.4,7.2,0],['vic',2.4,6.5,0],
    ['gear',-12.25,-9.45,0,4.4],['gear',-14.4,-5.5,1,3.6],['bench',-12,-6.5,0],['vic',-12.6,-4.5,1],
    ['scba',-8.8,-9.3,0],['scba',-6.6,-9.3,0],['comp',-9.2,-8,1],['wbench',-5.65,-8.3,3,2.4],
-   ['disp',0,-8.9,0],['chair',-.6,-7.9,0],['desk',-3.8,-9,0],['tv',3.5,-9.4,0],['cool',4.5,-3,0],['safe',4.2,-9.1,0],['plant',-4.5,-3],['vic',2.2,-6,1,'cov'],
-   ['shelf',11,-3.1,0,5],['shelf',14.5,-5.2,3,2.4],['medcart',6.4,-6.8,1],['sacks',13,-5.5,0],['sink',5.5,-8,1],['hdrum',6,-3.4],['trophy',-4.8,1.2,1],['washer',-13.6,-3.1,2],['washer',-12.5,-3.1,2]],
-  [['polecap',-6.5,8.6],['bunk',-13.5,1.6,1],['bunk',-13.5,4.4,1],['bunk',-13.5,7.2,1],['bunk',-10.4,1.6,1],['bunk',-10.4,4.4,1],['bunk',-10.4,7.2,1],['wardrobe',-7.2,9,0],['chair',-8,5,0],['vic',-8,3,0],['vic',-11.9,3.2,1,'cov'],
-   ['desk',-9,-8.2,0],['chair',-9,-7.2,0],['safe',-14.2,-9.2,0],['cab',-14.4,-6,1],['bed',-13,-3.6,0],['plant',-6,-1.8],['vic',-7.4,-3,0],
-   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],
+   ['disp',0,-8.9,0],['chair',-.6,-7.9,2],['desk',-3.8,-9,0],['tv',3.5,-9.4,0],['cool',4.5,-2.85,2],['safe',4.2,-9.1,0],['plant',-4.5,-3],['vic',2.2,-6,1,'cov'],
+   ['shelf',11,-2.9,2,5],['shelf',14.5,-5.2,3,2.4],['medcart',6.4,-6.8,1],['sacks',13,-5.5,0],['sink',5.5,-8,1],['hdrum',6,-3.4],['trophy',-4.8,1.2,1],['washer',-13.6,-3.1,2],['washer',-12.5,-3.1,2]],
+  [['polecap',-6.5,8.6],['bunk',-13.5,1.6,1],['bunk',-13.5,4.4,1],['bunk',-13.5,7.2,1],['bunk',-10.4,1.6,1],['bunk',-10.4,4.4,1],['bunk',-10.4,7.2,1],['wardrobe',-7.2,9.1,2],['chair',-8,5,0],['vic',-8,3,0],['vic',-11.9,3.2,1,'cov'],
+   ['desk',-9,-8.2,0],['safe',-14.2,-9.2,0],['cab',-14.4,-6,1],['bed',-13,-3.6,0],['plant',-6,-1.8],['vic',-7.4,-3,0],
+   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],['bin',4.7,.6,3],
    ['wc',-4,-9.3,0],['wc',-2.6,-9.3,0],['wc',-1.2,-9.3,0],['sink',1,-9.35,0],['sink',2.4,-9.35,0],['bath',4,-8.2,0],['vic',-3,-5,1,'cov'],
    ['sofa',10.5,-5.7,0],['tv',10.5,1.55,2],['table',10.5,-1.4,0,1.4,.8],['chair',7.5,-3,3],['vic',12.8,-3.2,0],['vend',14.1,-1,3],['plant',6,-6],
    ['weights',9,4.5,0],['weights',12.5,4.5,0],['treadm',9.5,8.4,0],['treadm',11.3,8.4,0],['treadm',13.1,8.4,0],['ext',14.55,2.6,3],['vic',7,6,1],['pool',12.5,-.5,0],['bshelf',14.5,1,3,1.4],['hbag',8.2,3.2,0],['dumb',14.45,6.5,3]]]});
 FIRE.name='Fire Station 7';
+FIRE.bayDoors=[{style:'garage',a:-12.4,b:-6.6,pi:9.7,po:10,pm:9.85,dh:3.5,open:1},{style:'garage',a:6.6,b:12.4,pi:9.7,po:10,pm:9.85,dh:3.5,open:0}];
 {const fsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.8});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;FIRE.grp.add(m)};
  const R_='#a81f1b',K='#1c1f22',F_='#f2f4f8',Y='#d9a516';
  fsn([['ENGINE 7',54,40]],R_,F_,512,80,3.6,.45,-9.5,4.35,10.04,0);fsn([['MEDIC 7',54,40]],F_,R_,512,80,3.6,.45,9.5,4.35,10.04,0);
@@ -49931,6 +49966,14 @@ FIRE.name='Fire Station 7';
  fsn([['STOP',60,50],['DROP',60,110],['& ROLL',60,170]],'#e8e4d8',R_,256,230,1,1.1,5.08,1.8,7.2,-Math.PI/2);fsn([['SMOKE ALARMS',26,40],['SAVE LIVES',26,80],['TEST YOURS',22,128]],Y,K,256,150,1,.7,-5.08,1.7,5.4,Math.PI/2);
  fsn([['CHORES',40,36],['MON  \u2014  DEAD',22,80],['TUE  \u2014  DEAD',22,116],['WED  \u2014  ???',22,152]],'#1d3a2a','#e8e8e0',256,190,1.2,.9,13.2,5.9,1.88,Math.PI);
  fsn([['PUMP PANEL',26,30]],K,Y,256,60,.9,.2,-10.88,2.6,6,-Math.PI/2);
+ fsn([['BAY 1',40,40]],K,F_,512,80,1.6,.3,-9.5,3.8,9.69,Math.PI);fsn([['BAY 2',40,40]],K,F_,512,80,1.6,.3,9.5,3.8,9.69,Math.PI);
+ fsn([['DISPATCH',44,40]],K,Y,512,80,1.6,.3,0,2.7,-2.39,0);
+ fsn([['◂ GEAR ROOM',36,40]],K,F_,512,80,1.6,.3,-5.08,2.7,-6,Math.PI/2);fsn([['SUPPLY ▸',40,40]],'#1d4d3a',F_,512,80,1.6,.3,5.08,2.7,-5,-Math.PI/2);
+ fsn([['BUNK ROOM',40,40]],'#223a5a',F_,512,80,1.6,.3,-5.08,6.7,4,Math.PI/2);fsn([['CAPTAIN',44,40]],K,Y,512,80,1.4,.3,-5.08,6.7,-5.5,Math.PI/2);
+ fsn([['GYM',54,40]],K,F_,512,80,1.2,.3,5.08,6.7,4,-Math.PI/2);fsn([['DAY ROOM',40,40]],K,F_,512,80,1.6,.3,5.08,6.7,-2,-Math.PI/2);
+ fsn([['RESTROOMS',40,40]],'#223a5a',F_,512,80,1.6,.3,4,6.7,.11,0);fsn([['CAPTAIN · OFFICE',34,40]],K,F_,512,80,1.8,.3,-10,6.7,-.89,0);
+ fsn([['STATION 7',34,34],['RIVER ST',26,72]],K,Y,256,100,1.1,.4,-3.95,2.4,10.04,0);
+ fsn([['BAY 1 · PUMPER',30,40]],R_,F_,512,80,1.4,.25,-5.3,1.05,6.2,-Math.PI/2);fsn([['AED · FIRST AID',26,30]],'#1d4d3a',F_,512,60,.8,.14,5.3,1.9,5.3,Math.PI/2);
  const mp=new T.Mesh(new T.PlaneGeometry(3,1.2),new T.MeshStandardMaterial({map:tex(512,200,(g,W,Hh)=>{g.fillStyle='#cfd4c4';g.fillRect(0,0,W,Hh);g.fillStyle='#9db5c9';g.fillRect(0,Hh*.55,W,Hh*.12);g.fillStyle='#b7c4a3';for(let i=0;i<9;i++)g.fillRect(W*sr()*.9,Hh*sr()*.8,40+sr()*60,20+sr()*30);g.strokeStyle='rgba(40,50,60,.5)';g.lineWidth=1;for(let x=0;x<W;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,Hh);g.stroke()}for(let y=0;y<Hh;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke()}g.fillStyle='#c01818';for(let i=0;i<26;i++){g.beginPath();g.arc(W*sr(),Hh*sr(),5,0,7);g.fill()}g.fillStyle='#1a1a1a';g.font='bold 20px sans-serif';g.fillText('DISTRICT 7  \u00b7  ALL PINS ACTIVE',12,24)}),roughness:.8}));mp.position.set(0,2.1,-9.62);FIRE.grp.add(mp);
  const soot=(x,y,w,h)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex(64,128,(g,W,Hh)=>{const gr=g.createLinearGradient(0,Hh,0,0);gr.addColorStop(0,'rgba(10,8,6,.85)');gr.addColorStop(1,'rgba(10,8,6,0)');g.fillStyle=gr;g.fillRect(0,0,W,Hh);g.fillStyle='rgba(8,6,5,.5)';for(let i=0;i<10;i++)g.fillRect(W*sr(),Hh*(.2+.6*sr()),4,Hh*.5*sr())}),transparent:true,depthWrite:false}));m.position.set(x,y,10.03);FIRE.grp.add(m)};
  for(const x of[-13,-9,-5,3,11])soot(x,7.15,2,1.1);soot(7,5.7,2,2.4);soot(-5.5,4.3,2.4,1.2)}
@@ -50205,12 +50248,12 @@ const HOUSE3=makeModel2({w:24,d:16,fl:2,lv:2,dw:2.8,dh:2.8,mat:wt2('#8c6239',1),
  X:H3B.X,XC:H3B.XC,
  F:[
  // ---- ground floor: mid-century living den, retro diner kitchen, fortified survival bunker, garage workshop ----
- [['hearth',-11.2,.8,1,'stone'],['rug',-7.8,3.6,0,3.8,2.8],['sofa',-7.8,5.8,2],['armchair',-9.8,3.6,1],['armchair',-5.8,3.6,3],['table',-7.8,3.6,0,1.4,.75],['tv',-5.6,.2,0],['shelf',-10.2,-.15,0,2.2],['plant',-11.1,6.8],['sbag',-3.8,9.2,0],
-  ['island',.2,2.4,0,2.4],['counter',-2.8,.2,0,1.6],['stove',.2,.2,0],['fridge',1.6,.2,0],['table',1.8,4.8,0,1.5,.8],['chair',1.2,4.0,0],['chair',2.4,4.0,0],['chair',1.2,5.6,2],['chair',2.4,5.6,2],['barr',-2.4,6.8,0],
-  ['hamradio',-8.0,-6.8,0],['grack',-11.35,-4.2,1,2.4],['safe',-4.8,-7.1,0],['rack',-10.1,-1.4,0,2.2],['rack',-5.8,-1.4,0,2.0],['cots',-5.4,-4.4,1],['medcart',-9.8,-4.2,1],['hdrum',-11.1,-6.9],
+ [['hearth',-11.2,.8,1,'stone'],['rug',-7.8,3.6,0,3.8,2.8],['sofa',-7.8,5.8,2],['armchair',-9.8,3.6,1],['armchair',-5.8,3.6,3],['table',-7.8,3.6,0,1.4,.75],['tv',-5.6,.2,0],['shelf',-9.78,-.15,0,1.8],['plant',-11.1,6.8],['sbag',-3.8,9.2,0],
+  ['island',.2,2.4,0,2.4],['counter',-2.95,.2,0,1.4],['stove',.2,.2,0],['fridge',1.6,.2,0],['table',1.8,4.8,0,1.5,.8],['chair',1.2,4.0,0],['chair',2.4,4.0,0],['chair',1.2,5.6,2],['chair',2.4,5.6,2],['barr',-2.4,6.8,0],
+  ['hamradio',-8.0,-6.8,0],['grack',-11.35,-4.2,1,2.4],['safe',-4.8,-7.1,0],['rack',-10.1,-1.0,2,2.2],['rack',-5.8,-1.0,2,2.0],['cots',-5.4,-4.4,1],['medcart',-9.8,-4.2,1],['hdrum',-11.1,-6.9],
   ['wc',-3.4,-7.1,0],['sink',-2.1,-7.2,0],['washer',.2,-7.1,0],['shelf',2.4,-7.3,0,2.4],
   ['swb',4.8,-1.5,1,2.6],['wbench',11.2,1.2,3,3.2],['comp',11.1,-1.8,3],['tires',11.0,-3.6,3],['scba',6.2,-4.4,0],['fork',7.6,-3.2,0],['drum',4.9,5.8],['cone',5.8,7.2],['cone',9.6,7.2],
-  ['shelf',2.5,-.82,2,2.0],['shelf',1.52,-1.95,1,1.6],['shelf',3.88,-2.0,3,1.8],['sacks',2.7,-2.6,0],['cool',3.2,-1.4],
+  ['shelf',2.5,-.82,2,2.0],['shelf',1.52,-1.65,1,1.0],['shelf',3.88,-2.0,3,1.8],['sacks',9.0,.4,0],['cool',3.2,-1.4],
   ['ext',11.4,5.6],['cool',11.3,6.9]],
  // ---- second floor: lookout loft master bedroom, hydroponic grow & reloading lab, second bedroom & bath ----
  [['bed',-10.4,4.2,1],['dresser',-7.2,7.1,2],['locker',-4.3,2.2,3,3],['armchair',-5.8,5.8,2],['rug',-7.8,4.2,0,3.4,2.6],['grack',-9.8,.45,0,1.8],
@@ -50218,7 +50261,7 @@ const HOUSE3=makeModel2({w:24,d:16,fl:2,lv:2,dw:2.8,dh:2.8,mat:wt2('#8c6239',1),
   ['desk',0,6.8,2],['sofa',0,2.2,0],['tv',3.2,2.0,3],['shelf',-2.0,.45,0,2.0],
   ['bunk',10.8,4.2,3],['bunk',10.8,1.5,3],['wardrobe',6.2,7.1,2],['table',7.2,3.5,0,1.4,.8],['chair',7.2,2.6,0],
   ['bath',-1.2,-7.0,0],['wc',1.8,-7.1,0],['sink',.4,-7.2,0],
-  ['cots',7.2,-4.2,0],['cots',10.0,-4.2,0],['cots',7.2,-2.6,0],['cots',10.0,-2.6,0],['iv',8.6,-3.4],['mon',8.6,-1.3],['medcart',6.7,-.7,0],['trolley',9.6,-.7,0],['wchair',7.8,-.9,0],['shelf',11.4,-1.3,3,1.6],['cab',11.3,-3.0,3]]]});
+  ['cots',7.2,-4.3,0],['cots',10.0,-4.3,0],['cots',7.6,-1.25,2],['cots',10.0,-1.25,2],['iv',8.6,-3.4],['mon',8.8,-1.25],['medcart',6.5,-.55,2],['trolley',9.8,-.55,2],['wchair',8.6,-.55,2],['shelf',11.4,-1.3,3,1.6],['cab',11.3,-3.0,3]]]});
 HOUSE3.name='88 Birch Lane (Prepper Ranch)';HOUSE3.bayDoors=[{style:'garage',a:5.2,b:10.2,pi:7.7,po:8,pm:7.85,dh:3.0,open:1}];
 {const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.75});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE3.grp.add(m);return m};
  const s0=hsn([['88 BIRCH LANE',42,36],['SOLAR + BACKUP GRID READY',21,74]],'#231f1b','#e8b948',512,100,1.9,.4,2.8,2.35,8.04,0);s0.name='sign';
