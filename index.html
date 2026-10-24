@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.25.0 — Bug-fix merge (Will save+builds, Jessica B1/B2/B4/B5/U3/fog, Jim placement+upper floors, GFX interiors) | v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -49256,6 +49256,14 @@ document.body.appendChild(ren.domElement);
 
 // lights
 const hemi=new T.HemisphereLight(0x8a9ac0,0x2a2a1e,0.55);scene.add(hemi);
+/* DH-GFX v1 */
+// GFX1: interiors. Ceilings were the underside of the dark roof slab (0x2a2c2e) / floor slabs, lit only by the hemisphere's dark
+// ground colour, and indoors the hemisphere is scaled to 0.4 (0.08 unpowered) and the sun is blocked, so they rendered black.
+// Fix: a global indoor bounce term (shared uniforms, zero outdoors) + light ceiling albedo on DH_CEIL materials.
+window.DH_BOUNCE={fill:{r:0,g:0,b:0},ceil:{r:0,g:0,b:0},k:0,lit:0};
+try{const SL=T.ShaderLib,INC='#include <emissivemap_fragment>',ADD=INC+'\n{vec3 dhN=inverseTransformDirection(normal,viewMatrix);float dhD=clamp(-dhN.y,0.,1.);\n#ifdef DH_CEIL\nif(dhD>.6)diffuseColor.rgb=vec3(.52,.5,.46)*(.82+.45*dot(diffuseColor.rgb,vec3(.3333)));\n#endif\ntotalEmissiveRadiance+=diffuseColor.rgb*(dhFill+dhCeil*dhD*dhD);}';
+ for(const k of['standard','physical','phong']){const L=SL[k];if(!L||L.fragmentShader.indexOf(INC)<0||L.fragmentShader.indexOf('dhFill')>=0)continue;
+  L.fragmentShader='uniform vec3 dhFill;\nuniform vec3 dhCeil;\n'+L.fragmentShader.replace(INC,ADD);L.uniforms.dhFill={value:window.DH_BOUNCE.fill};L.uniforms.dhCeil={value:window.DH_BOUNCE.ceil}}}catch(e){console.warn('[gfx] bounce shader',e)}
 const sun=new T.DirectionalLight(0xffc9a0,0.9);
 const SHE=matchMedia("(pointer:coarse)").matches?55:70;
 sun.castShadow=true;sun.shadow.mapSize.set(...(matchMedia("(pointer:coarse)").matches?[1536,1536]:[2048,2048]));
@@ -49344,7 +49352,15 @@ const floorT=tex(256,256,(g,w,h)=>{noise(g,w,h,'#6f6c66',14,5000);
  g.fillStyle='rgba(0,0,0,.28)';g.fillRect(0,0,w,2);g.fillRect(0,0,2,h);g.fillStyle='rgba(255,255,255,.06)';g.fillRect(0,2,w,1);g.fillRect(2,0,1,h)},1,1);
 floorT.anisotropy=8;
 const mFloor=new T.MeshStandardMaterial({map:floorT,roughness:.95,metalness:0}),mProp=new T.MeshStandardMaterial({color:0x6a5238,roughness:.8}),mRoof=new T.MeshStandardMaterial({color:0x2a2c2e,roughness:.9}),mLamp=new T.MeshBasicMaterial({color:0xfff0c8});
-function mergeBoxes(list){const P=[],N=[],U=[],I=[];let o=0;for(const b of list){const w=b[1]-b[0],h=b[3]-b[2],d=b[5]-b[4],g=new T.BoxGeometry(w,h,d),p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;for(let i=0;i<p.count;i++){P.push(p.getX(i)+(b[0]+b[1])/2,p.getY(i)+(b[2]+b[3])/2,p.getZ(i)+(b[4]+b[5])/2);N.push(n.getX(i),n.getY(i),n.getZ(i));const nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i)),sp=nx>.5?[d,h]:ny>.5?[w,d]:[w,h];U.push(u.getX(i)*sp[0]/4,u.getY(i)*sp[1]/4)}for(const k of g.index.array)I.push(k+o);o+=p.count}const G=new T.BufferGeometry();G.setAttribute('position',new T.Float32BufferAttribute(P,3));G.setAttribute('normal',new T.Float32BufferAttribute(N,3));G.setAttribute('uv',new T.Float32BufferAttribute(U,2));G.setIndex(I);return G}
+
+// === JIM FIX START: 0-helpers ===
+function jimSignGeo(pw,ph){const g=new T.BoxGeometry(pw,ph,.03);g.translate(0,0,-.015);const u=g.attributes.uv;for(let i=0;i<u.count;i++)if(i<16||i>19)u.setXY(i,.002,.002);return g}
+function jimPosts(grp,x,y,z,ry,pw,ph){const o=pw/2-.18,t=y+ph/2-.02,m=new T.Mesh(mergeBoxes([[-o-.04,-o+.04,0,t,-.11,-.03],[o-.04,o+.04,0,t,-.11,-.03]]),M2.metal);m.position.set(x,0,z);m.rotation.y=ry;m.castShadow=m.receiveShadow=true;grp.add(m);return m}
+function jimBand(a,m,x0,x1,y0,y1,z0,z1,T){a(m,x0,x1,y0,y1,z0,z0+T);a(m,x0,x1,y0,y1,z1-T,z1);a(m,x0,x0+T,y0,y1,z0+T,z1-T);a(m,x1-T,x1,y0,y1,z0+T,z1-T)}
+var JIM_RIM_G=null;
+function mergeBoxes(list){
+// === JIM FIX END: 0-helpers ===
+const P=[],N=[],U=[],I=[];let o=0;for(const b of list){const w=b[1]-b[0],h=b[3]-b[2],d=b[5]-b[4],g=new T.BoxGeometry(w,h,d),p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;for(let i=0;i<p.count;i++){P.push(p.getX(i)+(b[0]+b[1])/2,p.getY(i)+(b[2]+b[3])/2,p.getZ(i)+(b[4]+b[5])/2);N.push(n.getX(i),n.getY(i),n.getZ(i));const nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i)),sp=nx>.5?[d,h]:ny>.5?[w,d]:[w,h];U.push(u.getX(i)*sp[0]/4,u.getY(i)*sp[1]/4)}for(const k of g.index.array)I.push(k+o);o+=p.count}const G=new T.BufferGeometry();G.setAttribute('position',new T.Float32BufferAttribute(P,3));G.setAttribute('normal',new T.Float32BufferAttribute(N,3));G.setAttribute('uv',new T.Float32BufferAttribute(U,2));G.setIndex(I);return G}
 function makeModel(s){const{w,d,fl,lv,dw,dh}=s,hw=w/2,hd=d/2,H=fl*FH,t=.3,B={wall:[],floor:[],prop:[],roof:[],lamp:[]},cols=[],ramps=[];
  const add=(k,a,b,c,e,f,g)=>B[k].push([a,b,c,e,f,g]),col=(a,b,c,e,l)=>cols.push({x:(a+b)/2,z:(c+e)/2,hw:(b-a)/2,hd:(e-c)/2,lv:l});const wz=s.win||[];const sideWall=(x0,x1)=>{col(x0,x1,-hd,hd);let z=-hd;for(const c of wz){add('wall',x0,x1,0,H,z,c-1);z=c+1;for(let l=0;l<fl;l++){add('wall',x0,x1,l*FH,l*FH+1,c-1,c+1);add('wall',x0,x1,l*FH+2.6,(l+1)*FH,c-1,c+1)}}add('wall',x0,x1,0,H,z,hd)};
  add('wall',-hw,hw,0,H,-hd,-hd+t);col(-hw,hw,-hd,-hd+t);sideWall(-hw,-hw+t);sideWall(hw-t,hw);
@@ -49374,8 +49390,27 @@ M2.cream=mk(0xe4dec8,.82);M2.sage=mk(0x526652,.85);M2.gold=mk(0xd4af37,.25,.8);M
 M2.water=mk(0x3a7ca5,.15,.2,{transparent:true,opacity:.72});M2.soil=mk(0x3d2e1e,1);M2.leaf=mk(0x365e2d,.9);M2.rose=mk(0xb83240,.8);
 M2.neonP=new T.MeshBasicMaterial({color:0xff2a85});M2.neonC=new T.MeshBasicMaterial({color:0x2affd5});M2.neonA=new T.MeshBasicMaterial({color:0xffaa22});
 M2.felt=mk(0x1b5e3a,.9);M2.mahog=mk(0x421c12,.45,.1);M2.chrome=mk(0xd8dde2,.18,.88);
+// GFX2: the old interior plaster was a 128 px canvas of 1-4 px blotches stretched over 4 m of wall (32 px/m), so every wall looked like
+// magnified tan stucco. New: 512 px fine plaster, repeat 2 -> one tile per 2 m (256 px/m, UVs are already in metres), neutral so it can be tinted per building.
+{const pt=tex(512,512,(g,w,h)=>{g.fillStyle='#d3cfc6';g.fillRect(0,0,w,h);
+  _blob(g,w,h,60,30,110,['rgba(255,252,240,.05)','rgba(120,112,96,.045)','rgba(170,160,140,.04)','rgba(90,84,74,.03)']);
+  for(let i=0;i<26000;i++){const k=Math.random()<.5?0:255;g.fillStyle='rgba('+k+','+k+','+k+','+R(.025,.09)+')';g.fillRect(R(0,w),R(0,h),R(.8,1.8),R(.8,1.8))}
+  for(let i=0;i<3;i++)_crack(g,w,h,R(0,w),R(0,h),R(0,6.28),R(3,7),.7,'rgba(60,54,46,.16)',false);},2,2);
+ M2.plaster=new T.MeshStandardMaterial({map:pt,color:0xcfc6b2,roughness:.92});
+ for(const m of[mFloor,mRoof,M2.plaster])m.defines.DH_CEIL='';
+ const PC={},tint=c=>PC[c]||(PC[c]=(()=>{const m=M2.plaster.clone();m.color.setHex(c);m.defines.DH_CEIL='';return m})());
+ // mild colour variety per building type (one cached material per tint; each building already draws its plaster as its own mesh)
+ window.DH_PLT=s=>{const n=((s.sign&&s.sign[0])||'')+'';
+  if(/HOSPITAL/i.test(n))return tint(0xd8e2dc);if(/POLICE|OFFICE/i.test(n))return tint(0xcbcfcf);if(/DEPOT|POWER|AUTO|FORT/i.test(n))return tint(0xc9c3b4);
+  if(/SCHOOL/i.test(n))return tint(0xe0d7b9);if(/STORE|FIRE/i.test(n))return tint(0xdccbb0);if(/APART/i.test(n))return tint(0xd9cdb8);
+  if(s.curt){const H=[0xe2d4bb,0xd5dacb,0xdfccc0,0xd8d0c0];return tint(H[Math.abs(Math.round((s.w||0)*7+(s.d||0)*3+(s.dw||0)*11))%H.length])}
+  return M2.plaster}}
 function makeModel2(s){const LPS=[],IDRS=[];
- const{w,d,fl,lv,dw,dh}=s,hw=w/2,hd=d/2,H=fl*FH,t=.3,B={},cols=[],ramps=[],sill=s.sill||.9,head=s.head||2.6,WL=s.wl||[...Array(fl).keys()],DR=s.door||{};
+ const{w,d,fl,lv,dw,dh}=s,hw=w/2,hd=d/2,H=fl*FH,t=.3,B={},cols=Object.assign([],
+// === JESSICA FIX START: U3 ===
+{H}/* roof height for blockedAt */
+// === JESSICA FIX END ===
+),ramps=[],sill=s.sill||.9,head=s.head||2.6,WL=s.wl||[...Array(fl).keys()],DR=s.door||{};
  const add=(k,a,b,c,e,f,g)=>(B[k]=B[k]||[]).push([a,b,c,e,f,g]),col=(a,b,c,e,l)=>cols.push({x:(a+b)/2,z:(c+e)/2,hw:(b-a)/2,hd:(e-c)/2,lv:l});
  const bxa=(ax,k,u0,u1,y0,y1,p0,p1)=>ax=='x'?add(k,u0,u1,y0,y1,p0,p1):add(k,p0,p1,y0,y1,u0,u1);
  const segs=hs=>{const r=[];let y=0;for(const[a,b]of hs){if(a>y)r.push([y,a]);y=b}if(H>y)r.push([y,H]);return r};
@@ -49387,7 +49422,11 @@ function makeModel2(s){const LPS=[],IDRS=[];
    bxa(ax,'glass',o.a,o.b,y0,y1,pm-.015,pm+.015);bxa(ax,'trim',m-.025,m+.025,y0,y1,pm-.03,pm+.03);bxa(ax,'trim',o.a,o.b,(y0+y1)/2-.025,(y0+y1)/2+.025,pm-.03,pm+.03);
    bxa(ax,'trim',o.a-.05,o.a+.04,y0-.04,y1+.06,pm-.06,pm+.06);bxa(ax,'trim',o.b-.04,o.b+.05,y0-.04,y1+.06,pm-.06,pm+.06);bxa(ax,'trim',o.a-.05,o.b+.05,y1,y1+.08,pm-.06,pm+.06);
    bxa(ax,'conc',o.a-.1,o.b+.1,y0-.07,y0+.02,out>0?q:q-.13,out>0?q+.13:q);
-   if(s.curt)for(const[u0,u1]of[[o.a-.1,o.a+.3],[o.b-.3,o.b+.1]])bxa(ax,'fab1',u0,u1,y0-.15,y1+.1,out>0?li[0]-.07:li[1]+.03,out>0?li[0]-.03:li[1]+.07);
+   if(s.curt)for(const[u0,u1]of[[o.a-.1,o.a+.3],[o.b-.3,o.b+.1]])bxa(ax,'fab1',u0,u1,y0-.15,y1+.1,
+// === JIM2 FIX START: N2-curtains ===
+out>0?li[0]-.05:li[1]+.01,out>0?li[0]-.01:li[1]+.05
+// === JIM2 FIX END: N2-curtains ===
+);
    if(s.board&&y0<FH&&sr()<.5)for(let i=0;i<3;i++)bxa(ax,'wood2',o.a-.1,o.b+.1,y0+.08+i*.5+sr()*.05,y0+.3+i*.5,ex[0],ex[1])}}
  // ---- shell + windows + entrance ----
  const a=-dw/2,b=dw/2,pi=hd-t,po=hd,pm=(pi+po)/2;
@@ -49399,8 +49438,16 @@ function makeModel2(s){const LPS=[],IDRS=[];
  // exterior trim: plinth (split around door), cornice, parapet, roof gear, drain pipes
  {const gs=[[a-.14,b+.14],...(s.bays||[]).map(q=>[q[0]-.12,q[1]+.12])].sort((p,q)=>p[0]-q[0]);let u=-hw-.05;for(const[g0,g1]of gs){if(g0>u)add('conc',u,g0,0,.45,hd,hd+.05);u=g1}add('conc',u,hw+.05,0,.45,hd,hd+.05)}add('conc',-hw-.05,hw+.05,0,.45,-hd-.05,-hd);add('conc',-hw-.05,-hw,0,.45,-hd-.05,hd+.05);add('conc',hw,hw+.05,0,.45,-hd-.05,hd+.05);
  add('trim',-hw-.12,hw+.12,H-.3,H,-hd-.12,hd+.12);
- for(const[x0,x1,z0,z1]of[[-hw-.3,hw+.3,-hd-.3,-hd-.1],[-hw-.3,hw+.3,hd+.1,hd+.3],[-hw-.3,-hw-.1,-hd-.3,hd+.3],[hw+.1,hw+.3,-hd-.3,hd+.3]])add('wall',x0,x1,H+.4,H+1.1,z0,z1);
- add('metal',-hw+2,-hw+4.4,H+.4,H+1.4,-hd+2,-hd+3.4);add('metal',hw-5,hw-3,H+.4,H+1.2,-hd+3,-hd+4.2);add('dark',-hw+6,-hw+6.3,H+.4,H+1.5,-hd+2,-hd+2.3);add('conc',hw-2.5,hw-.8,H+.4,H+1.8,hd-3,hd-1.3);
+
+// === JIM2 FIX START: B1-parapet ===
+ if(!s.xroof)for(const[x0,x1,z0,z1]of[[-hw-.3,hw+.3,-hd-.3,-hd-.1]
+// === JIM2 FIX END: B1-parapet ===
+,[-hw-.3,hw+.3,hd+.1,hd+.3],[-hw-.3,-hw-.1,-hd-.3,hd+.3],[hw+.1,hw+.3,-hd-.3,hd+.3]])add('wall',x0,x1,H+.4,H+1.1,z0,z1);
+
+// === JIM2 FIX START: B2-roofgear ===
+ if(!s.xroof&&!s.nogear){add('metal',-hw+2,-hw+4.4,H+.4,H+1.4,-hd+2,-hd+3.4);add('metal',hw-5,hw-3,H+.4,H+1.2,-hd+3,-hd+4.2);add('dark',-hw+6,-hw+6.3,H+.4,H+1.5,-hd+2,-hd+2.3);add('conc',hw-2.5,hw-.8,H+.4,H+1.8,hd-3,hd-1.3);}
+// === JIM2 FIX END: B2-roofgear ===
+
  add('metal',hw+.02,hw+.14,0,H,hd-.7,hd-.58);add('metal',-hw-.14,-hw-.02,0,H,-hd+.5,-hd+.62);
  // entrance: porch, steps, frame, canopy, lamp, mat, exit sign
  add('trim',a-.14,a,0,dh,pi-.04,po+.04);add('trim',b,b+.14,0,dh,pi-.04,po+.04);add('trim',a-.14,b+.14,dh,dh+.18,pi-.05,po+.06);
@@ -49414,11 +49461,25 @@ function makeModel2(s){const LPS=[],IDRS=[];
   for(const x of[a-.9,b+.9]){add('yel',x,x+.2,0,1.1,po+1.3,po+1.5);col(x,x+.2,po+1.3,po+1.5)}}
  else{} // doorway leaves are now real interactive doors (see mkDoor/place)
  // ---- stairs (unchanged logic) ----
- for(let k=0;k<lv-1;k++){const e=k%2==0,z0=-hd+t+(e?0:2.7),x1=hw-.5,x0=x1-6,r={k,x0,x1,z0,z1:z0+2.7,dir:e?-1:1};ramps.push(r);for(let i=0;i<24;i++){const a2=i/24*6,b2=(i+1)/24*6,top=k*FH+(i+1)/24*FH;add('floor',e?x1-b2:x0+a2,e?x1-a2:x0+b2,k*FH,top,r.z0,r.z1)}}
+ for(let k=0;k<lv-1;k++){const e=k%2==0,z0=-hd+t+(e?0:2.7),
+// === JIM FIX START: U6-stair-flights ===
+x0=hw-6.5,x1=hw-.5-(e?0:1),r={k,x0,x1,z0,z1:z0+2.7,dir:e?-1:1};ramps.push(r);for(let i=0;i<24;i++){const a2=i/24*(x1-x0),b2=(i+1)/24*(x1-x0),
+// === JIM FIX END: U6-stair-flights ===
+top=k*FH+(i+1)/24*FH;add('floor',e?x1-b2:x0+a2,e?x1-a2:x0+b2,k*FH,top,r.z0,r.z1)}}
  for(let k=1;k<lv;k++){const r=ramps[k-1],y0=k*FH-.3,y1=k*FH;add('floor',-hw+.1,r.x0,y0,y1,-hd+.1,hd-.1);add('floor',r.x1,hw-.1,y0,y1,-hd+.1,hd-.1);add('floor',r.x0,r.x1,y0,y1,-hd+.1,r.z0);add('floor',r.x0,r.x1,y0,y1,r.z1,hd-.1)}
+// === JIM FIX START: U2-stair-rails ===
+
+ for(let k=1;k<lv;k++){const r=ramps[k-1],y=k*FH,e=r.dir<0,R=[];R.push(['x',r.x0,r.x1,r.z1+.03]);if(!e){R.push(['x',r.x0,r.x1,r.z0-.08]);R.push(['z',r.z0-.08,r.z1+.08,r.x0-.08])}
+  for(const[ax,u0,u1,w]of R){const L=u1-u0,n=Math.max(2,Math.ceil(L/1.4)+1),bxr=(a0,a1,y0,y1)=>ax=='x'?add('metal',a0,a1,y0,y1,w,w+.05):add('metal',w,w+.05,y0,y1,a0,a1);bxr(u0,u1,y+.95,y+1.0);bxr(u0,u1,y+.5,y+.53);for(let i=0;i<n;i++){const q=u0+(L-.05)*i/(n-1);bxr(q,q+.05,y,y+.95)}ax=='x'?col(u0,u1,w-.03,w+.08,k):col(w-.03,w+.08,u0,u1,k)}}
  // ---- partitions ----
+
+// === JIM FIX END: U2-stair-rails ===
  const cyL=l=>s.ph?l*FH+s.ph:(l===lv-1?H:(l+1)*FH-.3);
- for(const P of s.P||[]){const[ax,pos,c0,c1,gaps,lvs,cat]=P;for(let l=0;l<lv;l++){if(lvs&&!lvs.includes(l))continue;const y0=l?l*FH:.06,y1=cyL(l),k=cat||'plaster',sol=(u0,u1)=>ax=='x'?col(u0,u1,pos-.1,pos+.1,l):col(pos-.1,pos+.1,u0,u1,l);let cu=c0;
+ for(const P of s.P||[]){const[ax,pos,c0,c1,gaps,lvs,cat]=P;for(let l=0;l<lv;l++){if(lvs&&!lvs.includes(l))continue;const y0=l?l*FH:.06,y1=cyL(l),k=cat||'plaster',sol=(u0,u1)=>{ax=='x'?col(u0,u1,pos-.1,pos+.1,l):col(pos-.1,pos+.1,u0,u1,l);
+// === JESSICA FIX START: U3 ===
+cols[cols.length-1].top=y1;/* partition wall blocks bullets for its full height */
+// === JESSICA FIX END ===
+};let cu=c0;
   for(const g of gaps.slice().sort((p,q)=>p-q)){const g0=g-.55,g1=g+.55;if(g0>cu){bxa(ax,k,cu,g0,y0,y1,pos-.1,pos+.1);sol(cu,g0)}
    if(y1>y0+2.3)bxa(ax,k,g0,g1,y0+2.3,y1,pos-.1,pos+.1);bxa(ax,'trim',g0-.06,g0,y0,y0+2.4,pos-.13,pos+.13);bxa(ax,'trim',g1,g1+.06,y0,y0+2.4,pos-.13,pos+.13);bxa(ax,'trim',g0-.06,g1+.06,y0+2.3,y0+2.4,pos-.13,pos+.13);
    IDRS.push({ax,pos,g,g0,g1,y0,l});cu=g1}
@@ -49427,7 +49488,11 @@ function makeModel2(s){const LPS=[],IDRS=[];
  if(s.ph)for(const P of s.P||[])if(P[5]===undefined&&0){}
  if(s.roomCeil)add(...s.roomCeil);for(const e of s.X||[])add(...e);for(const e of s.XC||[])col(e[0],e[1],e[2],e[3],0);
  // ---- floors, lamps, debris, furniture per level ----
- let fy=0,cx=0,cz=0,oo=0;
+ 
+// === JIM FIX START: U8-hoop-a ===
+let fy=0,cx=0,cz=0,oo=0,jimX=[];
+// === JIM FIX END: U8-hoop-a ===
+
  const p=(k,u,v,A,Bd,y,h)=>{const sg=oo>1?-1:1,X=cx+(oo&1?v:u)*sg,Z=cz+(oo&1?u:v)*sg,aa=oo&1?Bd:A,bb=oo&1?A:Bd;add(k,X-aa/2,X+aa/2,fy+y,fy+y+h,Z-bb/2,Z+bb/2)};
  let CL=0;const sol=(A,Bd)=>{const aa=oo&1?Bd:A,bb=oo&1?A:Bd;col(cx-aa/2,cx+aa/2,cz-bb/2,cz+bb/2,CL)};
  const FN={
@@ -49456,7 +49521,11 @@ function makeModel2(s){const LPS=[],IDRS=[];
  tv:()=>{p('wood',0,0,1.3,.4,0,.5);p('dark',0,0,1,.07,.5,.6);p('glass',0,.04,.9,.01,.55,.5);sol(1.3,.4)},
  wardrobe:()=>{p('wood',0,0,1.2,.55,0,2);p('dark',0,.276,.02,.01,.1,1.8);p('metal',.05,.28,.03,.02,1,.2);p('metal',-.05,.28,.03,.02,1,.2);sol(1.2,.55)},
  fork:()=>{p('shade',0,0,3,1.9,.007,.002);p('yel',0,0,2.2,1.2,.3,.7);p('dark',1.2,0,.12,.9,0,2.3);p('metal',1.6,-.3,.8,.1,.05,.05);p('metal',1.6,.3,.8,.1,.05,.05);for(const i of[-1,1]){p('dark',-.2,i*.55,.06,.06,1,1.2);p('dark',.8,i*.65,.5,.2,.01,.5);p('dark',-.8,i*.65,.5,.2,.01,.5)}p('dark',-.2,0,1,1.2,2.2,.05);sol(2.2,1.2)},
- prack:A=>{A=A||5;p('shade',0,0,A+.4,1.4,.007,.002);const n=Math.round(A/1.25),L=[.3,1.5,2.7,3.9];for(let i=0;i<=n;i++)for(const j of[-1,1])p('blue',-A/2+i*A/n,j*.38,.09,.07,0,5.2);
+ prack:A=>{A=A||5;p('shade',0,0,A+.4,1.4,.007,.002);
+// === JIM2 FIX START: D-prack-ceiling ===
+const n=Math.round(A/1.25),UH=Math.min(5.2,cyL(CL)-fy-.08),L=[.3,1.5,2.7,3.9].filter(y=>y+1.2<UH);for(let i=0;i<=n;i++)for(const j of[-1,1])p('blue',-A/2+i*A/n,j*.38,.09,.07,0,UH);
+// === JIM2 FIX END: D-prack-ceiling ===
+
   for(const y of L){p('orng',0,-.38,A,.07,y,.12);p('orng',0,.38,A,.07,y,.12);for(let i=0;i<n;i++){const x=-A/2+(i+.5)*A/n,r=sr();p('wood',x,0,1.1,.8,y+.12,.14);if(r<.78){p('card',x-.27,0,.5,.7,y+.26,.5+sr()*.3);p('card',x+.27,0,.5,.7,y+.26,.4+sr()*.3);if(r<.3)p('glass',x,0,1.12,.82,y+.26,.9)}}}sol(A,.9)},
  shrink:()=>{p('shade',0,0,1.5,1.3,.007,.002);p('wood',0,0,1.2,1,0,.15);for(let i=0;i<3;i++)p('card',0,0,1.1,.9,.15+i*.4,.38);p('glass',0,0,1.2,1,.15,1.2);p('white',0,0,1.22,1.02,.6,.02);sol(1.2,1)},
  wbench:A=>{A=A||3;p('wood',0,0,A,.7,.86,.06);p('metal',0,0,A-.1,.65,.1,.04);for(const i of[-1,1])p('metal',i*(A/2-.06),0,.08,.6,0,.86);p('wood2',0,-.34,A,.03,1.1,1.4);
@@ -49486,9 +49555,13 @@ function makeModel2(s){const LPS=[],IDRS=[];
  medcart:()=>{p('red',0,0,.7,.5,.1,.8);for(let i=0;i<3;i++)p('dark',0,.26,.58,.015,.25+i*.22,.03);p('metal',0,0,.74,.54,.9,.03);p('dark',.05,0,.3,.22,.93,.18);p('green',.05,.12,.2,.01,1,.08);p('yel',-.22,0,.12,.1,.93,.05);for(const i of[-1,1])for(const j of[-1,1])p('dark',i*.3,j*.2,.08,.08,0,.1);sol(.7,.5)},
  bodybag:()=>{p('shade',0,0,2.1,.8,.007,.002);p('bag',0,0,1.85,.52,.02,.12);p('bag',.3,0,.9,.5,.14,.07);p('bag',-.75,0,.3,.38,.14,.07);p('metal',0,0,1.8,.025,.145,.012);p('card',.2,.1,.15,.1,.145,.01);p('blood',.5,.35,.5,.4,.007,.003)},
  vic:m=>{p('blood',-.1,0,2.2,1.5,.006,.003);p('blood',.35,.15,.9,.7,.009,.002);
-  if(m==='cov'){p('white',0,0,1.85,.62,.06,.2);p('white',.15,0,.8,.5,.26,.06);p('blood',.1,.05,.5,.35,.32,.006);p('skin',-1.05,.12,.22,.16,.06,.1);p('skin',-1.05,-.12,.22,.16,.06,.1);p('dark',-1.2,0,.12,.4,.06,.04);return}
-  p('teal',0,0,.7,.46,.06,.2);p('teal',-.42,0,.28,.5,.06,.12);p('skin',-.75,.12,.75,.17,.06,.16);p('skin',-.78,-.14,.7,.17,.06,.16);p('skin',-1.2,.2,.4,.16,.06,.15);p('dark',-1.2,.12,.2,.2,.06,.1);p('dark',-1.18,-.14,.2,.2,.06,.1);
-  p('teal',.08,.32,.5,.14,.06,.13);p('skin',.45,.42,.45,.12,.06,.12);p('skin',.2,-.3,.55,.12,.06,.12);p('skin',.6,-.38,.22,.11,.06,.11);p('skin',.56,0,.26,.24,.06,.21);p('dark',.63,0,.14,.26,.2,.08);p('blood',.42,0,.06,.14,.06,.07);p('white',.7,.4,.05,.12,.06,.02)},
+
+// === JIM2 FIX START: N1-vic ===
+  if(m==='cov'){p('white',0,0,1.85,.62,.01,.2);p('white',.15,0,.8,.5,.21,.06);p('blood',.1,.05,.5,.35,.27,.006);p('skin',-1.05,.12,.22,.16,.01,.1);p('skin',-1.05,-.12,.22,.16,.01,.1);p('dark',-1.2,0,.12,.4,.01,.04);return}
+  p('teal',0,0,.7,.46,.01,.2);p('teal',-.42,0,.28,.5,.01,.12);p('skin',-.75,.12,.75,.17,.01,.16);p('skin',-.78,-.14,.7,.17,.01,.16);p('skin',-1.2,.2,.4,.16,.01,.15);p('dark',-1.2,.12,.2,.2,.01,.1);p('dark',-1.18,-.14,.2,.2,.01,.1);
+  p('teal',.08,.32,.5,.14,.01,.13);p('skin',.45,.42,.45,.12,.01,.12);p('skin',.2,-.3,.55,.12,.01,.12);p('skin',.6,-.38,.22,.11,.01,.11);p('skin',.56,0,.26,.24,.01,.21);p('dark',.63,0,.14,.26,.15,.08);p('blood',.42,0,.06,.14,.01,.07);p('white',.7,.4,.05,.12,.01,.02)},
+// === JIM2 FIX END: N1-vic ===
+
  regdesk:A=>{A=A||3;p('shade',0,0,A+.3,1.3,.007,.002);p('wood',0,0,A,.8,0,1.05);p('white',0,.02,A+.1,.95,1.05,.05);p('teal',0,.41,A-.3,.02,.15,.75);p('glass',0,.12,A-.3,.03,1.1,.75);for(const i of[-1,1])p('metal',i*(A/2-.15),.12,.04,.04,1.1,.75);p('metal',0,.12,A-.3,.04,1.83,.03);
   p('dark',A/4,-.2,.45,.05,1.15,.3);p('dark',A/4,-.2,.08,.08,1.1,.07);p('dark',A/4,-.05,.4,.14,1.1,.02);p('dark',-A/4,-.2,.2,.15,1.1,.07);p('white',-A/6,-.1,.3,.25,1.1,.02);p('white',-A/6+.1,-.12,.25,.3,1.12,.02);p('card',-A/3,-.25,.25,.33,1.1,.02);p('white',-A/2+.3,.3,.1,.1,1.1,.2);p('blood',-A/5,.415,.5,.01,.3,.5);p('blood',A/3,.2,.4,.3,1.1,.005);sol(A,.8)},
  curtain:A=>{A=A||2.4;p('metal',0,0,A,.04,2.5,.03);for(let i=0;i<Math.floor(A/.3);i++){p('teal',-A/2+.15+i*.3,i%2?.025:-.025,.3,.03,.12,2.38)}p('blood',.2,.045,.5,.01,1,.5)},
@@ -49508,7 +49581,15 @@ function makeModel2(s){const LPS=[],IDRS=[];
  hbag:()=>{p('dark',0,0,.1,.1,2.2,.5);p('bag',0,0,.38,.38,.9,1.35);p('yel',0,0,.4,.4,1.5,.06);sol(.4,.4)},
  dumb:()=>{p('metal',0,0,1.4,.4,.5,.04);for(const i of[-1,1])p('dark',i*.6,0,.06,.4,0,.5);for(let i=0;i<6;i++){p('dark',-.55+i*.22,0,.16,.12,.54,.1);p('metal',-.55+i*.22,0,.04,.2,.56,.06)}sol(1.4,.4)},
  trophy:()=>{p('wood',0,0,1.4,.4,0,.9);p('glass',0,0,1.4,.4,.9,1.1);for(let i=0;i<4;i++)p('brass',-.5+i*.33,0,.12,.12,.95,.2);p('wood',0,0,1.4,.4,2,.05);sol(1.4,.4)},
- gear:A=>{A=A||3;const n=Math.round(A/.5);p('metal',0,-.2,A,.04,1.95,.04);for(let i=0;i<n;i++){const x=-A/2+(i+.5)*A/n;p('dark',x,-.05,.38,.22,.95,.95);p('yel',x,.07,.38,.01,1.3,.07);p('yel',x,-.05,.26,.26,1.95,.22);p('dark',x,.1,.28,.3,0,.3);if(i%3==1)p('blood',x,.07,.2,.01,1.5,.2)}sol(A,.5)},
+ gear:A=>{A=A||3;const n=Math.round(A/.5);p('metal',0,-.2,A,.04,1.95,.04);for(let i=0;i<n;i++){const x=-A/2+(i+.5)*A/n;p('dark',x,-.05,.38,.22,.95,.95);
+// === JIM2 FIX START: N10-gear-yel ===
+p('yel',x,.07,.38,.02,1.3,.07);
+// === JIM2 FIX END: N10-gear-yel ===
+p('yel',x,-.05,.26,.26,1.95,.22);p('dark',x,.1,.28,.3,0,.3);
+// === JIM2 FIX START: N11-gear-blood ===
+if(i%3==1)p('blood',x,.07,.2,.02,1.5,.2)
+// === JIM2 FIX END: N11-gear-blood ===
+}sol(A,.5)},
  scba:()=>{for(let i=0;i<4;i++){p('metal',-.45+i*.3,0,.2,.2,.1,.85);p('yel',-.45+i*.3,0,.2,.2,.95,.1)}p('dark',0,.12,1.3,.04,.2,.7);p('metal',0,-.1,1.3,.1,0,.1);sol(1.3,.4)},
  pole:()=>{p('brass',0,0,.09,.09,0,3.7);p('dark',0,0,1.2,1.2,0,.04);sol(.2,.2)},
  polecap:()=>{p('dark',0,0,1.1,1.1,.002,.004);for(let i=0;i<4;i++)p('wood2',0,-.4+i*.27,1.4,.2,.01+(i%2)*.02,.04);for(const i of[-1,1]){p('yel',i*.62,0,.04,1.3,0,.9);p('yel',0,i*.62,1.3,.04,0,.9)}p('brass',.25,.1,.09,.09,.01,3.9);sol(1.3,1.3)},
@@ -49629,7 +49710,11 @@ function makeModel2(s){const LPS=[],IDRS=[];
  bballhoop:()=>{p('blue',0,-.38,.36,.36,0,2.2);p('metal',0,-.38,.18,.18,2.2,1.25);p('metal',0,-.1,.14,.55,3.25,.14);
   p('white',0,.2,.06,.06,2.65,1.15);p('glass',0,.18,1.82,.05,2.65,1.12);
   p('white',0,.21,1.86,.06,2.63,.04);p('white',0,.21,1.86,.06,3.75,.04);p('white',-.91,.21,.06,.06,2.63,1.16);p('white',.91,.21,.06,.06,2.63,1.16);
-  p('frd',0,.22,.58,.04,2.82,.44);p('orng',0,.48,.48,.48,2.78,.05);p('white',0,.48,.42,.42,2.42,.36);sol(.9,.9)},
+  p('frd',0,.22,.58,.04,2.82,.44);
+// === JIM FIX START: U8-hoop-b ===
+p('orng',0,.27,.06,.1,2.77,.04);{const sg=oo>1?-1:1;jimX.push([cx+(oo&1?.48:0)*sg,fy+2.8,cz+(oo&1?0:.48)*sg])}for(let i=0;i<8;i++){const an=i*Math.PI/4;p('white',Math.cos(an)*.21,.48+Math.sin(an)*.21,.014,.014,2.6,.19);p('white',Math.cos(an)*.15,.48+Math.sin(an)*.15,.014,.014,2.42,.19)}for(const[h,y]of[[.17,2.6],[.13,2.42]])for(const q of[-1,1]){p('white',0,.48+q*h,2*h,.014,y,.014);p('white',q*h,.48,.014,2*h,y,.014)}
+// === JIM FIX END: U8-hoop-b ===
+sol(.9,.9)},
  bleachers:A=>{A=A||5.4;p('shade',0,0,A+.2,2.1,.007,.002);
   for(let r=0;r<4;r++){const z=-.68+r*.45,y=.36+(3-r)*.36;
    p('wood2',0,z,A,.36,y,.05);p('metal',-A*.44,z,.06,.36,0,y);p('metal',0,z,.06,.36,0,y);p('metal',A*.44,z,.06,.36,0,y)}sol(A,1.95)},
@@ -49643,17 +49728,34 @@ function makeModel2(s){const LPS=[],IDRS=[];
    for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){const x=r[0]+(r[1]-r[0])*(i+.5)/nx,z=r[2]+(r[3]-r[2])*(j+.5)/nz;const LY=r[5]||ly;if(inH(x-.6,z-.15,1.2,.3,UP))continue;add('lamp',x-.6,x+.6,LY-.1,LY,z-.15,z+.15);LPS.push([x,LY-.14,z,l]);if(s.ly&&!r[5])add('dark',x-.03,x+.03,LY,H-1,z-.03,z+.03)}
    for(let i=0,n=2+(sr()*3|0);i<n;i++){const x=R(r[0]+.8,r[1]-1.4),z=R(r[2]+.8,r[3]-1.4),q=sr();if(q<.4)dd('blood',x,x+.5+sr(),fy+.006,fy+.009,z,z+.4+sr()*.8);else if(q<.8)dd('white',x,x+.35,fy+.007,fy+.009,z,z+.45);else dd('card',x,x+.4,fy+.006,fy+.012,z,z+.4)}}
   const bz=[[-hw+t+.04,hw-t-.04,-hd+t+.04,-hd+t+.07],[-hw+t+.04,-hw+t+.07,-hd+t,hd-t],[hw-t-.07,hw-t-.04,-hd+t,hd-t]];for(const q of bz)add('trim',q[0],q[1],fy,fy+.12,q[2],q[3]);
-  for(const e of(s.F||[])[Math.min(l,(s.F||[]).length-1)]||[]){cx=e[1];cz=e[2];oo=e[3]||0;FN[e[0]](e[4],e[5])}}
- const grp=new T.Group(),MM=Object.assign({wall:s.mat},M2);for(const k in B){const m=new T.Mesh(mergeBoxes(B[k]),MM[k]);m.castShadow=['wall','roof','conc','metal'].includes(k);m.receiveShadow=true;grp.add(m)}
- if(s.sign){const sg=new T.Mesh(new T.PlaneGeometry(4.6,.75),new T.MeshStandardMaterial({map:tex(256,48,(g,W,Hh)=>{g.fillStyle=s.sign[1];g.fillRect(0,0,W,Hh);g.strokeStyle='#ddd';g.lineWidth=3;g.strokeRect(3,3,W-6,Hh-6);g.fillStyle=s.sign[2];let fs=24;g.font='bold '+fs+'px sans-serif';while(g.measureText(s.sign[0]).width>W-20&&fs>10){fs--;g.font='bold '+fs+'px sans-serif'}g.textAlign='center';g.textBaseline='middle';g.fillText(s.sign[0],W/2,Hh/2+2)}),roughness:.7}));sg.position.set(0,dh+1.2,po+.03);sg.name='sign';grp.add(sg)}
+  for(const e of(s.F||[])[Math.min(l,(s.F||[]).length-1)]||[]){
+// === JIM2 FIX START: A1-furn-yoff ===
+cx=e[1];cz=e[2];oo=e[3]||0;const jy=e[6]||0;fy+=jy;FN[e[0]](e[4],e[5]);fy-=jy}}
+// === JIM2 FIX END: A1-furn-yoff ===
+
+ const grp=new T.Group(),MM=Object.assign({wall:s.mat},M2,window.DH_PLT?{plaster:window.DH_PLT(s)}:{});for(const k in B){const m=new T.Mesh(mergeBoxes(B[k]),MM[k]);m.castShadow=['wall','roof','conc','metal'].includes(k);m.receiveShadow=true;grp.add(m)}
+ if(s.sign){const sg=
+// === JIM FIX START: 9-sign-facade ===
+new T.Mesh(jimSignGeo(4.6,.75),new T.MeshStandardMaterial({map:tex(256,48,
+// === JIM FIX END: 9-sign-facade ===
+(g,W,Hh)=>{g.fillStyle=s.sign[1];g.fillRect(0,0,W,Hh);g.strokeStyle='#ddd';g.lineWidth=3;g.strokeRect(3,3,W-6,Hh-6);g.fillStyle=s.sign[2];let fs=24;g.font='bold '+fs+'px sans-serif';while(g.measureText(s.sign[0]).width>W-20&&fs>10){fs--;g.font='bold '+fs+'px sans-serif'}g.textAlign='center';g.textBaseline='middle';g.fillText(s.sign[0],W/2,Hh/2+2)}),roughness:.7}));sg.position.set(0,dh+1.2,po+.03);sg.name='sign';grp.add(sg)}
  const spl=new T.Mesh(new T.PlaneGeometry(dw+4,5),mSpill);spl.rotation.x=-Math.PI/2;spl.position.set(0,.22,po+2.4);spl.renderOrder=2;spl.name='spill';grp.add(spl);
  const MX=(()=>{const clr=x=>{if(!fops.every(o=>x+.45<o.a||x-.45>o.b))return false;for(const k in B)for(const q of B[k])if(q[5]>po+.01&&q[4]<po+.55&&q[1]>x-.5&&q[0]<x+.5&&q[3]>.5&&q[2]<6)return false;return true};
   for(let x=b+1.7;x<hw-.9;x+=.2)if(clr(x))return x;for(let x=a-1.7;x>-hw+.9;x-=.2)if(clr(x))return x;return null})();
- return{grp,cols,ramps,hw,hd,lv,lamps:LPS,idoors:IDRS,mast:MX,door:{a,b,dh,pi,po,pm,style:DR.shutter?'roll':(DR.glass&&DR.right=='frame')?'glass':'wood',glass:!!DR.glass}}}
+
+// === JIM FIX START: U8-hoop-c ===
+ for(const q of jimX){const m=new T.Mesh(JIM_RIM_G||(JIM_RIM_G=new T.TorusGeometry(.23,.018,6,20).rotateX(Math.PI/2)),M2.orng);m.position.set(q[0],q[1],q[2]);m.castShadow=true;grp.add(m)}
+ return{grp,cols,ramps,hw,hd,lv,lamps:LPS,idoors:IDRS,
+// === JIM FIX END: U8-hoop-c ===
+mast:MX,door:{a,b,dh,pi,po,pm,style:DR.shutter?'roll':(DR.glass&&DR.right=='frame')?'glass':'wood',glass:!!DR.glass}}}
 const MODELS=[
  // 0: brick apartment block - lobby, mailboxes, two flats per floor, stairwell
  makeModel2({w:18,d:14,fl:3,lv:3,dw:3,dh:3,mat:wt2('#7a4a3a',0),sign:['RIVERSIDE APARTMENTS','#2a3a4a','#e8e4d8'],curt:1,board:1,door:{canopy:1,right:'closed',glass:1},
-  P:[['x',1,-8.7,8.7,[-6.8,.5,5.5]],['z',-1,-6.7,1,[-3.5]],['z',-5,1,6.7,[3.2]]],
+  
+// === JIM2 FIX START: C-riverside-bath-wall ===
+P:[['x',1,-8.7,8.7,[-6.8,.5,5.5]],['z',-1,-6.7,1,[-3.5]],['z',-5,1,6.7,[3.2]],['z',2.3,-6.7,1,[],[0,2]],['z',1.6,-6.7,1,[],[1]]],
+// === JIM2 FIX END: C-riverside-bath-wall ===
+
   R:[[-5,8.7,1,6.7,'tile|carp'],[-8.7,-5,1,6.7,'pl'],[-8.7,-1,-6.7,1,'carp'],[-1,2.5,-6.7,1,'tile']],
   F:[[['locker',8.35,3.5,1,3],['vend',7.3,6.2,0],['bench',-3,6.15,0],['plant',-4.4,6.1],['plant',5.8,6.1],['table',3.5,3.5,0,1.2,.7],['chair',3.5,2.7,0],
    ['sofa',-8.1,4,1],['table',-6.6,4,1,1,.6],['shelf',-8.1,2.2,1,1.2],['tv',-5.6,1.45,0],
@@ -49693,7 +49795,11 @@ const MODELS=[
    a('metal',12.46,12.66,.06,2.2,-2.9,-1.8);a('trim',12.44,12.66,2.2,2.28,-2.95,-1.75);a('yel',12.42,12.46,.95,1.05,-2.75,-2.05);a('exit',12.5,12.66,2.4,2.6,-2.6,-2.1);
    for(const[x0,x1]of[[-11.4,-9.6],[-8.4,-6.6]]){a('plaster',x0,x1,.06,1,-3.1,-2.9);a('glass',x0,x1,1,2.4,-3.015,-2.985);a('trim',x0,x1,.98,1.04,-3.12,-2.88);a('trim',x0,x1,2.4,2.46,-3.12,-2.88);a('plaster',x0,x1,2.46,3.2,-3.1,-2.9);
     for(const m of[x0,(x0+x1)/2,x1])a('metal',m-.03,m+.03,1,2.4,-3.04,-2.96)}
-   a('yel',-3.3,-2.7,2.1,2.5,-8.62,-8.58);a('dark',-3.2,-2.8,2.18,2.42,-8.58,-8.56);a('blue',4.7,5.3,1.6,2.2,-8.62,-8.58);a('white',-7.3,-6.7,1.3,1.9,8.62,8.66);a('red',-7.04,-6.96,1.45,1.75,8.6,8.62);a('red',-7.15,-6.85,1.55,1.65,8.6,8.62);
+   
+// === JIM2 FIX START: N3-depot-signs ===
+a('yel',-3.3,-2.7,2.1,2.5,-8.66,-8.62);a('dark',-3.2,-2.8,2.18,2.42,-8.62,-8.6);a('blue',4.7,5.3,1.6,2.2,-8.66,-8.62);
+// === JIM2 FIX END: N3-depot-signs ===
+a('white',-7.3,-6.7,1.3,1.9,8.62,8.66);a('red',-7.04,-6.96,1.45,1.75,8.6,8.62);a('red',-7.15,-6.85,1.55,1.65,8.6,8.62);
    return o})(),
   R:[[-12.7,12.7,-8.7,8.7,'x'],[-12.7,-6,-8.7,-3,'carp',3.2]],
   F:[[['desk',-10.2,-7.4,0],['desk',-7.6,-7.4,0],['cab',-12.4,-5.2,1],['cab',-12.4,-4.4,1],['shelf',-9,-8.45,0,2.4],['safe',-6.7,-8.3,0],['cool',-6.6,-3.7,0],['wboard',-6.15,-6,3],['ext',-6.17,-4.8,3],['plant',-12.3,-3.6],
@@ -49795,9 +49901,17 @@ const HB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),po=9,H=
  san('x',8.66,-1,-2.5,1.2);aed('x',8.66,-1,-3.4,1.2);
  // boarded-up elevator at the back of the ER
  W('x',-8.66,1,1.2,3.4,0,2.35,.08,'metal');W('x',-8.66,1,1.1,1.2,0,2.45,.12,'trim');W('x',-8.66,1,3.4,3.5,0,2.45,.12,'trim');W('x',-8.66,1,1.1,3.5,2.35,2.45,.12,'trim');W('x',-8.66,1,2.27,2.33,0,2.3,.09,'dark');W('x',-8.66,1,3.62,3.7,1.1,1.25,.05,'rl');
- for(const y of[.7,1.3,1.9])W('x',-8.66,1,1,3.6,y,y+.25,.12,'wood2');
+ 
+// === JIM2 FIX START: N6-hosp-boards ===
+for(const y of[.7,1.3,1.9])W('x',-8.54,1,1,3.6,y,y+.25,.05,'wood2');
+// === JIM2 FIX END: N6-hosp-boards ===
+
  // ceiling duct runs
- a('metal',-3.4,10.5,3.15,3.55,-5.4,-4.8);for(const x of[-2,2,6])a('dark',x,x+.06,3.55,3.7,-5.4,-4.8);a('dark',-3.4,4.2,2.9,3,-7.4,-7.3);
+ a('metal',-3.4,10.5,3.15,3.55,-5.4,-4.8);for(const x of[-2,2,6])a('dark',x,x+.06,3.55,3.7,-5.4,-4.8);
+// === JIM2 FIX START: N5-hosp-rail ===
+a('dark',-3.4,4.2,2.9,3,-7.4,-7.3);for(const x of[-3,.4,3.8])a('dark',x,x+.04,3,3.7,-7.37,-7.33);
+// === JIM2 FIX END: N5-hosp-rail ===
+
  // morgue floor drain
  a('dark',-7.4,-7,.066,.068,-5.9,-5.5);
  // upper floor
@@ -49838,7 +49952,11 @@ const HOSP=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.6,dh:3,mat:wt2('#8d9a9c',2),sign
   ['regdesk',0,-3,0,4.4],['comp',-1.6,-4,0],['shelf',-1,-8.5,0,2.6],['vend',-3.0,-6.5,1],['hbed',5,-3.5,1,1],['hbed',7.4,-3.5,1],['hbed',9.8,-3.5,1,1],['iv',5.9,-2.5],['mon',8.6,-2.5],['vic',2.6,-.6,0],['bodybag',3,-5.4,0],['gurney',2.4,-7,1,'cov'],['ext',10.55,.4,3],['cone',-2.5,.4]]]});
 HOSP.name='St. Mercy Hospital';
 {const hs=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry,tr)=>{const mt=new T.MeshStandardMaterial({map:tex(cw,ch,(g,W,Hh)=>{if(!tr){g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10)}g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}if(tr){g.globalAlpha=.8;for(let i=0;i<16;i++){g.fillRect(W*(.08+.84*sr()),Hh*.55,3,Hh*(.1+.3*sr()))}g.globalAlpha=1}}),roughness:.8,transparent:!!tr,depthWrite:!tr});
-  const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOSP.grp.add(m)};
+  const m=new T.Mesh(
+// === JIM FIX START: 9-sign-HOSP ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOSP.grp.add(m)
+// === JIM FIX END: 9-sign-HOSP ===
+};
  const S='#8a1c1c',G='#1d4d3a',B='#0d3b66';
  hs([['EMERGENCY ENTRANCE  \u00b7  AMBULANCES ONLY',34,40]],S,'#f2f4f8',1024,80,5.4,.42,0,3.67,9+3.62,0);
  hs([['TRIAGE \u00b7 TENT',48,40]],B,'#f2f4f8',512,80,2.4,.42,-8.3,2.35,13.43,0);
@@ -49983,10 +50101,18 @@ const FIRE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.4,dh:3,mat:wt2('#8a4a3a',0),sign
    ['weights',9,4.5,0],['weights',12.5,4.5,0],['treadm',9.5,8.4,0],['treadm',11.3,8.4,0],['treadm',13.1,8.4,0],['ext',14.55,2.6,3],['vic',7,6,1],['pool',12.5,-.5,0],['bshelf',14.5,1,3,1.4],['hbag',8.2,3.2,0],['dumb',14.45,6.5,3]]]});
 FIRE.name='Fire Station 7';
 FIRE.bayDoors=[{style:'garage',a:-12.4,b:-6.6,pi:9.7,po:10,pm:9.85,dh:3.5,open:1},{style:'garage',a:6.6,b:12.4,pi:9.7,po:10,pm:9.85,dh:3.5,open:0}];
-{const fsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.8});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;FIRE.grp.add(m)};
+{const fsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.8});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-FIRE ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;FIRE.grp.add(m)
+// === JIM FIX END: 9-sign-FIRE ===
+};
  const R_='#a81f1b',K='#1c1f22',F_='#f2f4f8',Y='#d9a516';
  fsn([['ENGINE 7',54,40]],R_,F_,512,80,3.6,.45,-9.5,4.35,10.04,0);fsn([['MEDIC 7',54,40]],F_,R_,512,80,3.6,.45,9.5,4.35,10.04,0);
- fsn([['FIRE DANGER TODAY',34,36],['EXTREME',60,100]],Y,K,512,140,2.4,.65,-15.5,1.6,12.1,0);
+ 
+// === JIM FIX START: 3-fire-sign ===
+fsn([['FIRE DANGER TODAY',34,36],['EXTREME',60,100]],Y,K,512,140,2.4,.65,-15.5,1.6,12.1,0);jimPosts(FIRE.grp,-15.5,1.6,12.1,0,2.4,.65);
+// === JIM FIX END: 3-fire-sign ===
+
  fsn([['CREW NOTICE',34,34],['ENGINE 7 WON\'T START',24,80],['MEDIC 7 \u2192 ST. MERCY',24,116],['DO NOT STAY HERE',24,152],['\u2014 CAP.',22,192]],'#e8e8e0','#1a2a4a',512,220,1.8,.9,-5.08,1.8,7.5,Math.PI/2);
  fsn([['RUN LOG \u00b7 DAY 1',32,34],['212 CALLS \u00b7 0 UNITS FREE',22,80],['ALL CALLS: \u201cBITTEN\u201d',22,116],['ST. MERCY FULL',22,152],['RADIO DEAD 14:10',22,192]],'#1c2b3a','#e8e8e0',512,220,1.8,.9,-5.08,1.7,-8,Math.PI/2);
  fsn([['APPARATUS BAY \u00b7 KEEP CLEAR',30,36]],R_,F_,512,80,2.6,.4,-5.3,2.7,7,-Math.PI/2);
@@ -50029,7 +50155,11 @@ const PWB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e);
  for(let i=0;i<22;i++){const x=-15+30*sr(),z=-9+19*sr(),q=sr();a(q<.5?'blood':'dark',x,x+.4+sr()*.8,.062,.065,z,z+.4+sr()*.6)}
  // ---- outside ----
  for(const x of[-9,9]){const z=-30;for(const[y0,y1,w]of[[0,4,14],[4,8,12.6],[8,13,11],[13,18,11.6],[18,24,12.8]])a('conc',x-w/2,x+w/2,y0,y1,z-w/2,z+w/2);a('dark',x-6.5,x+6.5,24,24.3,z-6.5,z+6.5);a('dark',x-4,x+4,0,2.2,z+6.98,z+7.02);for(let y=5;y<24;y+=4)a('dark',x-6.3,x+6.3,y,y+.1,z-6.3,z+6.3);c(x-7,x+7,z-7,z+7);
-  a('metal',x-.6,x+.6,2,3.2,-23,-11);for(let zz=-21;zz<-11;zz+=3.3)a('conc',x-.5,x+.5,0,2,zz,zz+.5)}
+  a('metal',x-.6,x+.6,2,3.2,-23,-11);
+// === JIM2 FIX START: N7-plant-piers ===
+for(let zz=-21;zz<-11.5;zz+=3.3)a('conc',x-.5,x+.5,0,2,zz,zz+.5)
+// === JIM2 FIX END: N7-plant-piers ===
+}
  a('conc',-2,2,0,4,-19,-15);for(let i=0;i<7;i++)a(i%2?'white':'red',-1.6,1.6,4+i*4,8+i*4,-18.6,-15.4);a('dark',-1.8,1.8,32,32.3,-18.8,-15.2);a('rl',-.2,.2,32.3,32.8,-17.2,-16.8);c(-2,2,-19,-15);
  for(const[x0,x1,z0,z1]of[[-31,-19,-12.05,-11.95],[-31,-19,1.95,2.05],[-31.05,-30.95,-12,2],[-19.05,-18.95,-12,-5],[-19.05,-18.95,-3,2]]){a('dark',x0,x1,1,1.04,z0,z1);a('dark',x0,x1,1.8,1.84,z0,z1);a('metal',x0,x1,2.2,2.24,z0,z1);c(x0,x1,z0,z1)}
  for(let x=-31;x<=-19;x+=3)for(const z of[-12,2])a('metal',x-.05,x+.05,0,2.3,z-.05,z+.05);for(let z=-12;z<=2;z+=3)for(const x of[-31,-19])a('metal',x-.05,x+.05,0,2.3,z-.05,z+.05);
@@ -50056,7 +50186,11 @@ const PLANT=makeModel2({w:34,d:22,fl:3,lv:1,dw:6,dh:4.6,mat:wt2('#7a7f82',3),sig
  F:[[['swb',-16.2,-6.5,1,4.8],['swb',-16.2,-1,1,4.8],['swb',-16.2,4.5,1,4.8],['wbench',0,-10.3,0,3.2],['comp',3.5,-10.2,0],['drum',4.6,-10.3],['hdrum',5.3,-10.3],['shelf',-13,-10.4,0,3.6],['pallet',-13,-7,0],['fork',-8,8,2],['pjack',-5,5,1],['barr',-6,8.5,0],['cone',-3.5,9.5],['cone',3.5,9.5],['ext',-16.5,8,1],['ext',16.55,-6,3],['bench',-10,9.6,0],['vic',3,5,0],['vic',-7,6.5,1],['vic',-2,-6,0,'cov'],['bodybag',6,7,0],['vic',13,-3,1],
    ['disp',12.8,9.8,2],['chair',12.2,8.8,0],['chair',13.8,8.8,0],['desk',15.6,6,1],['safe',16.2,10.2,0],['cool',9.6,10.2,0],['vic',11,6.5,1,'cov'],['cab',16.4,8.5,3]]]});
 PLANT.name='Riverside Power Station';
-{const fsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.8});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;PLANT.grp.add(m)};
+{const fsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.8});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-PLANT ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;PLANT.grp.add(m)
+// === JIM FIX END: 9-sign-PLANT ===
+};
  const Y='#d9a516',K='#1a1a1a',RD='#a81f1b',F_='#f2f4f8';
  fsn([['DANGER',54,44],['HIGH VOLTAGE \\u00b7 138 kV',26,92]],RD,F_,512,120,2.6,.6,-24,2.7,2.07,0);fsn([['DANGER',54,44],['HIGH VOLTAGE',26,92]],RD,F_,512,120,2.2,.5,-18.9,2.7,-8,Math.PI/2);
  fsn([['HARD HAT AREA',40,36],['PPE REQUIRED',26,82]],Y,K,512,110,2.2,.5,4.8,2.2,10.64,0);
@@ -50116,14 +50250,22 @@ const H1B=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x
  for(let i=0;i<4;i++)W('z',-3.6,1,2.2+i*1.1,2.85+i*1.1,1.45+(i%2)*.25,1.95+(i%2)*.25,.04,i==1?'gold':'wd');
  a('water',-2.95,-1.55,4.52,4.58,-7.35,-6.65);a('glass',-.45,-.38,4.06,6.1,-7.65,-5.8);
  return{X,XC}})();
-const HOUSE1=makeModel2({w:20,d:16,fl:2,lv:2,dw:2.6,dh:2.8,mat:wt2('#6f7d6e',1),curt:1,board:1,door:{canopy:0,glass:1},bays:[[-8.6,-4.4,2.8]],
+
+// === JIM2 FIX START: B3-maple-xroof ===
+const HOUSE1=makeModel2({xroof:1,w:20,d:16,
+// === JIM2 FIX END: B3-maple-xroof ===
+fl:2,lv:2,dw:2.6,dh:2.8,mat:wt2('#6f7d6e',1),curt:1,board:1,door:{canopy:0,glass:1},bays:[[-8.6,-4.4,2.8]],
  P:[['z',-3.7,-7.7,7.7,[-5.2,2.4],[0]],['x',-.5,-9.7,-3.7,[-6.5],[0]],['x',.8,-3.7,9.7,[-1.8,3.6],[0]],['z',3.8,-4.8,.8,[-2.2],[0]],
   ['x',.5,-9.7,9.7,[-6.2,0,5.2],[1]],['z',-3.2,.5,7.7,[4.2],[1]],['z',-3.2,-7.7,.5,[-3.2],[1]],['z',1.8,-7.7,.5,[-3.2],[1]]],
  R:[[-9.7,-3.7,-.5,7.7,'x|carp'],[-9.7,-3.7,-7.7,-.5,'tile|carp'],[-3.7,9.7,.8,7.7,'pl|carp'],[-3.7,3.8,-7.7,.8,'tile|tile'],[3.8,9.7,-7.7,.8,'pl|carp']],
  X:H1B.X,XC:H1B.XC,
  F:[
  // ---- ground floor: garage, laundry/mudroom, entry foyer, living room, open kitchen & dining ----
- [['wbench',-9.3,2.2,1,2.8],['comp',-9.2,.6,1],['tires',-4.3,.5,3],['shelf',-8.2,-.9,0,1.8],['pjack',-4.5,4.2,0],['cone',-8.2,7.1],['ext',-3.85,3.4,3],
+ [['wbench',-9.3,2.2,1,2.8],['comp',-9.2,.6,1],
+// === JIM2 FIX START: N8-maple-tires ===
+['tires',-4.3,.85,3]
+// === JIM2 FIX END: N8-maple-tires ===
+,['shelf',-8.2,-.9,0,1.8],['pjack',-4.5,4.2,0],['cone',-8.2,7.1],['ext',-3.85,3.4,3],
   ['washer',-9.1,-6.8,0],['washer',-8.1,-6.8,0],['wc',-9.2,-2.2,1],['sink',-9.2,-3.6,1],['shelf',-5.2,-7.35,0,2.0],
   ['luggage',-2.6,5.8,0],['bench',-2.2,4.2,1],['plant',1.8,7.1],['gclock',1.2,1.3,0],
   ['hearth',9.2,4.2,3,'brick'],['rug',6.2,4.2,0,3.6,2.8],['sofa',6.2,6.4,2],['armchair',4.2,4.2,1],['table',6.2,4.4,0,1.3,.75],['tv',6.2,1.35,0],['shelf',8.6,1.35,0,1.8],['plant',9.1,6.8],
@@ -50135,7 +50277,11 @@ const HOUSE1=makeModel2({w:20,d:16,fl:2,lv:2,dw:2.6,dh:2.8,mat:wt2('#6f7d6e',1),
   ['bath',-2.2,-7.0,0],['wc',.9,-7.2,0],['sink',-.6,-7.3,0],['dresser',-1.8,-2.5,1],
   ['wc',-9.1,-7.1,0],['sink',-7.6,-7.25,0],['bath',-5.2,-6.8,0],['wardrobe',-8.8,-1.2,0],['chair',8.2,-.8,2]]]});
 HOUSE1.name='42 Maple Crest (Family House)';HOUSE1.mast=2.9;
-{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.75});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE1.grp.add(m);return m};
+{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.75});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-HOUSE1 ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE1.grp.add(m)
+// === JIM FIX END: 9-sign-HOUSE1 ===
+;return m};
  const s0=hsn([['42 MAPLE CREST',40,36],['THE MILLER FAMILY',22,74]],'#263829','#f2ecd8',512,100,1.7,.36,2.2,2.35,8.04,0);s0.name='sign';
  hsn([['42 MAPLE',44,40]],'#f2ecd8','#1a1a1a',256,80,.48,.16,2.36,1.22,12.8,Math.PI/2);
  hsn([['REX',52,40]],'#5a3e28','#f2ecd8',256,80,.55,.18,7.6,.74,-10.74,0);
@@ -50147,7 +50293,11 @@ const H2B=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x
  const W=(ax,pos,f,u0,u1,y0,y1,d,m)=>ax=='x'?a(m,u0,u1,y0,y1,f>0?pos:pos-d,f>0?pos+d:pos):a(m,f>0?pos:pos-d,f>0?pos+d:pos,y0,y1,u0,u1);
  // Limestone corner quoins & belt courses on the brick manor shell
  for(let y=.2;y<H-.2;y+=.8)for(const sx of[-1,1])for(const sz of[-1,1]){a('stone',sx*10.65-.42,sx*10.65+.42,y,y+.45,sz*8.65-.42,sz*8.65+.42)}
- a('cream',-11.18,11.18,3.88,4.15,-9.18,9.18);a('cream',-11.25,11.25,H-.35,H+.08,-9.25,9.25);
+ 
+// === JIM FIX START: U1-hawthorne-band ===
+jimBand(a,'cream',-11.18,11.18,3.88,4.15,-9.18,9.18,.46);
+// === JIM FIX END: U1-hawthorne-band ===
+a('cream',-11.25,11.25,H-.35,H+.08,-9.25,9.25);
  // Mansard / hipped slate roof + wrought-iron roof cresting + brass corner finials + twin brick chimneys
  for(let i=0;i<5;i++){const y0=H+.38+i*.44,y1=y0+.46,xs=11.2-i*.65,zs=9.2-i*.65;a('slate',-xs,xs,y0,y1,-zs,zs)}
  a('conc',-8.2,8.2,H+2.58,H+2.75,-6.2,6.2);
@@ -50182,12 +50332,20 @@ const H2B=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x
   c(cx-2.4,cx+2.4,cz-1.1,cz+1.1)}
  // Interior architectural details: four-poster canopy bed frame upstairs (-8.4, 5.2), oil paintings in gallery & dining, easel in guest studio
  for(const[px,pz]of[[-9.55,3.85],[-7.45,3.85],[-9.55,6.15],[-7.45,6.15]])a('wd',px-.05,px+.05,4.15,6.45,pz-.05,pz+.05);
- a('wd',-9.6, -7.4,6.35,6.48,3.8,6.2);a('fab1',-9.55,-7.45,6.25,6.35,3.85,6.15);a('fab1',-9.62,-9.5,4.5,6.35,3.85,6.15);
+ a('wd',-9.6, -7.4,6.35,6.48,3.8,6.2);a('fab1',-9.55,-7.45,6.25,6.35,3.85,6.15);
+// === JIM2 FIX START: N9-haw-drape ===
+a('fab1',-9.72,-9.61,4.5,6.35,3.85,6.15);
+// === JIM2 FIX END: N9-haw-drape ===
+
  for(let i=0;i<4;i++){const x=-2.2+i*1.5;W('x',.88,-1,x,x+.95,5.35,6.25,.05,'gold');W('x',.86,-1,x+.08,x+.87,5.43,6.17,.06,i%2?'fab1':'teal')}
  // Artist easel & canvas in upstairs east room (7.2, 6.2)
  a('wood2',7.0,7.6,4.06,5.85,6.2,6.35);a('white',6.85,7.75,4.95,5.75,6.14,6.2);a('polb',6.95,7.65,5.25,5.65,6.12,6.14);a('leaf',6.95,7.65,5.02,5.25,6.12,6.14);
  return{X,XC}})();
-const HOUSE2=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#7a3b2e',0),curt:1,board:1,door:{canopy:0,glass:1},
+
+// === JIM2 FIX START: B4-hawthorne-xroof ===
+const HOUSE2=makeModel2({xroof:1,w:22,d:18,
+// === JIM2 FIX END: B4-hawthorne-xroof ===
+fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#7a3b2e',0),curt:1,board:1,door:{canopy:0,glass:1},
  P:[['z',-3.6,-8.7,8.7,[-4.5,4.5],[0]],['z',3.6,-8.7,8.7,[-4.5,4.5],[0]],['x',0,-10.7,-3.6,[-7.2],[0]],['x',-1.2,3.6,10.7,[7.2],[0]],
   ['x',1.0,-10.7,10.7,[-7.2,0,7.2],[1]],['z',-3.6,1.0,8.7,[4.8],[1]],['z',3.6,1.0,8.7,[4.8],[1]],['z',-3.6,-8.7,1.0,[-3.8],[1]]],
  R:[[-3.6,3.6,-8.7,8.7,'tile|carp'],[-10.7,-3.6,0,8.7,'pl|carp'],[-10.7,-3.6,-8.7,0,'pl|carp'],[3.6,10.7,-1.2,8.7,'pl|carp'],[3.6,10.7,-8.7,-1.2,'tile|tile']],
@@ -50206,7 +50364,11 @@ const HOUSE2=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#7a3b2e',0),
   ['bath',-8.8,-7.6,0],['wc',-4.4,-8.1,0],['sink',-6.6,-8.2,0],['sink',-5.4,-8.2,0],['dresser',-9.8,-2.8,1],
   ['bunk',-1.8,-7.6,0],['wardrobe',1.2,-8.1,0],['table',0,-4.2,0,1.4,.8],['chair',0,-3.2,2]]]});
 HOUSE2.name='14 Hawthorne Manor (Victorian Estate)';HOUSE2.mast=4.6;
-{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px serif';g.fillText(t,W/2,yy)}}),roughness:.7});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE2.grp.add(m);return m};
+{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px serif';g.fillText(t,W/2,yy)}}),roughness:.7});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-HOUSE2 ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE2.grp.add(m)
+// === JIM FIX END: 9-sign-HOUSE2 ===
+;return m};
  const s0=hsn([['HAWTHORNE MANOR',40,36],['14 ELM ROW  ·  EST. 1884',22,74]],'#1c1612','#d4af37',512,100,2.2,.44,0,3.85,9.04,0);s0.name='sign';
  hsn([['HAWTHORNE',38,34],['PRIVATE ESTATE',24,72]],'#1c1612','#d4af37',256,100,.75,.3,-2.6,1.65,15.72,0);
  hsn([['LORD HAWTHORNE — JOURNAL',28,32],['DAY 9: THE IRON GATES HELD',21,72],['LOCKED THE GOLD IN THE STUDY',21,106],['IF THE POWER STATION RESTARTS,',21,140],['THE CHANDELIERS WILL GUIDE YOU',20,176]],'#f2e8c9','#2b1d12',512,210,1.2,.52,-5.4,1.65,-.12,Math.PI)}
@@ -50271,7 +50433,11 @@ const H3B=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x
  W('x',-7.66,1,-9.8,-6.2,1.25,2.45,.05,'dark');W('x',-7.64,1,-9.7,-6.3,1.32,2.38,.06,'teal');
  for(const x of[-9.5,-5.8]){a('polb',x-1.8,x+1.8,6.35,6.42,-5.6,-5.4);a('polb',x-1.8,x+1.8,5.55,5.62,-5.6,-5.4)}
  return{X,XC}})();
-const HOUSE3=makeModel2({w:24,d:16,fl:2,lv:2,dw:2.8,dh:2.8,mat:wt2('#8c6239',1),curt:1,board:1,door:{canopy:0,glass:1},bays:[[5.2,10.2,3.0]],
+
+// === JIM2 FIX START: D2-birch-nogear ===
+const HOUSE3=makeModel2({nogear:1,w:24,d:16,
+// === JIM2 FIX END: D2-birch-nogear ===
+fl:2,lv:2,dw:2.8,dh:2.8,mat:wt2('#8c6239',1),curt:1,board:1,door:{canopy:0,glass:1},bays:[[5.2,10.2,3.0]],
  P:[['x',-.5,-11.7,4.2,[-8.2,-1.5],[0],'conc'],['z',-4.2,-7.7,-.5,[],[0],'conc'],['z',4.2,-7.7,7.7,[-4.2,2.8],[0]],['z',-3.8,-.5,7.7,[3.2],[0]],
   ['x',0,-11.7,11.7,[-7.5,0,5.2],[1]],['z',-3.8,0,7.7,[3.8],[1]],['z',3.8,0,7.7,[3.8],[1]],['z',-2.5,-7.7,0,[-3.8],[1]],
   ['x',-3.2,1.2,4.2,[2.2],[0]],['z',1.2,-3.3,-.5,[],[0]],
@@ -50295,7 +50461,11 @@ const HOUSE3=makeModel2({w:24,d:16,fl:2,lv:2,dw:2.8,dh:2.8,mat:wt2('#8c6239',1),
   ['bath',-1.2,-7.0,0],['wc',1.8,-7.1,0],['sink',.4,-7.2,0],
   ['cots',7.2,-4.3,0],['cots',10.0,-4.3,0],['cots',7.6,-1.25,2],['cots',10.0,-1.25,2],['iv',8.6,-3.4],['mon',8.8,-1.25],['medcart',6.5,-.55,2],['trolley',9.8,-.55,2],['wchair',8.6,-.55,2],['shelf',11.4,-1.3,3,1.6],['cab',11.3,-3.0,3]]]});
 HOUSE3.name='88 Birch Lane (Prepper Ranch)';HOUSE3.bayDoors=[{style:'garage',a:5.2,b:10.2,pi:7.7,po:8,pm:7.85,dh:3.0,open:1}];
-{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.75});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE3.grp.add(m);return m};
+{const hsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.75});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-HOUSE3 ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;HOUSE3.grp.add(m)
+// === JIM FIX END: 9-sign-HOUSE3 ===
+;return m};
  const s0=hsn([['88 BIRCH LANE',42,36],['SOLAR + BACKUP GRID READY',21,74]],'#231f1b','#e8b948',512,100,1.9,.4,2.8,2.35,8.04,0);s0.name='sign';
  hsn([['WARNING · ARMED HOMESTEAD',34,36],['LOOTERS WILL BE SHOT ON SIGHT',24,74]],'#8a1c1c','#f2f4f8',512,100,2.2,.44,-3.7,1.45,11.18,0);
  hsn([['HAM RADIO LOG · 14.295 MHz',30,32],['OCT 18: RIVERSIDE GRID TRIPPED',21,72],['OCT 19: SOLAR BANK ONLINE',21,106],['OCT 20: HORDE MOVING SOUTH',21,140],['BUNKER STOCKED FOR 90 DAYS',21,176]],'#102418','#7dffa0',512,210,1.3,.56,-5.1,1.75,-7.62,0);
@@ -50308,7 +50478,11 @@ const BARB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,
  const W=(ax,pos,f,u0,u1,y0,y1,d,m)=>ax=='x'?a(m,u0,u1,y0,y1,f>0?pos:pos-d,f>0?pos+d:pos):a(m,f>0?pos:pos-d,f>0?pos+d:pos,y0,y1,u0,u1);
  // Stone & brick plinth + timber corner pilasters matching the residential row
  for(let y=.2;y<H-.2;y+=.85)for(const sx of[-1,1])for(const sz of[-1,1])a('stone',sx*10.65-.4,sx*10.65+.4,y,y+.48,sz*8.65-.4,sz*8.65+.4);
- a('brick',-11.08,-1.7,0,.7,po,po+.1);a('brick',1.7,11.08,0,.7,po,po+.1);a('cedar',-11.15,11.15,3.85,4.15,-9.15,9.15);
+ a('brick',-11.08,-1.7,0,.7,po,po+.1);a('brick',1.7,11.08,0,.7,po,po+.1);
+// === JIM FIX START: U1-rustyanchor-band ===
+jimBand(a,'cedar',-11.15,11.15,3.85,4.15,-9.15,9.15,.43);
+// === JIM FIX END: U1-rustyanchor-band ===
+
  // Pitched gable shingle roof + exposed timber rafters + twin brick chimneys + glowing rooftop neon billboard
  for(let i=0;i<6;i++){const y0=H+.36+i*.4,y1=y0+.42,zs=9.2-i*1.15;a('shingle',-11.4,11.4,y0,y1,-zs,zs)}
  a('trim',-11.45,11.45,H+2.75,H+2.98,-.3,.3);
@@ -50353,7 +50527,11 @@ const BARB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,
  W('z',10.66,-1,1.5,8.2,2.55,2.65,.04,'neonA');
  for(let i=0;i<6;i++)W('x',-8.66,1,-9.8+i*1.1,-9.0+i*1.1,5.1,6.3,.06,i%2?'dark':'fab1');
  return{X,XC}})();
-const BAR=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#5e3126',0),curt:1,board:0,door:{canopy:0,glass:1},
+
+// === JIM2 FIX START: B5-rusty-xroof ===
+const BAR=makeModel2({xroof:1,w:22,d:18,
+// === JIM2 FIX END: B5-rusty-xroof ===
+fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#5e3126',0),curt:1,board:0,door:{canopy:0,glass:1},
  P:[['x',.8,-10.7,10.7,[-3.2,0,6.8],[0]],['z',-2.2,-8.7,.8,[-4.5],[0]],['z',3.8,-8.7,.8,[-4.5],[0]],
   ['x',.8,-10.7,10.7,[-4.2,0,4.8],[1]],['z',-2.8,.8,8.7,[4.8],[1]],['z',3.6,.8,8.7,[4.8],[1]],['z',-2.8,-8.7,.8,[-3.8],[1]]],
  R:[[-10.7,10.7,.8,8.7,'pl|carp'],[-10.7,-2.2,-8.7,.8,'pl|carp'],[-2.2,3.8,-8.7,.8,'tile|tile'],[3.8,10.7,-8.7,.8,'tile|carp']],
@@ -50361,7 +50539,11 @@ const BAR=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#5e3126',0),cur
  F:[
  // ---- ground floor: main mahogany bar & mirrored backbar, live music stage, jukebox, pool & arcade hall, booths, kitchen & restrooms ----
  [['barcounter',6.2,5.3,3,5.4],['backbar',9.95,5.3,3,5.4],['jukebox',2.4,1.45,0],
-  ['drumkit',-7.2,2.6,0],['ampstack',-9.6,2.8,1],['ampstack',-4.6,2.8,3],['djbooth',-7.2,4.7,0],
+  
+// === JIM2 FIX START: A2-rusty-stage-props ===
+['drumkit',-7.2,2.6,0,,,.38],['ampstack',-9.6,2.8,1,,,.38],['ampstack',-4.6,2.8,3,,,.38],['djbooth',-7.2,4.7,0,,,.38],
+// === JIM2 FIX END: A2-rusty-stage-props ===
+
   ['booth',-2.6,7.2,0],['booth',3.0,7.2,0],['table',-.8,3.6,0,1.1,1.1],['chair',-.8,2.7,0],['chair',-.8,4.5,2],['plant',-2.4,8.1],['plant',2.4,8.1],
   ['pool',-6.4,-3.2,0],['arcade',-10.1,-1.8,1],['arcade',-10.1,-.6,1],['booth',-6.4,-7.1,0],['vend',-2.7,-7.6,3],
   ['island',.8,-3.5,0,2.2],['stove',-.8,-8.2,0],['counter',1.4,-8.2,0,2.4],['fridge',2.6,-8.15,0],['rack',-1.5,-6.8,1,1.8],
@@ -50373,7 +50555,11 @@ const BAR=makeModel2({w:22,d:18,fl:2,lv:2,dw:3.0,dh:3.0,mat:wt2('#5e3126',0),cur
   ['djbooth',-6.8,-6.8,0],['sofa',-9.8,-3.6,1],['dresser',-3.6,-7.8,0],['grack',-10.2,-1.2,1,1.8],['ampstack',-4.2,-2.2,2],
   ['wc',-1.8,-7.8,0],['sink',-.4,-8.1,0],['bath',1.8,-7.6,0]]]});
 BAR.name='The Rusty Anchor (Bar & Music Hall)';BAR.mast=4.8;
-{const bsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.6});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;BAR.grp.add(m);return m};
+{const bsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.6});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-BAR ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;BAR.grp.add(m)
+// === JIM FIX END: 9-sign-BAR ===
+;return m};
  const s0=bsn([['⚓ THE RUSTY ANCHOR ⚓',38,34],['TAVERN · LIVE MUSIC · JUKEBOX · POOL',20,74]],'#1a0d18','#ff4da6',512,100,3.8,.62,0,4.25,9.06,0);s0.name='sign';
  const s1=bsn([['THE RUSTY ANCHOR',44,40],['COLD BEER · LIVE STAGE · OPEN LATE',22,82]],'#120914','#2affd5',512,110,8.8,1.15,0,9.72,5.1,0);s1.name='sign';
  bsn([['TONIGHT AT THE ANCHOR',28,28],['★ 6-TRACK SYNTH & BLUES JUKEBOX ★',20,64],['★ 4-STEM DJ MIXER ON STAGE ★',20,96],['PRESS F AT JUKEBOX OR STAGE (OR J)',19,132],['WARNING: LOUD BASS DRAWS THE HORDE',18,166]],'#141814','#ffd24c',512,195,1.5,.68,4.6,2.1,9.05,0);
@@ -50386,7 +50572,11 @@ const GARB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,
  const W=(ax,pos,f,u0,u1,y0,y1,d,m)=>ax=='x'?a(m,u0,u1,y0,y1,f>0?pos:pos-d,f>0?pos+d:pos):a(m,f>0?pos:pos-d,f>0?pos+d:pos,y0,y1,u0,u1);
  // Racing stripe band around the entire exterior facade + brick wainscot base + parapet coping
  a('brick',-15.08,-12.45,0,.75,po,po+.1);a('brick',-6.55,-1.7,0,.75,po,po+.1);a('brick',1.7,6.55,0,.75,po,po+.1);a('brick',12.45,15.08,0,.75,po,po+.1);
- a('frd',-15.14,15.14,3.72,4.08,-10.14,10.14);a('white',-15.16,15.16,3.92,4.0,-10.16,10.16);
+ 
+// === JIM FIX START: U1-redline-band ===
+jimBand(a,'frd',-15.14,15.14,3.72,4.08,-10.14,10.14,.42);jimBand(a,'white',-15.16,15.16,3.92,4.0,-10.16,10.16,.44);
+// === JIM FIX END: U1-redline-band ===
+
  a('dark',-15.22,15.22,H+.25,H+.55,-10.22,10.22);
  // Rooftop steel billboard gantry, twin neon sign frames, HVAC chillers, cyclone exhaust blower & radio antenna
  for(const x of[-6.2,6.2])a('metal',x-.1,x+.1,H+.4,H+3.6,5.2,5.38);
@@ -50488,7 +50678,11 @@ const GARB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,
  // Interior safety window between Showroom and Bay 1 / Bay 2
  W('z',-5.2,1,5.2,8.2,1.1,2.35,.24,'glass');W('z',5.2,-1,5.2,8.2,1.1,2.35,.24,'glass');
  return{X,XC}})();
-const GARAGE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.2,dh:3.0,mat:wt2('#3d434a',2),sign:['REDLINE AUTO & SPEED SHOP','#8f1d18','#ffd24c'],board:0,door:{canopy:1,right:'frame',glass:1},bays:[[-12.4,-6.6,3.5],[6.6,12.4,3.5]],
+
+// === JIM2 FIX START: D3-redline-nogear ===
+const GARAGE=makeModel2({nogear:1,w:30,d:20,
+// === JIM2 FIX END: D3-redline-nogear ===
+fl:2,lv:2,dw:3.2,dh:3.0,mat:wt2('#3d434a',2),sign:['REDLINE AUTO & SPEED SHOP','#8f1d18','#ffd24c'],board:0,door:{canopy:1,right:'frame',glass:1},bays:[[-12.4,-6.6,3.5],[6.6,12.4,3.5]],
  P:[['z',-5.2,-2.5,9.7,[-.8],[0]],['z',5.2,-2.5,9.7,[-.8],[0]],['x',-2.5,-14.7,-5.2,[-10.2],[0]],['x',-2.5,5.2,14.7,[10.2],[0]],['x',-2.5,-5.2,5.2,[0],[0]],['z',-5.2,-9.7,-2.5,[-6.2],[0]],['z',5.2,-9.7,-2.5,[-6.2],[0]],
   ['z',-5.2,-9.7,9.7,[-5.5,4.2],[1]],['z',5.2,-9.7,9.7,[-5.5,4.2],[1]],['x',0,-14.7,-5.2,[-10.0],[1]],['x',0,-5.2,5.2,[0],[1]],['x',0,5.2,14.7,[10.0],[1]]],
  R:[[-14.7,-5.2,-2.5,9.7,'x|pl'],[5.2,14.7,-2.5,9.7,'x|carp'],[-5.2,5.2,-2.5,9.7,'tile|carp'],[-14.7,-5.2,-9.7,-2.5,'conc|pl'],[-5.2,5.2,-9.7,-2.5,'tile|tile'],[5.2,14.7,-9.7,-2.5,'conc|carp']],
@@ -50509,7 +50703,11 @@ const GARAGE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.2,dh:3.0,mat:wt2('#3d434a',2),
   ['pool',9.8,5.8,0],['sofa',13.8,5.8,3],['tv',6.0,5.8,1],['jukebox',7.2,1.2,0],['arcade',13.9,2.0,3],
   ['desk',8.2,-3.8,0],['desk',11.8,-3.8,0],['wboard',9.8,-.45,2],['cab',14.1,-5.5,3],['cool',6.0,-8.8,1]]]});
 GARAGE.name='Redline Auto & Speed Shop (Garage)';GARAGE.mast=3.8;
-{const gsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;GARAGE.grp.add(m);return m};
+{const gsn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-GARAGE ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;GARAGE.grp.add(m)
+// === JIM FIX END: 9-sign-GARAGE ===
+;return m};
  const s0=gsn([['🏁 REDLINE AUTO & SPEED SHOP 🏁',34,34],['CUSTOM TUNING · V8 REBUILDS · TIRES · 24H TOWING',19,74]],'#181214','#ffd24c',512,100,4.6,.72,0,4.35,10.06,0);s0.name='sign';
  const s1=gsn([['REDLINE SPEED SHOP',44,40],['DRIVE-IN SERVICE BAYS · DYNO TUNING · FUEL',21,82]],'#8f1d18','#f5e6c8',512,110,12.8,1.35,0,10.88,5.58,0);s1.name='sign';
  gsn([['BAY 1 · DRIVE-IN EXPRESS SERVICE',28,36],['READY TO ROLL — PRESS E BY CAR TO DRIVE',20,74]],'#14281d','#7dffa0',512,100,5.2,.55,-9.5,4.15,10.05,0);
@@ -50576,7 +50774,11 @@ const MILX=(()=>{const X=[],XC=[],FL=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e)
  for(const x of[-8.5,8.5]){a('lamp',x-.4,x+.4,3.3,3.5,po+.05,po+.3);a('dark',x-.45,x+.45,3.5,3.56,po+.03,po+.34);FL.push([x,3.4,po+.5,0])}
  for(const x of[-14,-10,10,14]){a('dark',x-.5,x+.5,2.3,2.9,po+.02,po+.1);a('metal',x-.5,x+.5,2.3,2.34,po+.02,po+.2)}
  a('exit',-.3,.3,2.5,2.65,3.1,3.2);a('yel',-.08,.08,.062,.066,3.5,11.5);for(let z=4;z<11;z+=1.2)a('yel',-.5,.5,.062,.066,z,z+.2);
- for(const z of[-8,-4])a('dark',-5.8,5.8,3.35,3.45,z,z+.3);a('metal',-17.5,-6.1,3.3,3.4,5,5.14);a('metal',-17.5,-6.1,3.3,3.4,9,9.14);
+ 
+// === JIM2 FIX START: N4-milb-trays ===
+for(const z of[-8,-4]){a('dark',-5.8,5.8,3.35,3.45,z,z+.3);for(const x of[-5.2,-1.7,1.7,5.2])a('dark',x,x+.04,3.45,3.7,z+.13,z+.17)}
+// === JIM2 FIX END: N4-milb-trays ===
+a('metal',-17.5,-6.1,3.3,3.4,5,5.14);a('metal',-17.5,-6.1,3.3,3.4,9,9.14);
  for(let i=0;i<4;i++){const x=-5.2+i*2.7;a('blue',x,x+2.4,H+1.15,H+1.22,-8.8,-6.6);a('white',x,x+2.4,H+1.22,H+1.24,-7.75,-7.7);a('metal',x+.2,x+.3,H+.4,H+1.15,-8.7,-8.6);a('metal',x+2.1,x+2.2,H+.4,H+1.0,-6.7,-6.6)}
  a('sand',-14.5,-11.5,H+.4,H+1.2,7.3,7.9);a('sand',-14.5,-11.5,H+.4,H+1.2,9.7,10.3);a('sand',-14.5,-13.9,H+.4,H+1.2,7.3,10.3);q('dark',-12.6,8.8,.25,1.4,H+1.1,.2);q('chrome',-12.6,9.9,.07,1.0,H+1.16,.07);q('metal',-12.6,8.5,.1,.1,H+.4,.7);
  q('metal',3,-1,.2,.2,H+.4,1.1);q('white',3,-.8,1.7,.14,H+1.2,1.4);q('metal',3,-.2,.08,.8,H+1.8,.08);
@@ -50612,11 +50814,19 @@ const MILB=makeModel2({w:36,d:24,fl:2,lv:2,dw:3.4,dh:3.0,mat:wt2('#59614c',2),si
   ['sheet',14.2,-5.6,1,5.4],['sheet',14.2,0.6,1,3.8],['bunk',16.8,-6.2,1],['wc',17.3,-3.8,3],['bunk',16.8,1.4,1],['wc',17.3,-1.2,3],['desk',9,-5,0],['chair',9,-4,0],['locker',7,-1.2,0,2],['ext',6.6,-8,1],['bench',-12,-1,0],['weights',-12,-8,0],['weights',-12,-4.5,0],['mon',-1.2,-6.3],['bin',-7,3.6],['plant',-7,3.8],['dresser',-9.5,11.2,2],['bin',17,10.8]]]});
 MILB.name='Fort Harvest Military Outpost';MILB.mast=4.2;
 for(const f of MILX.FL)MILB.lamps.push(f);
-{const sn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;MILB.grp.add(m);return m};
+{const sn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-MILB ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;MILB.grp.add(m)
+// === JIM FIX END: 9-sign-MILB ===
+;return m};
  const s0=sn([['★ FORT HARVEST ★',40,34],['7TH MILITARY OUTPOST · SECTOR COMMAND',19,76]],'#27301f','#e6dca8',512,100,5.2,.8,0,4.3,12.06,0);s0.name='sign';
  sn([['RESTRICTED AREA',40,34],['AUTHORIZED PERSONNEL ONLY · DEADLY FORCE AUTHORIZED',15,74]],'#8f1d18','#f5e6c8',512,100,7,1.0,0,3.55,MILX.FZ+.28,0);
  sn([['⚡ EMERGENCY BLACK-START GENERATOR ⚡',28,30],['FORT HARVEST STAYS LIT WHEN THE GRID IS DOWN · PRESS F AT PANEL',16,72]],'#16181c','#ffd24c',512,100,5.4,.7,12,2.9,-17.3,0);
- sn([['HELIPAD · MEDEVAC LZ',32,36],['KEEP CLEAR · ROTOR WASH',20,74]],'#14281d','#7dffa0',512,100,3.6,.5,-12.5,1.2,-14.4,0);
+ 
+// === JIM FIX START: 4-helipad-sign ===
+sn([['HELIPAD · MEDEVAC LZ',32,36],['KEEP CLEAR · ROTOR WASH',20,74]],'#14281d','#7dffa0',512,100,3.6,.5,-12.5,1.2,-14.4,Math.PI);jimPosts(MILB.grp,-12.5,1.2,-14.4,Math.PI,3.6,.5);
+// === JIM FIX END: 4-helipad-sign ===
+
  const PH=Math.PI/2,pl_=(t,x,z,ry)=>sn([[t,30,32]],'#27301f','#e6dca8',256,52,1.5,.32,x,2.75,z,ry);
  pl_('MESS HALL',-5.86,7,PH);pl_('ARMORY',5.86,7,-PH);pl_('OPS ROOM',0,3.12,0);pl_('BARRACKS',-5.86,-3,PH);pl_('INFIRMARY',5.86,-3,-PH);pl_('STAIRS ▲',5.86,-10,-PH);
  sn([['IN MEMORIAM',34,34],['7TH OUTPOST · THEY HELD THE LINE',15,76]],'#14181c','#cfd4cf',512,100,2.6,.55,-3.5,2.2,3.12,0);
@@ -50637,7 +50847,11 @@ const SCHB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,
  const W=(ax,pos,f,u0,u1,y0,y1,d,m)=>ax=='x'?a(m,u0,u1,y0,y1,f>0?pos:pos-d,f>0?pos+d:pos):a(m,f>0?pos:pos-d,f>0?pos+d:pos,y0,y1,u0,u1);
  // Classical Collegiate Red-Brick & Limestone Belt Courses, Pilasters & Parapet Coping
  a('stone',-17.12,-1.9,0,.85,po,po+.12);a('stone',1.9,17.12,0,.85,po,po+.12);
- for(const y of[3.88,7.88,11.75])a('cream',-17.18,17.18,y,y+.26,-11.18,11.18);
+ 
+// === JIM FIX START: U1-school-band ===
+for(const y of[3.88,7.88])jimBand(a,'cream',-17.18,17.18,y,y+.26,-11.18,11.18,.46);a('cream',-17.18,17.18,11.75,12.01,-11.18,11.18);
+// === JIM FIX END: U1-school-band ===
+
  for(const px of[-16.8,-10.5,-5.2,5.2,10.5,16.8])for(const sz of[-1,1])a('stone',px-.32,px+.32,0,H,sz*11.02-.12,sz*11.02+.12);
  // Grand Neoclassical 4-Column School Entrance Portico & Clock Pediment (x = -4.6..4.6, z = po..po+3.2)
  a('conc',-4.8,4.8,.03,.24,po+.58,po+3.2);a('conc',-3.2,3.2,0,.14,po+3.2,po+4.2);
@@ -50721,9 +50935,17 @@ const SCHOOL=makeModel2({w:34,d:22,fl:3,lv:3,dw:3.8,dh:3.2,mat:wt2('#7d3b2e',0),
   // Floor 1 Partitions: Central Locker Hallway (-5.2..5.2), Cafeteria & Kitchen (-16.7..-5.2), Admin & Nurse's Infirmary (-5.2..10.2, z=-10.7..-2.5), Gymnasium (5.2..16.7, z=-2.5..10.7)
   ['z',-5.2,-10.7,10.7,[-6.8,1.5,7.2],[0]],['z',5.2,-2.5,10.7,[1.5,7.2],[0]],['x',-2.5,-16.7,10.2,[-11.5,-1.5,2.5,7.8],[0]],['z',1.2,-10.7,-2.5,[-6.5],[0]],['z',10.2,-10.7,-2.5,[-6.8],[0]],
   // Floor 2 Partitions: West Classrooms (-16.7..-5.2, z=-2.5..10.7), Science Lab (-16.7..-5.2, z=-10.7..-2.5), Central Hall & History Classroom (-5.2..5.2), Library & Computer Lab (5.2..16.7)
-  ['z',-5.2,-10.7,10.7,[-6.8,1.2,7.2],[1]],['z',5.2,-2.5,10.7,[1.2,7.2],[1]],['x',-2.5,-16.7,10.2,[-11.2,0,7.5],[1]],['x',4.2,-16.7,-5.2,[-11.2],[1]],['x',3.5,-5.2,5.2,[0],[1]],['z',10.2,-10.7,-2.5,[-6.8],[1]],
+  ['z',-5.2,-10.7,10.7,[-6.8,1.2,7.2],[1]],['z',5.2,-2.5,10.7,[1.2,7.2],[1]],['x',-2.5,-16.7,10.2,[-11.2,0,7.5],[1]],['x',4.2,-16.7,-5.2,[-11.2],[1]],['x',3.5,-5.2,5.2,[0],[1]],
+// === JIM FIX START: U5-school-f2-landing ===
+['z',10.2,-5.0,-2.5,[],[1]]
+// === JIM FIX END: U5-school-f2-landing ===
+,
   // Floor 3 Partitions: Band & Music Hall (-16.7..-5.2, z=-2.5..10.7), Shop Class (-16.7..-5.2, z=-10.7..-2.5), Student Lounge & Restrooms (-5.2..5.2), Art Studio & Drama (5.2..16.7)
-  ['z',-5.2,-10.7,10.7,[-6.8,1.5,7.2],[2]],['z',5.2,-2.5,10.7,[1.5,7.2],[2]],['x',-2.5,-16.7,10.2,[-11.2,-2.2,3.2,7.5],[2]],['z',0,-10.7,-2.5,[-6.5],[2]],['z',10.2,-10.7,-2.5,[-6.8],[2]]
+  ['z',-5.2,-10.7,10.7,[-6.8,1.5,7.2],[2]],['z',5.2,-2.5,10.7,[1.5,7.2],[2]],['x',-2.5,-16.7,10.2,[-11.2,-2.2,3.2,7.5],[2]],['z',0,-10.7,-2.5,[-6.5],[2]],
+// === JIM FIX START: U5-school-f3-door ===
+['z',10.2,-10.7,-2.5,[-9.4],[2]]
+// === JIM FIX END: U5-school-f3-door ===
+
  ],
  R:[
   [-5.2,5.2,-2.5,10.7,'tile|tile'],[-16.7,-5.2,-2.5,10.7,'tile|pl'],[-16.7,-5.2,-10.7,-2.5,'tile|tile'],
@@ -50784,10 +51006,18 @@ const SCHOOL=makeModel2({w:34,d:22,fl:3,lv:3,dw:3.8,dh:3.2,mat:wt2('#7d3b2e',0),
    ['sdesk',2.2,-5.5,0],['sdesk',5.2,-5.5,0],['sdesk',2.2,-8.2,0],['sdesk',5.2,-8.2,0],['chalkboard',4.2,-10.52,0,3.2],['desk',8.2,-6.8,3]]]
 });
 SCHOOL.name='Blackpine High School';SCHOOL.mast=5.4;
-{const ssn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(new T.PlaneGeometry(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;SCHOOL.grp.add(m);return m};
+{const ssn=(rows,bg,fg,cw,ch,pw,ph,x,y,z,ry)=>{const mt=new T.MeshStandardMaterial({map:tex(cw*2,ch*2,(g,W,Hh)=>{g.scale(2,2);W/=2;Hh/=2;g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,W-10,Hh-10);g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';for(const[t,f,yy]of rows){g.font='bold '+f+'px sans-serif';g.fillText(t,W/2,yy)}}),roughness:.65});const m=new T.Mesh(
+// === JIM FIX START: 9-sign-SCHOOL ===
+jimSignGeo(pw,ph),mt);m.position.set(x,y,z);m.rotation.y=ry;SCHOOL.grp.add(m)
+// === JIM FIX END: 9-sign-SCHOOL ===
+;return m};
  const s0=ssn([['🎓 BLACKPINE HIGH SCHOOL 🎓',34,34],['HOME OF THE TIMBERWOLVES · EST. 1964 · DISTRICT 7',19,74]],'#14284b','#ffd24c',512,100,5.4,.78,0,5.55,11.08,0);s0.name='sign';
  const s1=ssn([['BLACKPINE HIGH · PLOT 14 CAMPUS',34,32],['GYM · CAFETERIA · SCIENCE LAB · LIBRARY · BAND · SHOP',19,66],['EMERGENCY SHELTER & SURVIVOR SUPPLY HUB INSIDE',19,98]],'#0f1e36','#ffffff',512,125,3.8,1.15,7.2,1.75,16.14,0);s1.name='sign';
- ssn([['SCHOOL ZONE',40,38],['SPEED LIMIT 15 · WATCH FOR BUSES',20,76]],'#e0b000','#16161a',512,100,2.4,.52,-14.8,2.1,16.5,0);
+ 
+// === JIM FIX START: 7-school-sign ===
+ssn([['SCHOOL ZONE',40,38],['SPEED LIMIT 15 · WATCH FOR BUSES',20,76]],'#e0b000','#16161a',512,100,2.4,.52,-14.8,2.1,16.5,0);jimPosts(SCHOOL.grp,-14.8,2.1,16.5,0,2.4,.52);
+// === JIM FIX END: 7-school-sign ===
+
  ssn([['TIMBERWOLVES GYMNASIUM',36,36],['HOME 68  ·  PERIOD 4  ·  GUEST 64',22,74]],'#14284b','#ffd24c',512,100,3.2,.62,11.0,3.15,-2.36,0);
  ssn([['CAFETERIA & HOT LUNCH LINE',34,34],['TODAY: HOT TRAY LUNCH (+40 HP) — PRESS F',20,74]],'#7a1f1f','#fff8d6',512,100,3.2,.58,-8.5,2.85,-2.36,0);
  ssn([['NURSE\'S INFIRMARY · RM 104',34,34],['FREE FIRST-AID (+60 HP) & MEDKITS — PRESS F',20,74]],'#1d5e3a','#ffffff',512,100,2.8,.54,4.8,2.85,-2.62,Math.PI);
@@ -50834,10 +51064,18 @@ function mkIDoor(d){const p=new T.Group(),W=1.06,lh=2.22,ax=d.ax;
   for(const x of[-.035,.035]){bx2(.02,.82,W-.24,M2.trim,x,.62,W/2);bx2(.02,.86,W-.24,M2.trim,x,1.62,W/2)}
   for(const x of[-.065,.065])bx2(.04,.22,.04,M2.brass,x,1.02,W-.14);bx2(.15,.03,.03,M2.brass,0,1.02,W-.14)}
  return p}
-function place(m,x,z,rot){const g=m.grp.clone();g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);const s=rot?-1:1;const I={x,z,s,m,g,cols:m.cols.map(c=>({x:x+c.x*s,z:z+c.z*s,hw:c.hw,hd:c.hd,lv:c.lv}))};insts.push(I);boxes.push({x,z,hw:m.hw,hd:m.hd,c:1});pwInit(I,g);
+function place(m,x,z,rot){const g=m.grp.clone();g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);const s=rot?-1:1;const I={x,z,s,m,g,cols:m.cols.map(c=>({x:x+c.x*s,z:z+c.z*s,hw:c.hw,hd:c.hd,lv:c.lv,
+// === JESSICA FIX START: U3 ===
+top:c.top
+// === JESSICA FIX END ===
+}))};insts.push(I);boxes.push({x,z,hw:m.hw,hd:m.hd,c:1});pwInit(I,g);
  if(m.door){const D=m.door,dm=mkDoor(D);g.add(dm.grp);const col={x:x+((D.a+D.b)/2)*s,z:z+D.pm*s,hw:(D.b-D.a)/2,hd:(D.po-D.pi)/2};I.cols.push(col);bdoors.push({I,bd:1,open:false,t:0,leaves:dm.leaves,col,x:col.x,z:col.z,y:0,name:m.name})}
  for(const B of m.bayDoors||[]){const dm=mkDoor(B);g.add(dm.grp);const col={x:x+((B.a+B.b)/2)*s,z:z+B.pm*s,hw:(B.b-B.a)/2,hd:(B.po-B.pi)/2};const bd={I,bd:1,open:!!B.open,t:B.open?1:0,leaves:dm.leaves,col,x:col.x,z:col.z,y:0,name:m.name+' garage door'};if(B.open)for(const l of dm.leaves){l.p.position.y=l.dh;l.p.visible=false}else I.cols.push(col);bdoors.push(bd)}
- for(const d of m.idoors||[]){const p=mkIDoor(d);g.add(p);const wx=x+(d.ax==='x'?d.g:d.pos)*s,wz=z+(d.ax==='x'?d.pos:d.g)*s,col={x:wx,z:wz,hw:d.ax==='x'?.55:.12,hd:d.ax==='x'?.12:.55,lv:d.l};I.cols.push(col);bdoors.push({I,bd:1,idoor:1,open:false,t:0,leaves:[{p,sd:d.ax==='x'?1:-1,roll:0}],col,x:wx,z:wz,y:d.l*FH,lv:d.l,name:m.name+' room'})}}
+ for(const d of m.idoors||[]){const p=mkIDoor(d);g.add(p);const wx=x+(d.ax==='x'?d.g:d.pos)*s,wz=z+(d.ax==='x'?d.pos:d.g)*s,col={x:wx,z:wz,hw:d.ax==='x'?.55:.12,hd:d.ax==='x'?.12:.55,lv:d.l,
+// === JESSICA FIX START: U3 ===
+top:d.l*FH+FH-.3/* closed door + lintel: full storey */
+// === JESSICA FIX END ===
+};I.cols.push(col);bdoors.push({I,bd:1,idoor:1,open:false,t:0,leaves:[{p,sd:d.ax==='x'?1:-1,roll:0}],col,x:wx,z:wz,y:d.l*FH,lv:d.l,name:m.name+' room'})}}
 function toggleBDoor(d){d.open=!d.open;const i=d.I.cols.indexOf(d.col);if(d.open){if(i>=0)d.I.cols.splice(i,1)}else if(i<0)d.I.cols.push(d.col)}
 function bdoorTick(dt){for(const d of bdoors){const g=d.open?1:0;if(d.t===g)continue;d.t=d.t<g?Math.min(g,d.t+dt*2.2):Math.max(g,d.t-dt*2.2);const e=d.t*d.t*(3-2*d.t);for(const l of d.leaves){if(l.roll){l.p.position.y=e*l.dh;l.p.visible=e<.98}else l.p.rotation.y=-l.sd*e*1.5}}}
 // ===== v0.23.1 PLOT 15: "15 Willow Court" - a basic single-storey house WITH A BASEMENT (to be detailed later). The Fort Harvest gate keycard breaker lives down there (side mission). The basement is dug out of the ground (hole cut in the ground plane); stairs go down in the rear hallway. =====
@@ -50895,13 +51133,30 @@ const PLOTS=window.PLOTS=[];
  const slots=(p,hd)=>{const south=p.rot!==0,front=south?p.st+10+p.sb:p.st-14-p.sb;return{x:p.bc+p.jx,z:south?front+hd:front-hd,front,south}};
  // basic filler house: box + gable roof + door + 2 windows + chimney (solid collision box, not enterable)
  const FC=[0xb9a98a,0x8a9a8c,0xa98a7a,0x7f8fa0,0xc2b280,0x9a8a9a],fDoor=new T.MeshStandardMaterial({color:0x3a2a1e,roughness:.9}),fWin=new T.MeshStandardMaterial({color:0x1a2026,roughness:.3,metalness:.4}),fRoof=new T.MeshStandardMaterial({color:0x4a3a34,roughness:.9}),fBrick=new T.MeshStandardMaterial({color:0x6a3a2e,roughness:.95});
- function filler(p){const w=14+((p.n*3)%4)*2,d=12+(p.n%3),h=5.2,S=slots(p,d/2);const g=new T.Group();g.position.set(S.x,0,S.z);g.rotation.y=p.rot;
-  const body=new T.Mesh(new T.BoxGeometry(w,h,d),new T.MeshStandardMaterial({color:FC[p.n%FC.length],roughness:.9}));body.position.y=h/2;g.add(body);
+
+// === JIM FIX START: 8a-filler ===
+ const JIM_FW=[M2.cedar,M2.brick,M2.pl,M2.stone,M2.cedar,M2.wf],JIM_FR=[M2.shingle,M2.slate];
+ function filler(p){
+// === JIM FIX END: 8a-filler ===
+const w=14+((p.n*3)%4)*2,d=12+(p.n%3),h=5.2,S=slots(p,d/2);const g=new T.Group();g.position.set(S.x,0,S.z);g.rotation.y=p.rot;
+  
+// === JIM FIX START: 8b-filler ===
+const body=new T.Mesh(mergeBoxes([[-w/2,w/2,0,h,-d/2,d/2]]),JIM_FW[p.n%JIM_FW.length]);
+// === JIM FIX END: 8b-filler ===
+g.add(body);
   const sh=new T.Shape();sh.moveTo(-(d/2+.6),0);sh.lineTo(d/2+.6,0);sh.lineTo(0,3.2);sh.closePath();const rg=new T.ExtrudeGeometry(sh,{depth:w+1.2,bevelEnabled:false});rg.rotateY(Math.PI/2);rg.translate(-(w+1.2)/2,h,0);
-  const roof=new T.Mesh(rg,fRoof);g.add(roof);
+  
+// === JIM FIX START: 8c-filler ===
+{const u=rg.attributes.uv;for(let i=0;i<u.count;i++)u.setXY(i,u.getX(i)*.25,u.getY(i)*.25)}const roof=new T.Mesh(rg,JIM_FR[p.n%JIM_FR.length]);
+// === JIM FIX END: 8c-filler ===
+g.add(roof);
   const dr=new T.Mesh(new T.PlaneGeometry(1.3,2.3),fDoor);dr.position.set(0,1.15,d/2+.03);g.add(dr);
   for(const k of[-1,1]){const wn=new T.Mesh(new T.PlaneGeometry(1.5,1.3),fWin);wn.position.set(k*w*.28,2.6,d/2+.03);g.add(wn)}
-  const ch=new T.Mesh(new T.BoxGeometry(.9,3,.9),fBrick);ch.position.set(w/2-2,h+2.2,-1);g.add(ch);
+  const ch=
+// === JIM FIX START: 8d-filler ===
+new T.Mesh(mergeBoxes([[-.45,.45,-1.5,1.5,-.45,.45]]),M2.brick)
+// === JIM FIX END: 8d-filler ===
+;ch.position.set(w/2-2,h+2.2,-1);g.add(ch);
   g.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true});scene.add(g);boxes.push({x:S.x,z:S.z,hw:w/2,hd:d/2});return S}
  // plot sign: post + plate, faces the street
  function plotSign(p,label){const south=p.rot!==0,x=p.bc-24,z=south?p.st+8:p.st-8.5,ry=south?Math.PI:0;
@@ -51155,7 +51410,11 @@ addEventListener('keydown',e=>{if(e.code==='KeyL'&&!e.repeat)toggleFL()});
 document.getElementById('be').addEventListener('pointerdown',toggleCar);
 const cv=ren.domElement;cv.style.touchAction='none';cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,e.pointerId]});['pointerup','pointercancel'].forEach(v=>addEventListener(v,e=>{if(drag&&e.pointerId===drag[2])drag=null}));
 cv.addEventListener('pointermove',e=>{if(drag&&foot&&e.pointerId===drag[2]){yaw-=(e.clientX-drag[0])*.005;pit=Math.max(-1.3,Math.min(1.3,pit-(e.clientY-drag[1])*.005));drag=[e.clientX,e.clientY,e.pointerId]}});
-function push(b,r){const dx=pl.x-b.x,dz=pl.z-b.z,ox=b.hw+r-Math.abs(dx),oz=b.hd+r-Math.abs(dz);if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(dx||1)*ox;else pl.z+=Math.sign(dz||1)*oz}}
+function push(b,r){
+// === JESSICA FIX START: B4 ===
+if(!(b.hw>0&&b.hd>0))return;
+// === JESSICA FIX END ===
+const dx=pl.x-b.x,dz=pl.z-b.z,ox=b.hw+r-Math.abs(dx),oz=b.hd+r-Math.abs(dz);if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(dx||1)*ox;else pl.z+=Math.sign(dz||1)*oz}}
 function step(dt){if(!foot){carStep(dt);return}
  const mv0=Math.max(-1,Math.min(1,(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0)+JY)),st0=Math.max(-1,Math.min(1,(K.KeyD?1:0)-(K.KeyA?1:0)+JX)),nm0=Math.hypot(mv0,st0),mv=nm0>1?mv0/nm0:mv0,st=nm0>1?st0/nm0:st0;yaw+=((K.ArrowLeft?1:0)-(K.ArrowRight?1:0))*1.8*dt;
  const sp=(K.ShiftLeft||K.ShiftRight||Math.hypot(JX,JY)>.92?6:3.6)*dt*ADM.spd,sy=Math.sin(yaw),cy=Math.cos(yaw),NS=Math.max(1,Math.ceil(ADM.spd/1.5));
@@ -51202,7 +51461,21 @@ for(let i=0;i<60;i++){const k=Math.floor(R(-3,4))*70,v=Math.random()<.5;spots.pu
 for(let i=0;i<18;i++)spots.push({x:R(-4,4),z:R(-130,-450),I:null,zb:null,dead:0});
 function pushO(o,b,r){const dx=o.x-b.x,dz=o.z-b.z,ox=b.hw+r-Math.abs(dx),oz=b.hd+r-Math.abs(dz);if(ox>0&&oz>0){if(ox<oz)o.x+=Math.sign(dx||1)*ox;else o.z+=Math.sign(dz||1)*oz;return true}return false}
 const inside=(I,x,z)=>Math.abs((x-I.x)*I.s)<I.m.hw&&Math.abs((z-I.z)*I.s)<I.m.hd;
-function blockedAt(x,y,z){if(y<pitH(x,z)&&!(y<-3&&x>-356&&x<-314&&z>-860&&z<-828))return true;for(const b of boxes)if(!b.c&&Math.abs(x-b.x)<b.hw&&Math.abs(z-b.z)<b.hd&&y<(b.low?1.5:b.y1!==undefined?b.y1:9)&&y>(b.y0||-60))return true;for(const I of insts){if(Math.abs(x-I.x)>30||Math.abs(z-I.z)>30)continue;for(const c of I.cols)if(Math.abs(x-c.x)<c.hw&&Math.abs(z-c.z)<c.hd){if(c.lv===undefined){if(y<12.5)return true}else if(y>c.lv*FH&&y<c.lv*FH+1.2)return true}}return false}
+function blockedAt(x,y,z){
+// === JESSICA FIX START: B2+U3 ===
+// B2: inside a ground cut-out (plot-15 basement) the real floor is the limit, not ground level
+if((window.GROUND_HOLES||[]).some(q=>x>q.x0&&x<q.x1&&z>q.z0&&z<q.z1)?y<floorAt(x,z,y):y<pitH(x,z)&&!(y<-3&&x>-356&&x<-314&&z>-860&&z<-828))return true;
+// B2: a box with y0:0 starts at 0 (old 'b.y0||-60' turned 0 into -60, so surface walls blocked shots far below them)
+for(const b of boxes)if(!b.c&&Math.abs(x-b.x)<b.hw&&Math.abs(z-b.z)<b.hd&&y<(b.low?1.5:b.y1!==undefined?b.y1:9)&&y>(b.y0!==undefined?b.y0:-60))return true;
+for(const I of insts){if(Math.abs(x-I.x)>30||Math.abs(z-I.z)>30)continue;const m=I.m;
+ // U3: floor/ceiling slabs (0.3 m at k*FH, hole over the stairwell) and the roof (H..H+.4); bands are 0.5 m so 0.5 m bullet steps cannot skip them
+ if(m.lv>0){const lx=(x-I.x)*I.s,lz=(z-I.z)*I.s;if(Math.abs(lx)<m.hw&&Math.abs(lz)<m.hd){const H=m.cols&&m.cols.H||m.lv*FH;if(y>H-.1&&y<H+.4)return true;
+  for(let k=1;k<m.lv;k++)if(y>k*FH-.44&&y<k*FH+.06){const r=m.ramps&&m.ramps[k-1];if(!(r&&lx>r.x0&&lx<r.x1&&lz>r.z0&&lz<r.z1))return true}}}
+ // U3: walls/closed doors with a top block their full height; other levelled colliders (furniture, railings) stay 1.2 m low cover; thin walls count as 0.5 m thick
+ for(const c of I.cols){const hw=c.hw<.25&&c.hd>=.5?.25:c.hw,hd=c.hd<.25&&c.hw>=.5?.25:c.hd;if(Math.abs(x-c.x)<hw&&Math.abs(z-c.z)<hd){if(c.lv===undefined){if(y<12.5)return true}else{const f=c.lv*FH;if(y>f&&y<(c.top!==undefined?c.top:f+1.2))return true}}}}
+return false
+// === JESSICA FIX END ===
+}
 // fx
 const fxs=[],bgm=new T.BoxGeometry(1,1,1),bmt=new T.MeshBasicMaterial({color:0x6a0a0a}),TR=[];
 for(let i=0;i<12;i++){const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(new Float32Array(6),3));const l=new T.Line(g,new T.LineBasicMaterial({color:0xffe9a0}));l.visible=false;l.frustumCulled=false;scene.add(l);TR.push({l,t:0})}
@@ -51210,7 +51483,7 @@ function tracer(a,b){const s=TR.reduce((q,w)=>w.t<q.t?w:q,TR[0]),p=s.l.geometry.
 function blood(x,y,z,n){for(let i=0;i<n;i++){const m=new T.Mesh(bgm,bmt);m.scale.setScalar(.04+Math.random()*.04);m.position.set(x,y,z);scene.add(m);fxs.push({m,vx:R(-2,2),vy:R(1,3),vz:R(-2,2),t:.7})}while(fxs.length>80)scene.remove(fxs.shift().m)}
 const msgEl=$('msg'),hitEl=$('hit'),stEl=$('st'),xhEl=$('xh'),gbEl=$('gb');
 function toast(t,s){msgEl.textContent=t;msgEl.style.opacity=1;toastT=s||4}
-function hurt(a){if(ADM.god)return;if(navigator.vibrate)navigator.vibrate(40);pHP-=a;hitEl.style.opacity=1;hitT=.25;blip(120,.1,'sawtooth');if(pHP<=0){toast('You died. Back at the farm.',4);pHP=100;if(foot)farmSpawn();else car.position.set(0,0,18);for(const z of zs)if(!z.dead&&Math.hypot(z.x-BX,z.z-BZ)<25)z.al=false}}
+function hurt(a){if(ADM.god)return;if(navigator.vibrate)navigator.vibrate(40);pHP-=a;hitEl.style.opacity=1;hitT=.25;blip(120,.1,'sawtooth');if(pHP<=0){window.__willRsp=1;toast('You died. Back at the farm.',4);pHP=100;if(foot)farmSpawn();else car.position.set(0,0,18);for(const z of zs)if(!z.dead&&Math.hypot(z.x-BX,z.z-BZ)<25)z.al=false}}
 function killZ(z){z.dead=true;z.fall=0;if(z.spot){z.spot.dead=day;z.spot.zb=null}}
 function hurtZ(z,dm,head,e){z.hp-=dm;z.al=true;blood(e.x,e.y,e.z,head?9:5);xhEl.style.background='#f33';setTimeout(()=>xhEl.style.background='rgba(255,255,255,.85)',120);if(z.hp<=0)killZ(z)}
 function trace(o,d,g,s){let bt=g.range,hit=null,head=false,legs=false;
@@ -51223,14 +51496,18 @@ function fireGun(){if(!foot||fcd>0||rl>0)return;const w=WP[wi],g=w.g;if(w.mag<=0
  for(let p=0;p<g.pellets;p++){const a=R(-1,1)*g.spread*(1+bloom),b=R(-1,1)*g.spread*(1+bloom);let dx=f[0]+rt[0]*a+up[0]*b,dy=f[1]+up[1]*b,dz=f[2]+rt[2]*a+up[2]*b;const n=Math.hypot(dx,dy,dz);trace(o,{x:dx/n,y:dy/n,z:dz/n},g,s)}
  for(const z of zs)if(!z.dead&&Math.hypot(z.x-o.x,z.z-o.z)<45)z.al=true}
 function skipRaid(){if(raidDay===day)day+=5;else if(day%5)day=Math.ceil(day/5)*5;dayT=.5;toast('Skipping to raid night...',2)}
-addEventListener('keydown',e=>{if(!foot)return;if(e.code==='Space'&&!e.repeat)fireGun();else if(e.code==='KeyR')reload();else if(e.code.startsWith('Digit')){const i=+e.code[5]-1;if(i>=0&&i<WP.length)setW(i)}});
+addEventListener('keydown',e=>{if(!foot||(window.FORT_GATE&&window.FORT_GATE.kp))return;if(e.code==='Space'&&!e.repeat)fireGun();else if(e.code==='KeyR')reload();else if(e.code.startsWith('Digit')){const i=+e.code[5]-1;if(i>=0&&i<WP.length)setW(i)}});
 let pd=null;cv.addEventListener('pointerdown',e=>{pd=[e.clientX,e.clientY,e.pointerType]});cv.addEventListener('pointerup',e=>{if(pd&&pd[2]==='mouse'&&foot&&Math.hypot(e.clientX-pd[0],e.clientY-pd[1])<6)fireGun();pd=null});
 $('gf').addEventListener('pointerdown',e=>{btnFire=true;fireGun();e.target.setPointerCapture(e.pointerId)});['pointerup','pointercancel'].forEach(v=>$('gf').addEventListener(v,()=>btnFire=false));
 $('gr').addEventListener('pointerdown',reload);$('gs').addEventListener('pointerdown',()=>setW((wi+1)%WP.length));$('gn').addEventListener('pointerdown',skipRaid);
 // day / night
 const nightC=new T.Color(0x040608),dayC=new T.Color(0x7d8670),tmpC=new T.Color();
 function env(dt){dayT+=dt/270;if(dayT>=1){dayT-=1;day++;for(const s of spots)s.dead=0;toast('Day '+day+' begins',3)}
- LV=Math.max(.06,Math.min(1,.5+.7*Math.sin(dayT*6.2832)));tmpC.lerpColors(nightC,dayC,LV);scene.background.copy(tmpC);scene.fog.color.copy(tmpC);scene.fog.density=.0108+(1-LV)*.0045;hemi.intensity=.18+.45*LV;sun.intensity=.9*LV;mSpill.opacity=Math.max(0,Math.min(.85,(.55-LV)*1.7))}
+ LV=Math.max(.06,Math.min(1,.5+.7*Math.sin(dayT*6.2832)));tmpC.lerpColors(nightC,dayC,LV);scene.background.copy(tmpC);
+// === JESSICA FIX START: FOG ===
+if(scene.fog){scene.fog.color.copy(tmpC);scene.fog.density=.0108+(1-LV)*.0045}
+// === JESSICA FIX END ===
+hemi.intensity=.18+.45*LV;sun.intensity=.9*LV;mSpill.opacity=Math.max(0,Math.min(.85,(.55-LV)*1.7))}
 function startRaid(){const n=Math.min(45,10+day*2),ins=spots.filter(s=>s.I),out=spots.filter(s=>!s.I);for(let i=0;i<n;i++){const a=i%2?out:ins,s=a[Math.floor(Math.random()*a.length)];addZ(s.x,s.z,s.I,true,null)}toast('⚠ Day '+day+': the horde is coming for your cupboard!',6)}
 function zTick(dt){
  const pp=foot?pl:car.position,w=WP[wi];vm.visible=foot;vmS.forEach((g,i)=>g.visible=foot&&i===wi);gbEl.style.display='flex';xhEl.style.display=foot?'block':'none';
@@ -51315,7 +51592,11 @@ for(const[z,tx]of[[-6.95,bTc],[-9.05,bTd]]){const m=new T.Mesh(new T.PlaneGeomet
 sb(mYel,-4.68,1.55,-6.95,.18,.3,.3);sb(mYel,-4.68,1.55,-9.05,.18,.3,.3);
 // ---- operator booth (glazed, raised), crane monorail + hoist
 for(const x of[-2.6,-.6])for(const z of[-4.2,-2.2])sb(mGy,x,1.3,z,.22,2.6,.22);sb(mBu,-1.6,2.6,-3.2,2.8,.2,2.8);sb(mDk,-1.6,4.9,-3.2,3,.18,3);for(const[x,z]of[[-2.9,-4.5],[-.3,-4.5],[-2.9,-1.9],[-.3,-1.9]])sb(mGy,x,3.8,z,.12,2.2,.12);sb(mGl,-2.9,3.8,-3.2,.05,1.7,2.4);sb(mGl,-1.6,3.8,-4.5,2.4,1.7,.05);sb(mCo,-.3,3.4,-3.2,.08,1.2,2.4);sb(mWdD,-2.2,3.2,-3.2,.5,.1,1.8);sb(mDk,-2.3,3.5,-3.2,.15,.5,.15);sb(lampM,-1.6,4.7,-3.2,.5,.08,.2);W(-1.6,-3.2,.3,.3);
-for(let i=0;i<8;i++)sb(mGy,.3+i*.3,.3+i*.32,-1.2,.3,.1,.9);
+
+// === JIM FIX START: 5a-stairs ===
+for(let i=0;i<8;i++)sb(mGy,.3+i*.3,.3+i*.32,-1.2,.3,.1,.9);{const jS=(a,b,z)=>{const dx=b[0]-a[0],dy=b[1]-a[1],c=new T.Mesh(new T.BoxGeometry(Math.hypot(dx,dy),.22,.06),mGy);c.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,z);c.rotation.z=Math.atan2(dy,dx);c.castShadow=c.receiveShadow=true;sm.add(c)};for(const z of[-1.62,-.78])jS([.15,-.02],[2.55,2.54],z);for(const z of[-13.07,-12.13])jS([-4.95,-.16],[-2.25,2.54],z)}
+// === JIM FIX END: 5a-stairs ===
+
 sb(mYel,-1,5.4,-12.6,21,.3,.35);
 // ---- green chain (transverse board conveyor), edger, trimmer, waste belt
 sb(mDk,4.3,.55,-8,17,.3,7);sb(mGy,4.3,.35,-11.6,17,.3,.2);sb(mGy,4.3,.35,-4.4,17,.3,.2);for(let x=-4;x<=12;x+=2)for(const z of[-11.4,-4.6])sb(mGy,x,.15,z,.3,.3,.3);const gc=fl(17,6.4,mBb,4.3,-8,.71);W(4.3,-8,8.5,.3);
@@ -51374,7 +51655,11 @@ sb(mBu,48,.9,10,5,1.8,1.5);sb(mYel,48,2.1,10,2.4,.8,1.7);sb(mDk,45.4,.6,10,2.6,.
 for(let i=0;i<3;i++)sb(mWd,-28.5,.2+i*.35,20.6,1.2,.3,2.4);cy(sm,mRb,.5,.5,.3,-28.4,.2,22.6,0,0,12);cy(sm,mRd,.3,.3,.9,-28.4,.3,19,PI/2,0,12);
 const pk=new T.Group();pk.position.set(-35,0,25);pk.rotation.set(0,.5,.04);sm.add(pk);bxo(pk,mBu,0,.85,0,1.9,.8,4.6);bxo(pk,mBu,0,1.5,-.6,1.8,.8,1.8);bxo(pk,mGl,0,1.55,-1.52,1.6,.6,.05);for(const z of[-1.4,1.4])for(const s of[-1,1])wh(pk,s*.95,.4,z,.4,.3);W(-35,25,1.4,2.4,true);
 for(let i=0;i<10;i++)bxo(sm,i%2?mWd:mWd2,R(7,12),.04,R(3,9),.2,.05,R(2,4)).rotation.y=R(0,3);
-const lumNode=(x,z)=>{const g=new T.Group();g.position.set(SMX+x,0,SMZ+z);for(let k=0;k<8;k++)bxo(g,k%2?mWd:mWd2,0,.2+k*.16,0,1.4,.1,4.2);for(const o of[-1.6,0,1.6])bxo(g,mWdD,0,.08,o,1.6,.14,.14);scene.add(g);wall(SMX+x,SMZ+z,.9,2.2);};lumNode(10,8);lumNode(26,9);
+const lumNode=(x,z)=>{const g=new T.Group();g.position.set(SMX+x,0,SMZ+z);
+// === JIM2 FIX START: N12-lumber ===
+for(let k=0;k<8;k++)bxo(g,k%2?mWd:mWd2,0,.2+k*.1,0,1.4,.1,4.2);
+// === JIM2 FIX END: N12-lumber ===
+for(const o of[-1.6,0,1.6])bxo(g,mWdD,0,.08,o,1.6,.14,.14);scene.add(g);wall(SMX+x,SMZ+z,.9,2.2);};lumNode(10,8);lumNode(26,9);
 const hoist=new T.Group();hoist.position.set(-3,5.0,-12.6);sm.add(hoist);bxo(hoist,mDk,0,0,0,1.3,.7,.9);bxo(hoist,mDk,0,-.8,0,.06,.9,.06);bxo(hoist,mYel,0,-1.4,0,.3,.35,.3);
 sb(mGy,44,4.5,3,.12,9,.12);const ws=new T.Group();ws.position.set(44,8.8,3);sm.add(ws);cy(ws,mYel,.15,.35,1.6,.8,0,0,0,PI/2,8);sb(lampF,-9,5.15,-6,.7,.1,.7);
 flush();
@@ -51452,7 +51737,11 @@ q_flat(new T.PlaneGeometry(14.5,40),slabM,31.25,.055,0);
 q_flat(new T.CircleGeometry(5.5,32),q_gm('#9c988b',3000,3,-4),31.5,.06,10);
 q_rut(38,0,20,0);q_rut(20,0,-2,3);q_rut(18,1,12,8);q_rut(12,0,0,-5);q_rut(8,0,3,-3);q_rut(6,-3,8,-10);q_rut(0,6,4,15);
 const pondM=new T.MeshStandardMaterial({color:0x2d5a58,roughness:.12,metalness:.6,transparent:true,opacity:.88,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
-q_flat(new T.CircleGeometry(3.6,28),pondM,-2,.075,-19);q_flat(new T.RingGeometry(3.5,4.6,32),q_gm('#3f3a30',4000,3,-5),-2,.07,-19);qwall(-2,-19,3.3,3.3);
+q_flat(new T.CircleGeometry(3.6,28),pondM,-2,.075,-19);q_flat(new T.RingGeometry(3.5,4.6,32),q_gm('#3f3a30',4000,3,-5),-2,.07,-19);
+// === JIM FIX START: 6c-quarry-pond ===
+q_flat(new T.TorusGeometry(3.62,.2,6,36),mCd,-2,.1,-19).castShadow=true;qwall(-2,-19,3.5,1.6);qwall(-2,-19,1.6,3.5);
+// === JIM FIX END: 6c-quarry-pond ===
+
 // ---- cliff face (west) in 3 rock layers + ring boulders + rubble
 const q_mSL2=[mSL,mSLd,mSLl];
 // clean safety bund replaces the loose boulder ring (open at the entrance road)
@@ -51826,9 +52115,21 @@ IN(archG,mSt,S.a);IN(crossG,mSt,S.c);IN(celtG,mSt,S.k);IN(obG,mSt,S.o);IN(ledG,m
 {const wc=mg([[new T.BoxGeometry(.1,1.1,.08),mt(0,.55,0)],[new T.BoxGeometry(.6,.1,.08),mt(0,.85,0)]]),rows=[],md=[];for(let x=-34;x<=-25;x+=2.6)for(let z=10;z<=25;z+=2){rows.push([mt(x+r(-.2,.2),0,z+r(-.2,.2),r(-.2,.2),r(-.3,.3),r(-.35,.35)),null]);md.push([mt(x+1.1,0,z,0,0,0,.9,.18,.4),pick(MC)])}IN(wc,mWd,rows);IN(mdG,mSoil,md)}
 // ===== GRAVEDIGGER'S YARD (hut, wheelbarrow, soil heap, open grave, coffin boards) =====
 {const hx=31,hz=9.5;WO('z',hx-2.2,hz-1.8,hz+1.8,.15,0,2.6,mWd,[{c:hz,w:1,y0:0,y1:2.1,door:true}],true);WO('z',hx+2.2,hz-1.8,hz+1.8,.15,0,2.6,mWd,[],true);WO('x',hz-1.8,hx-2.2,hx+2.2,.15,0,2.6,mWd,[{c:hx,w:1,y0:1.2,y1:2}],true);WO('x',hz+1.8,hx-2.2,hx+2.2,.15,0,2.6,mWd,[],true);
- B(4.8,.1,2.2,mTin,hx,2.95,hz-1,gy,0,-.3);B(4.8,.1,2.2,mTin,hx,2.95,hz+1,gy,0,.3);B(1.8,.8,.7,mWd,hx+1.4,.4,hz+1.2);B(.3,.5,.3,mk(0xd0d0c8),hx+1.8,1.05,hz+1.2);B(1.4,.06,.5,mWd,hx+1.4,1.5,hz-1.6);for(let i=0;i<5;i++)CY(.07,.07,.2,mGlass[i%4],hx-.8+i*.25,1.63,hz-1.6,gy,6);CY(.1,.1,.2,mLamp,hx+1.4,1.1,hz+1.2,gy,8);
- for(let i=0;i<4;i++)B(.08,1.7,.04,mWd,hx-2.5+i*.2,.85,hz-1.1,gy,0,0,.12+i*.01);
- for(let i=0;i<3;i++)B(.3,.5,.18,mCl,hx+1.6+i*.3,.25+i*.1,hz-1.4);
+ 
+// === JIM FIX START: U7-hut-gables ===
+{const sh=new T.Shape();sh.moveTo(-1.86,0);sh.lineTo(1.86,0);sh.lineTo(0,.6);sh.closePath();const gg=new T.ExtrudeGeometry(sh,{depth:.15,bevelEnabled:false});gg.rotateY(Math.PI/2);gg.translate(-.075,0,0);for(const sx of[-1,1]){const q=new T.Mesh(gg,mWd);q.position.set(hx+sx*2.2,2.6,hz);q.castShadow=q.receiveShadow=true;gy.add(q)}}B(4.8,.1,2.2,mTin,hx,2.95,hz-1,gy,0,-.3);
+// === JIM FIX END: U7-hut-gables ===
+B(4.8,.1,2.2,mTin,hx,2.95,hz+1,gy,0,.3);B(1.8,.8,.7,mWd,hx+1.4,.4,hz+1.2);B(.3,.5,.3,mk(0xd0d0c8),hx+1.8,1.05,hz+1.2);B(1.4,.06,.5,mWd,hx+1.4,1.5,hz-1.6);for(let i=0;i<5;i++)CY(.07,.07,.2,mGlass[i%4],hx-.8+i*.25,1.63,hz-1.6,gy,6);CY(.1,.1,.2,mLamp,hx+1.4,1.1,hz+1.2,gy,8);
+ 
+// === JIM FIX START: U7-hut-planks ===
+for(let i=0;i<4;i++)B(.08,1.7,.04,mWd,hx-2.02,.84,hz-1.62+i*.14,gy,0,0,.12+i*.01);
+// === JIM FIX END: U7-hut-planks ===
+
+ 
+// === JIM FIX START: U7-hut-pots ===
+for(let i=0;i<3;i++)B(.3,.5,.18,mCl,hx+1.0+i*.34,.25,hz-1.4);
+// === JIM FIX END: U7-hut-pots ===
+
  const cx=24.5,cz=12.5;B(1.1,.04,2.3,mDk,cx,.05,cz);for(const s of[-1,1])B(.1,.04,2.6,mWdL,cx+s*.4,.09,cz,gy,0,0,0);B(.1,.2,2.6,mWdL,cx,.14,cz-.5,gy,Math.PI/2);
  for(let i=0;i<5;i++)B(.2,.02,1.6,mWdL,cx+(i-2)*.2,.08,cz+3.2);
  CY(0,1.4,1.1,mFresh,cx+2.2,.55,cz,gy,9);S.cl.length;for(let i=0;i<3;i++)B(.06,1,.03,mWd,cx+1.7+i*.5,.9,cz+.2,gy,0,0,.15*i-.1),B(.18,.04,.26,mIr,cx+1.7+i*.5,1.4,cz+.2);
@@ -51919,8 +52220,16 @@ function QYOPS(){
   qt-=dt;if(qt<=0){qt=.4;if(P.style.display==='block'){if(!foot||Math.hypot(pl.x-OX,pl.z-OZ)>12)QYPANEL(false);else render()}if(Math.hypot(pl.x-OX,pl.z-OZ)<45)m.draw()}}}
 const s0=MS.sm,q0=MS.qy;mkCtl(s0,SMX-3.5,SMZ-.9);const stk=new T.Group();stk.position.set(SMX+11.9,0,SMZ-.4);scene.add(stk);bk(stk,mWD,0,.07,0,1.6,.14,3);for(let i=0;i<10;i++)bk(stk,mP,0,.22+i*.14,0,1.3,.12,2.8);wall(SMX+11.9,SMZ-.4,.9,1.6);mkOut(s0,SMX+11.9,SMZ+1.5);
 s0.upd=()=>{const n=Math.ceil(s0.out.w/cap(s0)*10-.01);stk.children.forEach((c,i)=>{if(i)c.visible=i<=n})};
-QYOPS();const pS=new T.Mesh(new T.ConeGeometry(1.9,1.7,10),mG),pO=new T.Mesh(new T.ConeGeometry(1.7,1.5,9),mO);for(const[p,x]of[[pS,-6.5],[pO,6.5]]){p.position.set(QX+28+x,0,QZ+27);p.castShadow=true;scene.add(p);wall(QX+28+x,QZ+27,2,2)}mkOut(q0,QX+28,QZ+24.6);
-q0.upd=()=>{const a=q0.out.s/cap(q0),b=q0.out.m/(cap(q0)/2);pS.visible=a>.01;pO.visible=b>.01;pS.scale.setScalar(Math.max(.05,a));pS.position.y=.85*Math.max(.05,a);pO.scale.setScalar(Math.max(.05,b));pO.position.y=.75*Math.max(.05,b)};
+QYOPS();const pS=new T.Mesh(new T.ConeGeometry(1.9,1.7,10),mG),pO=new T.Mesh(new T.ConeGeometry(1.7,1.5,9),mO);for(const[p,x]of[[pS,-6.5],[pO,6.5]]){p.position.set(QX+28+x,0,QZ+27);p.castShadow=true;scene.add(p);
+// === JIM FIX START: 6a-quarry-piles ===
+wall(QX+28+x,QZ+27,2,2);p.userData.jimBox=boxes[boxes.length-1]}mkOut(q0,QX+28,QZ+24.6);
+// === JIM FIX END: 6a-quarry-piles ===
+
+q0.upd=()=>{const a=q0.out.s/cap(q0),b=q0.out.m/(cap(q0)/2);pS.visible=a>.01;pO.visible=b>.01;pS.scale.setScalar(Math.max(.05,a));pS.position.y=.85*Math.max(.05,a);
+// === JIM FIX START: 6b-quarry-piles ===
+pO.scale.setScalar(Math.max(.05,b));pO.position.y=.75*Math.max(.05,b);for(const[p,r]of[[pS,1.9],[pO,1.7]]){const bb=p.userData.jimBox;if(bb){bb.c=!p.visible;bb.hw=bb.hd=Math.max(.3,r*p.scale.x*.8)}}};
+// === JIM FIX END: 6b-quarry-piles ===
+
 s0.yield=()=>{s0.out.w=Math.min(cap(s0),s0.out.w+Math.round(5*LVY[s0.lv]))};q0.yield=()=>{const f=LVY[q0.lv]*QMODE[q0.mode].y,a=Math.max(1,Math.round(5*f));q0.out.s=Math.min(cap(q0),q0.out.s+a);q0.tot.s+=a;if(q0.cnt%2==0){const b=Math.max(1,Math.round(2*f));q0.out.m=Math.min(cap(q0)/2,q0.out.m+b);q0.tot.m+=b}};
 for(const k in MS){MS[k].upd();MS[k].draw()}
 window.mechTick=dt=>{if(window.QYT)window.QYT(dt);for(const k in MS){const m=MS[k];if(m.on&&m.out[m.main]>=cap(m)){m.on=0;toast(m.n+' stopped — output bay full',3);m.draw()}if(m.k==='qy'){if(m.on&&!QYP()){m.on=0;toast('⚡ Quarry stopped — NO POWER',3.5);blip(110,.4,'sawtooth');m.draw()}}else if(m.on&&m.fuel<=0){m.on=0;toast(m.n+' ran out of fuel',3);m.draw()}
@@ -52033,7 +52342,7 @@ function bTick2(dt){for(const z of zs)if(!z.dead&&!z.boss){const on=FDm.size>0&&
  else if(bsel&&bsel.kind!=='hammer'&&ghost){const d=aimP(bsel.kind);ghost.visible=true;ghost.position.set(d.x,d.y,d.z);ghost.rotation.y=d.rot;gMat.color.setHex(d.ok?0x40e060:0xe04040);prEl.style.display='block';prEl.textContent=d.ok?'F: place '+PN[bsel.kind]+' ('+cTxt(costOf(bsel.kind,btier))+')':d.why}
  else if(bsel){const p=pieceNear();prEl.style.display='block';prEl.textContent=p?(p.t<2?'F: upgrade '+PN[p.kind]+' to '+TN2[p.t+1]+' ('+cTxt(costOf(p.kind,p.t+1))+')':PN[p.kind]+' is fully upgraded'):'Hammer: aim at a piece you built'}
  else{const dr=nearDoor();if(dr&&!nearest()){prEl.style.display='block';prEl.textContent='F: '+(dr.open?'close':'open')+(dr.bd?' '+(dr.leaves[0].roll?'shutter':'door')+' \u00b7 '+dr.name:' door')}}}
-toast('E: get out · B: build. Place your Tool Cupboard first — raiders come for it.',7);
+toast('F: use/loot · B: build · E: drive (near a car). Place your Tool Cupboard first — raiders come for it.',7);
 // ===== PORTED FROM BLACKPINE: low-poly model builder, gun models + stats/animation, car & motorbike models + driving physics =====
 const PI=Math.PI;
 class MB {
@@ -52708,8 +53017,16 @@ mkV('car',10,18,0);mkV('motorbike',BIKE.x,BIKE.z,BIKE.h);
   act:()=>{pHP=Math.min(100,pHP+45);blip(440,.09,'triangle');toast('🍔 Ate a hot Blackpine High cafeteria lunch (+45 HP)!',2.8)}});
  // 3. Floor 1 Principal's PA & Emergency Lockdown Console
  nodes.push({x:wx(-2.2),z:wz(-4.2),t:'ctl',amt:1,max:1,g:null,rad:3.0,
-  pr:()=>'F: Principal\'s PA & Emergency Grid Console — Ring School Bell & Toggle Campus Power',
-  act:()=>{blip(660,.18,'square');setTimeout(()=>blip(550,.25,'square'),200);if(typeof setGrid==='function'&&!POWER.on)setGrid(true);toast('🔔 RING! All-Campus PA Broadcast & Emergency Power Activated!',3.5)}});
+  pr:()=>(
+// === JESSICA FIX START: B5 ===
+'F: Principal\'s PA Console — Ring School Bell & All-Campus Broadcast'
+// === JESSICA FIX END ===
+),
+  act:()=>{blip(660,.18,'square');setTimeout(()=>blip(550,.25,'square'),200);
+// === JESSICA FIX START: B5 ===
+toast(POWER.on?'🔔 RING! All-Campus PA Broadcast!':'🔔 RING! All-Campus PA Broadcast (console battery). The campus grid is still off: start it at the power plant.',3.5)
+// === JESSICA FIX END ===
+}});
  // 4. Floor 1 Gymnasium Scoreboard & Buzzer Console
  nodes.push({x:wx(11.0),z:wz(4.1),t:'ctl',amt:1,max:1,g:null,rad:3.6,
   pr:()=>'F: Sound Gymnasium Game Buzzer & Shoot a Half-Court 3-Pointer!',
@@ -52725,6 +53042,9 @@ mkV('car',10,18,0);mkV('motorbike',BIKE.x,BIKE.z,BIKE.h);
  nodes.push({x:wx(-11.8),z:wz(5.4),t:'ctl',amt:1,max:1,g:null,rad:3.6,
   pr:()=>'F: Open Band Hall PA Mixer & 6-Track Jukebox (or press J anytime)',
   act:()=>MUSIC.openJukebox()});
+ /*WILL_FIX_0241*/{const W=[["Nurse's Infirmary",0,1],['Cafeteria',0,1],['Gymnasium',0,0],['Science Lab',1,1],['Shop Class',1+1,1],['Band Hall',2,0]],L=[];
+  for(const n of nodes){if(n.t!=='ctl'||!n.pr||Math.hypot(n.x-schI.x,n.z-schI.z)>40)continue;const p=n.pr(),w=W.find(k=>p.includes(k[0]));if(!w)continue;n.yl=w[1]*FH;if(w[2]){const a=n.act;n.act=t=>{a(t);n.amt=0;n.wd=day};L.push(n)}}
+  window.__willSch=L;setInterval(()=>{for(const n of L)if(n.amt<=0&&day!==n.wd)n.amt=1},1000)}
 }}
 
 car.visible=false;
@@ -52822,9 +53142,9 @@ pedal('gg','\u25b2',v=>gasBtn=v);pedal('gv','\u25bc',v=>revBtn=v);
 window.vBtn=()=>{const drive=!foot;
  for(const i of['gf','gr','ga','gs','gm'])$(i).style.display=drive?'none':'';
  for(const i of['gg','gv','gk'])$(i).style.display=drive?'':'none';
- const be=$('be');be.style.display=(drive||nearV())?'':'none';be.textContent=drive?'\U0001F6AA':'\U0001F697'};
+ const be=$('be');be.style.display=(drive||nearV())?'':'none';be.textContent=drive?'\u{1F6AA}':'\u{1F697}'};
 let tip=0;const e0=enterV;enterV=function(v){e0(v);if(tip++<3&&coarse)toast('Left stick steers \u00b7 \u25b2 gas \u00b7 \u25bc brake/reverse \u00b7 \u25a0 handbrake',4)};
-if(coarse)new MutationObserver(()=>{const t=prEl.textContent;if(/^(F|E): /.test(t)||t.includes('E: drive'))prEl.textContent=t.replace('E: drive','\U0001F697 drive').replace(/F: /g,'\u270b ').replace(/^E: /,'\U0001F697 ')}).observe(prEl,{childList:true,characterData:true,subtree:true});
+if(coarse)new MutationObserver(()=>{const t=prEl.textContent;if(/^(F|E): /.test(t)||t.includes('E: drive'))prEl.textContent=t.replace('E: drive','\u{1F697} drive').replace(/F: /g,'\u270b ').replace(/^E: /,'\u{1F697} ')}).observe(prEl,{childList:true,characterData:true,subtree:true});
 }
 
 // ===== v0.14 VISUAL OVERHAUL: environmental storytelling + cinematic atmosphere =====
@@ -53062,7 +53382,11 @@ const LON=new T.Color(0xfff0c8),LOFF=new T.Color(0x34322e),tmpL=new T.Color();
  const mkSite=(key,name,lampMat,fx,D)=>{const S={key,name,x:key==='qy'?QX:SMX,z:key==='qy'?QZ:SMZ,m:{name,hw:70,hd:70,lv:1,door:null},fx,brk:true,live:false,lit:0,fl:0,D,spill:null,sign:null,lampMat,spillMats:[]};SITES.push(S);ALLB.push(S);return S};
  const spillAt=(S,wx,wz,r)=>{if(!S.spM){S.spM=mSpill.clone();S.spillMats.push(S.spM)}const m=new T.Mesh(new T.PlaneGeometry(r*2,r*2),S.spM);m.rotation.x=-Math.PI/2;m.position.set(wx,.23,wz);m.renderOrder=2;scene.add(m)};
  function mkService(S,ox,oz,ry){const g=new T.Group();g.position.set(ox,0,oz);g.rotation.y=ry;scene.add(g);
-  box(.6,.85,.26,boxM,0,1.5,.13,g);box(.5,.5,.02,mkM(0x2a2e32,.4),0,1.62,.27,g);cyl(.035,.035,6.4,metM,0,5.2,.03,g,0,0,6);
+  box(.6,.85,.26,boxM,0,1.5,.13,g);box(.5,.5,.02,mkM(0x2a2e32,.4),0,1.62,.27,g);
+// === JIM2 FIX START: N13-conduit ===
+cyl(.035,.035,6.48,metM,0,5.16,.03,g,0,0,6);
+// === JIM2 FIX END: N13-conduit ===
+
   const sl=new T.MeshBasicMaterial({color:0x6a4a10});S.stat=sl;const lm=new T.Mesh(new T.SphereGeometry(.05,8,6),sl);lm.position.set(.18,1.82,.285);g.add(lm);
   S.hdl=box(.07,.2,.05,hdlMat,-.05,1.55,.3,g);
   const txt=new T.Mesh(new T.PlaneGeometry(.5,.14),new T.MeshBasicMaterial({map:tex(128,36,(c,W,H)=>{c.fillStyle='#d9a516';c.fillRect(0,0,W,H);c.fillStyle='#1a1a1a';c.font='bold 20px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('MAIN BREAKER',W/2,H/2+1)})}));txt.position.set(0,1.97,.275);g.add(txt);
@@ -53181,7 +53505,9 @@ const LON=new T.Color(0xfff0c8),LOFF=new T.Color(0x34322e),tmpL=new T.Color();
   const nTr=POWER.on?ALLB.reduce((n,B)=>n+(B.brk?0:1),0):0,bt=POWER.on?(POWER.wave<POWER.len2?'⚡ Grid: energising…':'⚡ Grid: ON'+(nTr?' · '+nTr+' breaker'+(nTr>1?'s':'')+' tripped':'')):'⚡ Grid: OFF';if(bt!==bdT){bdT=bt;bd.textContent=bt;bd.style.color=POWER.on?'#8dffb0':'#ffb0a0'}
   // inside a building: dark ambient (very dark with no power) so the lights matter
   insideI=null;if(foot){for(const I of BLD)if(inside(I,pl.x,pl.z)&&pl.y<I.m.lv*FH+.8){insideI=I;break}}
-  const itg=insideI?(insideI.lit>.4?.4:.08):1;inK+=(itg-inK)*Math.min(1,dt*3);hemi.intensity*=inK;sun.intensity*=1-(1-inK)*.85;
+  const itg=insideI?Math.max(insideI.lit>.4?.4:.08,.36*LV):1;inK+=(itg-inK)*Math.min(1,dt*3);hemi.intensity*=inK;sun.intensity*=1-(1-inK)*.85;
+  {const W=window.DH_BOUNCE;if(W){W.k+=((insideI?1:0)-W.k)*Math.min(1,dt*3);if(insideI)W.lit=insideI.lit;const dl=Math.max(0,(LV-.06)/.94),k=W.k,lt=W.lit,f=k*(.03*dl+.075*lt),c=k*(.20*dl+.34*lt);
+   W.fill.r=f;W.fill.g=f*.95;W.fill.b=f*.85;W.ceil.r=c;W.ceil.g=c*.96;W.ceil.b=c*.88}}
   // light pool
   lpT-=dt;if(lpT<=0){lpT=.12;const cx=cam.position.x,cy=cam.position.y,cz=cam.position.z,lvl=Math.max(-1,Math.min(3,Math.floor((pl.y+.5)/FH))),C=[];
    for(const I of ALLB){if(I.lit<.05||Math.abs(I.x-cx)>I.m.hw+32||Math.abs(I.z-cz)>I.m.hd+32)continue;for(const f of I.fx){if(insideI===I){if(f.l!==lvl)continue}else if(f.l!==0)continue;const d=Math.hypot(f.x-cx,f.y-cy,f.z-cz);if(d<34)C.push({f,d,I})}}
@@ -53276,6 +53602,7 @@ try{const MI=insts.find(q=>q.m===MILB);if(MI){
  // gate controls
  nodes.push({x:MI.x+4.0*s,z:MI.z+(GZ+1.3)*s,t:'ctl',amt:1,max:1,g:null,rad:2.8,pr:()=>FG.locked?'F: Gate keypad — LOCKED. Enter the 4-digit code':(FG.open?'F: Close the gate':'F: Open the gate'),act:()=>{if(FG.kp)return;if(FG.locked){openKP();return}gate.set(!FG.open)}});
  nodes.push({x:MI.x+4.0*s,z:MI.z+(GZ-1.5)*s,t:'ctl',amt:1,max:1,g:null,rad:2.8,pr:()=>FG.open?'F: Close the gate':'F: EXIT button — release the gate from inside',act:()=>{if(FG.kp)return;FG.locked=false;gate.set(!FG.open)}});
+ /*WILL_FIX2_0241*/{const kpN=nodes[nodes.length-2],exN=nodes[nodes.length-1],n0=nearest;nearest=function(){const b=n0();if(b!==kpN&&b!==exN)return b;const w=((pl.z-MI.z)/s<GZ)?exN:kpN;return Math.hypot(w.x-pl.x,w.z-pl.z)<w.rad?w:b}}
  FG.unlock=()=>{FG.locked=false;FG.found=FG.CODE.split('');gate.set(true)};
  const gateTick=(dt,t)=>{const tg=FG.open?1:0;if(FG.t!==tg)FG.t+=Math.sign(tg-FG.t)*Math.min(Math.abs(tg-FG.t),dt*.55);const e=FG.t*FG.t*(3-2*FG.t);gdoor.position.y=e*GH;gdoor.visible=e<.98;
   lampM.color.setHex(FG.locked?(Math.sin(t*5)>0?0xff2a18:0x401008):0x35ff6a);
@@ -53692,7 +54019,7 @@ const MUSIC=(()=>{
  // (v0.20.5: removed the old Maple Crest start teleport; the farm barn is the only spawn)
 }
 // ===== CONTROLS OPTIONS (v0.19.5): choose PC or Mobile, show/hide the on-screen control UI, optional locked-cursor mouse look. 🎮 button or press O. Saved in localStorage =====
-{const mobUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),coarse=matchMedia('(pointer:coarse)').matches&&!(matchMedia('(any-pointer:fine)').matches&&!mobUA);let C={plat:'pc',ui:'auto',lock:1};try{Object.assign(C,JSON.parse(localStorage.getItem('dhCtl')||'{}'))}catch(e){}if(C.plat!=='mobile')C.plat='pc';if(!C.v221){C.v221=1;C.lock=1}/*v0.22.1: always start in PC mode; Mobile only when picked in Controls*/
+{const mobUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),coarse=matchMedia('(pointer:coarse)').matches&&!(matchMedia('(any-pointer:fine)').matches&&!mobUA);let C={plat:(()=>{try{return localStorage.getItem('dhCtl')===null&&coarse&&(navigator.maxTouchPoints>0||'ontouchstart'in window)?'mobile':'pc'}catch(e){return'pc'}})(),ui:'auto',lock:1};try{Object.assign(C,JSON.parse(localStorage.getItem('dhCtl')||'{}'))}catch(e){}if(C.plat!=='mobile')C.plat='pc';if(!C.v221){C.v221=1;C.lock=1}/*v0.22.1: always start in PC mode; Mobile only when picked in Controls*/
  try{if(!coarse&&!localStorage.getItem('dhLockV1')){C.lock=1;localStorage.setItem('dhLockV1','1')}}catch(e){}
  const plat=()=>C.plat==='auto'?(coarse?'mobile':'pc'):C.plat,uiOn=()=>C.ui==='auto'?plat()==='mobile':C.ui==='on';
  const PCH={foot:'On foot · WASD move · Shift run · drag mouse to look · click / Space fire · R reload · 1-9 weapons · E vehicle · F interact · B build · I inventory · H heal · P admin · O controls',drive:'Drive: WASD steer · Space handbrake · E get out · O controls'};
@@ -54224,7 +54551,11 @@ const upd=dt=>{
  {const sh=nearL&&!br.on&&tk.lvl<99.5;cl.style.display=sh?'block':'none';if(sh){cl.textContent='COOLANT '+Math.round(tk.lvl)+'%';cl.style.background=tk.lvl<30?'rgba(170,20,10,.92)':'rgba(20,40,50,.88)'}}
  if(tk.ag>.5&&!tk.warn){tk.warn=true;if(ld<140)say('WARNING: tank temperature rising. Bring the coolant system online.')}
  if(tk.ag<.2)tk.warn=false;
- if(tk.ag>=1&&!st.lockdown){st.lockdown=true;mainD.open=false;labD.open=false;say('CONTAINMENT ALERT: automatic lockdown engaged.')}
+ 
+// === JESSICA FIX START: B1 ===
+if(tk.ag<1)tk.lk=false;else if(!tk.lk&&!br.on){tk.lk=true;if(!st.lockdown){st.lockdown=true;mainD.open=false;labD.open=false;say('CONTAINMENT ALERT: automatic lockdown engaged.')}}
+// === JESSICA FIX END ===
+
  if(under&&ld<90&&!br.on){
   const ag=tk.ag,t=st.phase/4;
   {const sl=tk.rg>0?Math.pow(Math.max(0,Math.sin(t*(8+10*tk.rg))),6)*tk.rg:0;spec.position.z=HZ+sl*1.3;if(sl>.7&&br.s2<=0){br.s2=.3;blip(70,.14,'square')}}
@@ -54315,14 +54646,14 @@ N(10.9,-18.2,'read the research log',readLog,FY,2.4);
 N(16.3,-18.2,'read the research log',readLog,FY,2.4);
 N(13.5,-22.2,'inspect the server status',()=>say('Cluster H-9: 20 racks online. Backups current. Remote link to the surface: '+(st.lockdown?'LOCKED':'active')+'.'),FY,2.2);
 N(-13.2,-27.8,'read the lab notebook',()=>pop('LAB NOTEBOOK &mdash; DR. REYES','Sample H-9 does not just survive the cold, it uses it. When the coolant dips, the tissue wakes up. I told them to put a second pump on the tank. They put a second camera on me.',10),FY,2.8);
-N(-1.9,-24.1,'run tank diagnostics',()=>{const a=Math.round(tk.ag*100);say('TANK 1 | Fluid '+(br.on?'0':'100')+'% | Coolant '+(st.coolant?'ONLINE':'STANDBY')+' '+Math.round(tk.lvl)+'% | Specimen '+(br.on?'LOOSE':'')+' | Specimen '+(a>50?'AGITATED':a>10?'RESTLESS':'STABLE')+' ('+a+'%)')},FY,2.4);
+N(-1.9,-24.1,'run tank diagnostics',()=>{const a=Math.round(tk.ag*100);say('TANK 1 | Fluid '+(br.on?'0':'100')+'% | Coolant '+(st.coolant?'ONLINE':'STANDBY')+' '+Math.round(tk.lvl)+'% | Specimen '+(br.on?'LOOSE':(a>50?'AGITATED':a>10?'RESTLESS':'STABLE')+' ('+a+'%)'))},FY,2.4);
 N(1.9,-24.1,()=>st.coolant?'set the coolant pump to standby':'bring the coolant pump online',()=>{st.coolant=!st.coolant;say(st.coolant?'Coolant pump online. The specimen settles.':'Coolant pump on standby. Coolant will hit 0% in 60 seconds.')},FY,2.4);
 N(10.9,-25.4,'review the cell block monitor',()=>say('CELL 1: Subject 114, sedated. CELL 2: Subject 097, AGITATED, do not enter. CELL 3: Subject 081, MISSING.'),FY,2.4);
 N(10.9,-31.4,'review the cell block monitor',()=>say('Cell 3 glass: cracked from the inside. Door sealed. Contents: none detected.'),FY,2.4);
 // ---- teleport buttons
 const hb=document.getElementById('hbar');
 if(hb){const mkb=(txt,fn)=>{const b=document.createElement('button');b.textContent=txt;b.style.cssText='pointer-events:auto;padding:5px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.3);background:rgba(30,90,110,.88);color:#e8e4d8;font:600 12px system-ui,sans-serif;cursor:pointer';b.addEventListener('pointerdown',e=>{e.stopPropagation();fn()});hb.appendChild(b)};
- mkb('🔬 Research Base',()=>{if(!foot)exitV();pl.set(OX,0,OZ+30);yaw=0;pit=0;toast('🔬 Research Base: back of the city',3)});
+ mkb('🔬 Research Base',()=>{if(!foot)exitV();pl.set(OX,0,OZ+44);yaw=0;pit=0;toast('🔬 Research Base: outside the perimeter gate',3)});
  mkb('🧪 Lab B1',()=>{if(!foot)exitV();pl.set(OX-3,FY,OZ-8.4);yaw=0;pit=0;toast('🧪 B1 research level: lift lobby',3)})}
 const _e=env;env=function(dt){_e(dt);try{upd(dt)}catch(e){if(!window.RESBASE_UPD_ERR){window.RESBASE_UPD_ERR=e;console.error('[research base] update failed',e)}}};
 window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,DOORS};
@@ -54343,7 +54674,7 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
 
 // ===== v0.21.7 GRAPHICS SETTING: button next to FPS (or F4). HIGH = exactly the previous look. Starts on LOW. MEDIUM = 75% render resolution + half-size shadow map. LOW = 55% resolution + shadows off. POTATO = 40% resolution, shadows off, 220 m draw distance. Remembered. =====
 {const base=Math.min(devicePixelRatio,matchMedia("(pointer:coarse)").matches?1.25:2),sh0=sun.shadow.mapSize.x;
- const Q=[{n:'High',px:base,sh:sh0,on:true},{n:'Medium',px:base*.75,sh:Math.max(512,sh0/2),on:true},{n:'Low',px:base*.55,sh:sh0/2,on:false},{n:'Potato',px:base*.4,sh:sh0/2,on:false,far:220}];
+ const Q=[{n:'High',px:base,sh:sh0,on:true},{n:'Medium',px:base*.75,sh:Math.max(512,sh0/2),on:true},{n:'Low',px:base*.55,sh:sh0/2,on:false,far:300},{n:'Potato',px:base*.4,sh:sh0/2,on:false,far:180}];
  const ORDER=[3,2,1,0];   // button cycles upward: Potato > Low > Medium > High > back to Potato
  let qi=2;try{const t=localStorage.getItem('dhGfx2');if(t!==null){const v=+t;if(v>=0&&v<4)qi=v|0}}catch(e){}   // starts on LOW until you pick otherwise
  const bt=document.createElement('button');bt.style.cssText='position:fixed;right:64px;top:50px;z-index:40;height:30px;padding:0 8px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(12,14,12,.82);color:#e8e4d8;font:700 12px system-ui;cursor:pointer';bt.title='Graphics quality (F4)';document.body.appendChild(bt);
@@ -54357,6 +54688,30 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
  bt.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();next()});
  addEventListener('keydown',e=>{if(e.code==='F4'){e.preventDefault();next()}});
  apply()}
+// B14: ~70% of the triangles were static InstancedMeshes (debris, wrecks, gravestones, props...) drawn everywhere, every frame, on every tier.
+// On LOW and POTATO, instances beyond a size-based distance are compacted out (mesh.count shrinks). MEDIUM/HIGH keep every instance (restored exactly).
+{const E=[],seen=new WeakSet(),M4=new T.Matrix4(),V=new T.Vector3(),S3=new T.Vector3(),Qn=new T.Quaternion();let scanT=0,tT=0,lx=1e9,lz=1e9,lq=-1;
+ // distance (m) per instance radius class: [r<0.8, r<3, r<8]; bigger instances are never culled
+ const DT={2:[70,120,170],3:[40,75,115]};
+ function scan(){scene.updateMatrixWorld();scene.traverse(o=>{if(!o.isInstancedMesh||seen.has(o))return;seen.add(o);const n=o.count;if(n<4||o.userData.dhNoLod)return;
+   const g=o.geometry;let br=g.boundingSphere?g.boundingSphere.radius:-1;if(!(br>=0)){/* own radius, NaN-safe (one base prop geometry has NaN verts; computeBoundingSphere would log an error) */const a=g.attributes.position.array;let m=0;for(let j=0;j+2<a.length;j+=3){const d=a[j]*a[j]+a[j+1]*a[j+1]+a[j+2]*a[j+2];if(d>m)m=d}br=Math.sqrt(m)}const pm=o.matrixWorld;
+   const px=new Float32Array(n),pz=new Float32Array(n),rc=new Uint8Array(n);let any=false;
+   for(let i=0;i<n;i++){o.getMatrixAt(i,M4);M4.premultiply(pm);M4.decompose(V,Qn,S3);px[i]=V.x;pz[i]=V.z;const r=br*Math.max(S3.x,S3.y,S3.z);rc[i]=r<.8?0:r<3?1:r<8?2:3;if(rc[i]<3)any=true}
+   if(!any)return;E.push({o,n,px,pz,rc,m0:o.instanceMatrix.array.slice(0,n*16),c0:o.instanceColor?o.instanceColor.array.slice(0,n*3):null,v:o.instanceMatrix.version,cut:false})})}
+ function restore(e){const o=e.o;o.instanceMatrix.array.set(e.m0);o.instanceMatrix.needsUpdate=true;if(e.c0){o.instanceColor.array.set(e.c0);o.instanceColor.needsUpdate=true}o.count=e.n;e.cut=false;e.v=o.instanceMatrix.version}
+ function cull(e,D,cx,cz){const o=e.o,A=o.instanceMatrix.array,C=e.c0&&o.instanceColor.array;let k=0;const d2=D.map(d=>d*d);
+   for(let i=0;i<e.n;i++){const c=e.rc[i];if(c<3){const dx=e.px[i]-cx,dz=e.pz[i]-cz;if(dx*dx+dz*dz>d2[c])continue}
+    if(k!==i){A.copyWithin(k*16,i*16,i*16+16);if(C)C.copyWithin(k*3,i*3,i*3+3)}k++}
+   // copyWithin works in place because k<=i; restore() rebuilds from the saved originals
+   o.count=k;o.instanceMatrix.needsUpdate=true;if(C)o.instanceColor.needsUpdate=true;e.cut=true;e.v=o.instanceMatrix.version}
+ let lastN=performance.now();
+ function lod(){const now=performance.now(),dt=Math.min(1,(now-lastN)/1000);lastN=now;const q=window.dhGfx?window.dhGfx.get():0,low=q===2||q===3;scanT-=dt;tT-=dt;
+   if(low&&scanT<=0){scanT=6;try{scan()}catch(err){}}
+   if(!low){if(lq===2||lq===3)for(const e of E)if(e.cut&&e.o.instanceMatrix.version===e.v)restore(e);lq=q;return}
+   const cx=cam.position.x,cz=cam.position.z;if(q===lq&&tT>0&&Math.abs(cx-lx)+Math.abs(cz-lz)<6)return;tT=.5;lx=cx;lz=cz;
+   for(const e of E){if(e.o.instanceMatrix.version!==e.v)continue;if(e.cut)restore(e);cull(e,DT[q],cx,cz)}lq=q}
+ window.DH_LOD={E,get stats(){let a=0,b=0;for(const e of E){a+=e.n;b+=e.o.count}return{meshes:E.length,instances:a,drawn:b}}};
+ const envL=env;env=function(dt){envL(dt);try{lod()}catch(err){if(!window.DH_LOD_ERR){window.DH_LOD_ERR=err;console.warn('[gfx lod]',err)}}}}
 
 // ===== v0.22.0 PAUSE MENU: Esc (or the ☰ button) freezes the game and opens settings: graphics tier, FPS counter, sound, mouse sensitivity, fullscreen, shortcuts to Controls / Help / Inventory / Admin / Jukebox, teleport-to-farm (if stuck) and reset. =====
 {const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
@@ -54379,7 +54734,7 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
  const resume=()=>{if(!open)return;open=false;window.dhPaused=false;root.style.display='none';audio(c=>{if(!muted&&c.state==='suspended')c.resume()})};
  const later=(fn)=>{resume();setTimeout(fn,40)};
  const kd=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c,bubbles:true}));
- const GD=['Full resolution + full shadows','75% resolution, shadows (half size)','55% resolution, no shadows (default)','40% resolution, no shadows, 220 m view'];   // indexed like the tiers: High, Medium, Low, Potato
+ const GD=['Full resolution + full shadows','75% resolution, shadows (half size)','55% resolution, no shadows, fewer distant props (default)','40% resolution, no shadows, 180 m view, nearby props only'];   // indexed like the tiers: High, Medium, Low, Potato
  const draw=()=>{card.textContent='';
   el('div','font-weight:900;font-size:20px','Paused');
   btn(el('div','margin-top:10px'),'▶ Resume',resume,on_).style.cssText+='width:100%;font-size:16px;padding:12px';
@@ -54582,7 +54937,7 @@ const reached=(t,r)=>{const p=place(t);return p&&Math.hypot(pl.x-p.x,pl.z-p.z)<r
 const baseInfo=()=>{const set=new Set(FDm.keys()),F=[...set].map(k=>k.split(',').map(Number));let need=0,have=0,door=false;
 for(const[x,z]of F)for(const[k,nx,nz]of[[x+','+(z-1)+',S,0',x,z-1],[x+','+z+',S,0',x,z+1],[(x-1)+','+z+',E,0',x-1,z],[x+','+z+',E,0',x+1,z]]){if(set.has(nx+','+nz))continue;need++;const w=WLm.get(k);if(w){have++;if(w.kind==='doorway'&&w.door)door=true}}
 return{tc:!!myTC,f:F.length,need:F.length<2?6:need,have,door,done:!!myTC&&F.length>=2&&need>0&&have>=need&&door}};
-const goalMet=s=>{const g=s.goal||{};if(g.wait!=null)return S.t>=g.wait;if(g.on)return !!(MS[g.on==='quarry'?'qy':'sm']&&MS[g.on==='quarry'?'qy':'sm'].on);if(g.baseBuilt)return baseInfo().done;if(g.plantBreaker)return POWER.on;if(g.reach){const r=g.radius||(g.reach==='barn'?C.places.barn.radius:C.places.fort.radius);return reached(g.reach,r)}if(g.gateOpen){const f=FG();return !!f&&(!f.locked||f.open)}return false};
+const goalMet=s=>{const g=s.goal||{};if(g.wait!=null)return S.t>=g.wait;if(g.on)return !!(MS[g.on==='quarry'?'qy':'sm']&&MS[g.on==='quarry'?'qy':'sm'].on);if(g.baseBuilt)return baseInfo().done;if(g.plantBreaker)return POWER.on;if(g.reach){const r=g.radius||(g.reach==='barn'?C.places.barn.radius:C.places.fort.radius);if(window.__willRsp){if(!reached(g.reach,r+50))window.__willRsp=0;else if(!(carry.w+carry.s+carry.m>0))return false}return reached(g.reach,r)}if(g.gateOpen){const f=FG();return !!f&&(!f.locked||f.open)}return false};
 // ===== v0.23.1 SIDE MISSION: restore power to the Fort Harvest gate keycard reader. The dedicated breaker is in the BASEMENT of the house on Plot 15. Pressing F at the dead keypad starts the mission. =====
 const SIDE=window.SIDE={started:false,done:false,t:0},H15=window.H15I;
 const sideMk=new T.Group();sideMk.visible=false;scene.add(sideMk);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0x4cd0ff,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;sideMk.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0x4cd0ff,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;sideMk.add(b);sideMk.userData.d=d}
@@ -54651,9 +55006,84 @@ POWER.did=true;POWER.on=true;POWER.wave=(POWER.len2||1)+40;
 dayT=nf(C.startHour);day=1;hold=true;
 if(!C.flashlightAtStart){flOn=false;const b=document.getElementById('gfl');if(b)b.classList.add('off')}
 {const sp=C.spawn;pl.set(sp.x,0,sp.z);yaw=Math.atan2(-(sp.lookAt.x-sp.x),-(sp.lookAt.z-sp.z));pit=0}
+window.__willRt={barn,brk15,sideMk,get night(){return nightShown},set night(v){nightShown=v}};
 enter(0);
 }catch(e){console.error('[story] failed to start:',e);window.STORY_ERROR=e}
 })();
+</script>
+<script id="will-save">
+/* ===== v0.24.1 SAVE / LOAD (Will, B7): localStorage autosave every 60 s + on page hide, Continue / New Game on start ===== */
+(function(){try{
+const KEY='dhSave',VKEY='dhSaveVer',VER=2;/*WILL_FIX3_BUILDS*/let armed=false;
+const prim=o=>{const r={};for(const k in o){const v=o[k];if(v==null||typeof v!=='object'&&typeof v!=='function')r[k]=v}return r};
+function snap(){
+ const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
+ const p=foot?pl:(typeof car!=='undefined'&&car?car.position:pl);
+ return{v:VER,t:Date.now(),
+  pl:{x:p.x,y:foot?pl.y:0,z:p.z,yaw,pit,hp:pHP},
+  inv:JSON.parse(JSON.stringify(inv)),carry:{...carry},stored:{...stored},wi,wp:WP.map(w=>({mag:w.mag,res:w.res})),
+  clock:{day,dayT,raidDay,farmHP},
+  story:{idx:ST?ST.idx:0,night:!!RT.night},
+  power:{on:!!POWER.on,wave:POWER.wave},
+  barn:RT.barn?{closed:RT.barn.closed,mode:RT.barn.mode==='temp'?'on':RT.barn.mode}:null,
+  mills:Object.fromEntries(Object.keys(MS).map(k=>[k,{on:MS[k].on,lv:MS[k].lv,fuel:MS[k].fuel,wear:MS[k].wear,jam:MS[k].jam,out:{...MS[k].out}}])),
+  fort:FG?{locked:FG.locked,open:FG.open,found:FG.found.slice()}:null,
+  side:SD?{started:SD.started,done:SD.done}:null,
+  h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates}:null,
+  builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
+function save(why){if(!armed)return false;try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(VKEY,String(VER));return true}catch(e){console.warn('[save] failed',e);return false}}
+function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');return d&&(d.v===1||d.v===2)&&d.v===vk?d:null}catch(e){return null}}
+function apply(d){
+ const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
+ // clock first (story countdown speed reads dayT on enter)
+ day=d.clock.day;dayT=d.clock.dayT;raidDay=d.clock.raidDay||0;farmHP=d.clock.farmHP??farmHP;
+ // power off before the story step so the plant step doesn't auto-complete
+ if(!d.power.on&&POWER.on&&typeof setGrid==='function')setGrid(false);
+ if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=ids.indexOf('plant');
+  if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
+  ST.goto(d.story.idx)}
+ if(d.power.on){POWER.did=true;POWER.on=true;POWER.wave=Math.max(POWER.wave,d.power.wave||0,(POWER.len2||1)+40)}
+ if(RT.barn&&d.barn){RT.barn.closed=d.barn.closed;RT.barn.mode=d.barn.mode}
+ if('night'in RT)RT.night=d.story.night;
+ // player
+ if(!foot&&typeof exitV==='function')exitV();
+ pl.set(d.pl.x,d.pl.y,d.pl.z);yaw=d.pl.yaw;pit=d.pl.pit;pHP=d.pl.hp;
+ for(const k in d.inv)inv[k]=d.inv[k];Object.assign(carry,d.carry);Object.assign(stored,d.stored);
+ d.wp.forEach((w,i)=>{if(WP[i]){WP[i].mag=w.mag;WP[i].res=w.res}});if(typeof setW==='function')setW(d.wi);else wi=d.wi;
+ for(const k in d.mills)if(MS[k]){const m=d.mills[k];Object.assign(MS[k],{on:m.on,lv:m.lv,fuel:m.fuel,wear:m.wear,jam:m.jam});Object.assign(MS[k].out,m.out)}
+ if(FG&&d.fort){FG.found=d.fort.found.slice();if(!d.fort.locked){FG.locked=false;if(d.fort.open&&FG.unlock){FG.unlock();FG.found=d.fort.found.slice()}}}
+ if(SD&&d.side){SD.started=d.side.started;SD.done=d.side.done;SD.t=99;if(RT.brk15)RT.brk15.on=SD.done;if(RT.sideMk)RT.sideMk.visible=SD.started&&!SD.done}
+ if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates}
+ if(Array.isArray(d.builds)&&typeof construct==='function'){
+  for(const p of pieces.slice())if(p.kind!=='tc')killPiece(p);for(const p of pieces.slice())killPiece(p);
+  const ord={tc:0,foundation:1,wall:2,doorway:2,window:2,roof:3,stairs:4,door:5};let n=0,bad=0;
+  for(const b of d.builds.slice().sort((a,c)=>(ord[a.kind]??9)-(ord[c.kind]??9))){try{
+   if(b.kind==='door'){const w=WLm.get(b.d.k);if(!w||w.kind!=='doorway'||w.door){bad++;continue}}
+   if(b.kind==='tc'&&myTC){bad++;continue}
+   const p=construct(Object.assign({},b.d),b.kind,b.t|0);if(typeof b.hp==='number'&&b.hp>0)p.hp=Math.min(b.hp,p.max);if(b.kind==='door'&&b.open)toggleDoor(p);n++}catch(e){bad++;console.warn('[save] build restore failed',b,e)}}
+  window.__willBuildsLoaded={n,bad}}
+}
+function load(){const d=read();if(!d)return false;try{apply(d);return true}catch(e){console.error('[save] load failed',e);return false}}
+function clear(){try{localStorage.removeItem(KEY);localStorage.removeItem(VKEY)}catch(e){}}
+window.dhSave={save:()=>save('manual'),load,clear,read,snap,get armed(){return armed}};
+setInterval(()=>save('auto'),60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save('hide')});
+addEventListener('pagehide',()=>save('hide'));
+// Continue / New Game
+const d0=read();
+if(!d0){armed=true;return}
+const ov=document.createElement('div');ov.id='willSaveMenu';
+ov.style.cssText='position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);font:600 15px system-ui,sans-serif;color:#f4ecd0';
+const ago=Math.max(1,Math.round((Date.now()-d0.t)/60000)),when=ago<60?ago+' min ago':ago<2880?Math.round(ago/60)+' h ago':Math.round(ago/1440)+' days ago';
+const step=(window.STORY&&window.STORY.cfg.steps[d0.story.idx]||{}).objective||'';
+ov.innerHTML='<div style="background:rgba(20,18,14,.95);border:1px solid rgba(255,210,90,.6);border-radius:12px;padding:22px 26px;text-align:center;max-width:min(86vw,360px)"><div style="font-size:22px;letter-spacing:.12em;color:#ffd24c;margin-bottom:6px">DEAD HARVEST</div><div style="opacity:.8;margin-bottom:16px">Saved game: Day '+d0.clock.day+' · '+when+(step&&step!=='…'?'<br>'+step:'')+'</div><button id="willCont" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer">▶ Continue</button><button id="willNew" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer">New Game</button></div>';
+document.body.appendChild(ov);
+const done=e=>{e.stopPropagation();e.preventDefault();ov.remove();armed=true};
+ov.addEventListener('pointerdown',e=>e.stopPropagation());
+ov.querySelector('#willCont').addEventListener('click',e=>{done(e);if(load())toast('Save loaded — Day '+d0.clock.day,3);else toast('Could not load the save, starting fresh.',3)});
+ov.querySelector('#willNew').addEventListener('click',e=>{done(e);clear()});
+}catch(e){console.error('[save] init failed',e)}})();
+
 </script>
 <script id="apoc-world">
 (function(){'use strict';
@@ -54728,7 +55158,11 @@ else if(name==='bodybag')P.push(bx(.62,.28,1.85,0,.16,0,0x20231f,{v:.3}),bx(.04,
 else if(name==='crate')P.push(bx(1.0,.8,1.0,0,.4,0,0x6a5338),bx(1.04,.06,1.04,0,.82,0,0x4a3a28),bx(.9,.9,.9,.1,1.25,.05,0x5f4a33,{ry:.4}));
 else if(name==='trash'){for(let i=0;i<9;i++)P.push({g:new T.IcosahedronGeometry(.3+rnd()*.25,0),m:M4(rr(-.9,.9),.2+rnd()*.2,rr(-.7,.7),rnd()*3,rnd()*3,0,1,.7,1),c:pick([0x151515,0x23261f,0x3a3a36,0x2b3040,0x55503f]),v:.3})}
 else if(name==='rubble'){for(let i=0;i<11;i++)P.push({g:new T.DodecahedronGeometry(rr(.2,.65),0),m:M4(rr(-1.3,1.3),rr(.1,.3),rr(-1.1,1.1),rnd()*3,rnd()*3,rnd()*3,1,rr(.4,.9),1),c:pick([0x5a5852,0x4a3a30,0x2c2f31,0x6a665c]),v:.25});P.push(bx(.1,1.2,.1,.4,.5,.2,0x3a2a20,{rz:.9}))}
-else if(name==='horse')P.push(bx(2.2,.1,.2,0,.95,0,0xe0e0d8),bx(2.2,.1,.2,0,.7,0,0xd0561f),bx(.1,.95,.1,-.9,.47,.3,0x777777,{rz:.15}),bx(.1,.95,.1,-.9,.47,-.3,0x777777,{rz:-.15}),bx(.1,.95,.1,.9,.47,.3,0x777777,{rz:.15}),bx(.1,.95,.1,.9,.47,-.3,0x777777,{rz:-.15}));
+else if(name==='horse')P.push(bx(2.2,.1,.2,0,.95,0,0xe0e0d8),bx(2.2,.1,.2,0,.7,0,0xd0561f),
+// === JIM FIX START: 1-sawhorse ===
+bx(.1,1.0,.1,-.9,.48,.17,0x777777,{rx:-.27}),bx(.1,1.0,.1,-.9,.48,-.17,0x777777,{rx:.27}),bx(.1,1.0,.1,.9,.48,.17,0x777777,{rx:-.27}),bx(.1,1.0,.1,.9,.48,-.17,0x777777,{rx:.27})
+// === JIM FIX END: 1-sawhorse ===
+);
 else if(name==='bush'){for(let i=0;i<14;i++){const a=rnd()*TAU,l=rr(.7,1.5);P.push({g:new T.CylinderGeometry(.01,.04,l,4),m:M4(Math.cos(a)*l*.3,l*.45,Math.sin(a)*l*.3,Math.sin(a)*.8,0,-Math.cos(a)*.8),c:0x4a3d2c,v:.3})}}
 else if(name==='rock')P.push({g:new T.DodecahedronGeometry(1,0),m:M4(0,.45,0,.3,.7,.1,1,.62,.85),c:0x6b675c,v:.3});
 else if(name==='tuft'){const cs=[0x6a6236,0x7a6c3a,0x524c2a,0x3b3f24,0x8a7a46,0x4e5b2c];for(let i=0;i<4;i++){const a=rnd()*TAU,l=rr(.4,.8);P.push({g:new T.ConeGeometry(.04,l,3),m:M4(Math.cos(a)*.12,l*.5,Math.sin(a)*.12,Math.sin(a)*.35,0,-Math.cos(a)*.35),c:pick(cs),v:.3})}}
@@ -54868,7 +55302,11 @@ for(let t=0;t<400&&n<10;t++){const x=rr(-130,130),z=rnd()<.5?rr(-105,-56):rr(56,
 let g=0;for(let t=0;t<600&&g<2;t++){const x=rr(-220,220),z=rr(-560,30);if(!orect(x,z,13,11,F|F_R))continue;g++;for(let i=0;i<4;i++)for(let j=0;j<3;j++){put('grave',{x:x+(i-1.5)*2.4,z:z+(j-1)*3,ry:rr(-.1,.1),t:rr(.8,1.1)});decal(8,x+(i-1.5)*2.4,z+(j-1)*3,null,rr(1,1.6))}put('charred',{x:x-8,z:z+7,ry:1});put('bones',{x:x+7,z:z-8,ry:2})}
 let c=0;for(let t=0;t<600&&c<4;t++){const x=rr(-230,230),z=rr(-560,30);if(!orect(x,z,6,6,F|F_R))continue;c++;put('campfire',{x,z,ry:0});FIRE(x,z,.55,.25);put('tarp',{x,z:z-3,ry:rr(-.4,.4),c:pick([0x3a5a7a,0x5a6240,0x7a6a3a])},[1.4,1.1]);put('sleepbag',{x:x+2,z:z+.6,ry:rr(0,3),c:pick([0x3a4a2a,0x2d4a63,0x6a2b1d])});put('bag',{x:x-1.4,z:z+2,ry:1,c:0x3a4a2a});put('bones',{x:x+.5,z:z+2.8,ry:1})}
 for(let t=0,k=0;t<400&&k<16;t++){const x=rr(-250,250),z=rr(-580,60);if(!ofree(x,z,F)||!orect(x,z,2,2,F))continue;k++;put('charred',{x,z,ry:rnd()*TAU,s:rr(.8,1.4)});decal(3,x,z,null,rr(3,5))}});
-safe('flush-props',()=>{for(const k in BUCK){const geo=k.startsWith('car')?carGeo(+k.slice(3)):propGeo(k);const list=BUCK[k];const m=new T.InstancedMesh(geo,PM,list.length),d=new T.Object3D(),col=new T.Color();
+safe('flush-props',()=>{for(const k in BUCK){
+// === JIM FIX START: 2-cart ===
+const geo=/^car\d/.test(k)?carGeo(+k.slice(3)):propGeo(k);
+// === JIM FIX END: 2-cart ===
+const list=BUCK[k];const m=new T.InstancedMesh(geo,PM,list.length),d=new T.Object3D(),col=new T.Color();
 list.forEach((p,i)=>{d.position.set(p.x,p.y||0,p.z);d.rotation.set(p.rx||0,p.ry||0,0);d.scale.setScalar(p.s||1);d.updateMatrix();m.setMatrixAt(i,d.matrix);col.setHex(p.c!=null?p.c:0xffffff);if(p.t)col.multiplyScalar(p.t);m.setColorAt(i,col)});
 m.castShadow=k!=='tuft'&&k!=='post'&&k!=='cone'&&k!=='bones';m.receiveShadow=true;m.frustumCulled=false;scene.add(m)}});
 safe('decals',()=>{const S=128,cv=document.createElement('canvas');cv.width=cv.height=S*3;const g=cv.getContext('2d');
