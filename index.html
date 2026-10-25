@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.25.2 — Sawmill security pass, power station pass, crash guard, phone memory fixes | v0.25.0 — Bug-fix merge (Will save+builds, Jessica B1/B2/B4/B5/U3/fog, Jim placement+upper floors, GFX interiors) | v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.26.0 — Flashlight battery, breaker trips, 7-level Riverside Apartments | v0.25.2 — Sawmill security pass, power station pass, crash guard, phone memory fixes | v0.25.0 — Bug-fix merge (Will save+builds, Jessica B1/B2/B4/B5/U3/fog, Jim placement+upper floors, GFX interiors) | v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -49437,7 +49437,7 @@ out>0?li[0]-.05:li[1]+.01,out>0?li[0]-.01:li[1]+.05
  wall('x',-hw,hw,pi,po,[pi-.04,pi],fops,1);wall('x',-hw,hw,-hd,-hd+t,[-hd+t,-hd+t+.04],wops(-hw,hw),-1);
  wall('z',-hd,hd,-hw,-hw+t,[-hw+t,-hw+t+.04],wops(-hd,hd),-1);wall('z',-hd,hd,hw-t,hw,[hw-t-.04,hw-t],wops(-hd,hd),1);
  col(-hw,hw,-hd,-hd+t);col(-hw,-hw+t,-hd,hd);col(hw-t,hw,-hd,hd);{const g=[[a,b],...(s.bays||[]).map(q=>[q[0],q[1]])].sort((p,q)=>p[0]-q[0]);let u=-hw;for(const[g0,g1]of g){if(g0>u)col(u,g0,pi,po);u=g1}col(u,hw,pi,po)}
- if(s.hole){const h=s.hole;add('floor',-hw,hw,0,.06,-hd,h[2]);add('floor',-hw,hw,0,.06,h[3],hd);add('floor',-hw,h[0],0,.06,h[2],h[3]);add('floor',h[1],hw,0,.06,h[2],h[3])}else add('floor',-hw,hw,0,.06,-hd,hd);add('roof',-hw-.3,hw+.3,H,H+.4,-hd-.3,hd+.3);
+ if(s.hole){const h=s.hole;add('floor',-hw,hw,0,.06,-hd,h[2]);add('floor',-hw,hw,0,.06,h[3],hd);add('floor',-hw,h[0],0,.06,h[2],h[3]);add('floor',h[1],hw,0,.06,h[2],h[3])}else add('floor',-hw,hw,0,.06,-hd,hd);if(s.core){const C=s.core;/*DH26-ROOFHOLE*/add('roof',-hw-.3,C.x0,H,H+.4,-hd-.3,hd+.3);add('roof',C.x1,hw+.3,H,H+.4,-hd-.3,hd+.3);add('roof',C.x0,C.x1,H,H+.4,-hd-.3,C.z0);add('roof',C.x0,C.x1,H,H+.4,C.z1,hd+.3)}else add('roof',-hw-.3,hw+.3,H,H+.4,-hd-.3,hd+.3);
  // exterior trim: plinth (split around door), cornice, parapet, roof gear, drain pipes
  {const gs=[[a-.14,b+.14],...(s.bays||[]).map(q=>[q[0]-.12,q[1]+.12])].sort((p,q)=>p[0]-q[0]);let u=-hw-.05;for(const[g0,g1]of gs){if(g0>u)add('conc',u,g0,0,.45,hd,hd+.05);u=g1}add('conc',u,hw+.05,0,.45,hd,hd+.05)}add('conc',-hw-.05,hw+.05,0,.45,-hd-.05,-hd);add('conc',-hw-.05,-hw,0,.45,-hd-.05,hd+.05);add('conc',hw,hw+.05,0,.45,-hd-.05,hd+.05);
  add('trim',-hw-.12,hw+.12,H-.3,H,-hd-.12,hd+.12);
@@ -49464,6 +49464,21 @@ out>0?li[0]-.05:li[1]+.01,out>0?li[0]-.01:li[1]+.05
   for(const x of[a-.9,b+.9]){add('yel',x,x+.2,0,1.1,po+1.3,po+1.5);col(x,x+.2,po+1.3,po+1.5)}}
  else{} // doorway leaves are now real interactive doors (see mkDoor/place)
  // ---- stairs (unchanged logic) ----
+ if(s.core){/*DH26-CORE: v0.26.0 half-landing stair core (Riverside 7). ramps[0..lv-1] are hole-only entries (ramps[k-1] = slab hole of floor k, ramps[lv-1] = roof hole), the walkable flights/landings follow*/
+  const C=s.core,L0=C.x1-C.land,zm=(C.z0+C.z1)/2,hf=FH/2,NS=12,sl=(L0-C.x0)/NS;
+  for(let k=0;k<lv;k++)ramps.push({k,x0:C.x0,x1:C.x1,z0:C.z0,z1:C.z1,dir:1,hole:1});
+  for(let k=0;k<lv;k++){const y=k*FH;
+   /*flights start .06 outside the core so they overlap the slab-hole margin (no drop step at the hall edge)*/const X0=C.x0-.06;ramps.push({k,x0:X0,x1:L0,z0:C.z0,z1:zm,dir:1,y0:y,h:hf},{k,x0:L0,x1:C.x1,z0:C.z0,z1:C.z1,dir:1,y0:y+hf,h:0},{k,x0:X0,x1:L0,z0:zm,z1:C.z1,dir:-1,y0:y+hf,h:hf});
+   for(let i=0;i<NS;i++){const t1=y+(i+1)/NS*hf,t2=y+hf+(i+1)/NS*hf,u0=C.x0+i*sl,u1=u0+sl,v0=L0-(i+1)*sl,v1=L0-i*sl;
+    add('floor',u0,u1,k?t1-.45:0,t1,C.z0,zm-.08);add('floor',v0,v1,t2-.45,t2,zm+.08,C.z1);
+    if(u0>=C.x0+.8)add('metal',u0,u1,t1+.88,t1+.93,zm-.14,zm-.08);if(v0>=C.x0+.8)add('metal',v0,v1,t2+.88,t2+.93,zm+.08,zm+.14)}
+   add('floor',L0,C.x1,y+hf-.3,y+hf,C.z0,C.z1);add('trim',L0,C.x1,y+hf-.34,y+hf-.3,C.z0,C.z1);
+   if(k<lv-1)add('lamp',C.x1-1.2,C.x1-.4,y+hf+3.45,y+hf+3.52,zm-.4,zm+.4)}
+  add('plaster',C.x0+.8,L0,0,H,zm-.08,zm+.08);col(C.x0+.8,L0,zm-.08,zm+.08);cols[cols.length-1].top=H+.4;
+  add('plaster',C.x0,C.x0+.8,.06,FH-.6,zm-.08,zm+.08);col(C.x0,C.x0+.8,zm-.08,zm+.08,0);
+  add('plaster',C.x0-.1,C.x0+.1,.06,FH-.6,zm+.08,C.z1);col(C.x0-.1,C.x0+.1,zm+.08,C.z1,0);add('wd',C.x0-.13,C.x0-.1,.06,2.1,zm+.6,zm+1.5);
+  for(let k=1;k<lv;k++){const r=ramps[k-1],y0=k*FH-.3,y1=k*FH;add('floor',-hw+.1,r.x0,y0,y1,-hd+.1,hd-.1);add('floor',r.x1,hw-.1,y0,y1,-hd+.1,hd-.1);add('floor',r.x0,r.x1,y0,y1,-hd+.1,r.z0);add('floor',r.x0,r.x1,y0,y1,r.z1,hd-.1)}
+ }else{
  for(let k=0;k<lv-1;k++){const e=k%2==0,z0=-hd+t+(e?0:2.7),
 // === JIM FIX START: U6-stair-flights ===
 x0=hw-6.5,x1=hw-.5-(e?0:1),r={k,x0,x1,z0,z1:z0+2.7,dir:e?-1:1};ramps.push(r);for(let i=0;i<24;i++){const a2=i/24*(x1-x0),b2=(i+1)/24*(x1-x0),
@@ -49474,6 +49489,7 @@ top=k*FH+(i+1)/24*FH;add('floor',e?x1-b2:x0+a2,e?x1-a2:x0+b2,k*FH,top,r.z0,r.z1)
 
  for(let k=1;k<lv;k++){const r=ramps[k-1],y=k*FH,e=r.dir<0,R=[];R.push(['x',r.x0,r.x1,r.z1+.03]);if(!e){R.push(['x',r.x0,r.x1,r.z0-.08]);R.push(['z',r.z0-.08,r.z1+.08,r.x0-.08])}
   for(const[ax,u0,u1,w]of R){const L=u1-u0,n=Math.max(2,Math.ceil(L/1.4)+1),bxr=(a0,a1,y0,y1)=>ax=='x'?add('metal',a0,a1,y0,y1,w,w+.05):add('metal',w,w+.05,y0,y1,a0,a1);bxr(u0,u1,y+.95,y+1.0);bxr(u0,u1,y+.5,y+.53);for(let i=0;i<n;i++){const q=u0+(L-.05)*i/(n-1);bxr(q,q+.05,y,y+.95)}ax=='x'?col(u0,u1,w-.03,w+.08,k):col(w-.03,w+.08,u0,u1,k)}}
+ }/*DH26-CORE-END*/
  // ---- partitions ----
 
 // === JIM FIX END: U2-stair-rails ===
@@ -49489,7 +49505,7 @@ cols[cols.length-1].top=y1;/* partition wall blocks bullets for its full height 
   if(c1>cu){bxa(ax,k,cu,c1,y0,y1,pos-.1,pos+.1);sol(cu,c1)}
   bxa(ax,'trim',c0,c1,y0,y0+.1,pos-.13,pos+.13)}}
  if(s.ph)for(const P of s.P||[])if(P[5]===undefined&&0){}
- if(s.roomCeil)add(...s.roomCeil);for(const e of s.X||[])add(...e);for(const e of s.XC||[])col(e[0],e[1],e[2],e[3],0);
+ if(s.roomCeil)add(...s.roomCeil);for(const e of s.X||[])add(...e);for(const e of s.XC||[])col(e[0],e[1],e[2],e[3],e[4]==='*'?undefined:(e[4]|0));
  // ---- floors, lamps, debris, furniture per level ----
  
 // === JIM FIX START: U8-hoop-a ===
@@ -49723,7 +49739,7 @@ sol(.9,.9)},
    p('wood2',0,z,A,.36,y,.05);p('metal',-A*.44,z,.06,.36,0,y);p('metal',0,z,.06,.36,0,y);p('metal',A*.44,z,.06,.36,0,y)}sol(A,1.95)},
  globe:()=>{p('brass',0,0,.22,.22,0,.06);p('brass',0,0,.04,.04,.06,.38);p('polb',0,0,.28,.28,.16,.28);p('green',.04,.08,.16,.12,.22,.14);p('frd',.26,.04,.1,.1,0,.1)}};
  for(let l=0;l<lv;l++){fy=l?l*FH:.06;CL=l;const cy=cyL(l),ly=s.ly||cy;
-  const HOLE=l>0?ramps[l-1]:null,UP=l<lv-1?ramps[l]:null,inH=(x,z,w,d,h)=>h&&x+w>h.x0-.1&&x<h.x1+.1&&z+d>h.z0-.1&&z<h.z1+.1;
+  const HOLE=l>0?ramps[l-1]:null,UP=(l<lv-1||s.core)?ramps[l]:null,inH=(x,z,w,d,h)=>h&&x+w>h.x0-.1&&x<h.x1+.1&&z+d>h.z0-.1&&z<h.z1+.1;
   const dd=(...a)=>inH(a[1],a[5],a[2]-a[1],a[6]-a[5],HOLE)||add(...a);
   const cutR=(x0,x1,z0,z1)=>{const h=HOLE;if(!h||x1<=h.x0||x0>=h.x1||z1<=h.z0||z0>=h.z1)return[[x0,x1,z0,z1]];const o=[],a=Math.max(x0,h.x0),b=Math.min(x1,h.x1);if(x0<h.x0)o.push([x0,h.x0,z0,z1]);if(x1>h.x1)o.push([h.x1,x1,z0,z1]);if(z0<h.z0)o.push([a,b,z0,h.z0]);if(z1>h.z1)o.push([a,b,h.z1,z1]);return o};
   for(const r of s.R||[]){const ty=(r[4]||'').split('|'),T0=ty[l?1:0]||ty[0];if(T0&&T0!=='x')for(const q of cutR(r[0],r[1],r[2],r[3]))add(T0,q[0],q[1],fy-.03,fy+.004,q[2],q[3]);
@@ -49748,23 +49764,148 @@ new T.Mesh(jimSignGeo(4.6,.75),new T.MeshStandardMaterial({map:tex(256,48,
 
 // === JIM FIX START: U8-hoop-c ===
  for(const q of jimX){const m=new T.Mesh(JIM_RIM_G||(JIM_RIM_G=new T.TorusGeometry(.23,.018,6,20).rotateX(Math.PI/2)),M2.orng);m.position.set(q[0],q[1],q[2]);m.castShadow=true;grp.add(m)}
- return{grp,cols,ramps,hw,hd,lv,lamps:LPS,idoors:IDRS,
+ return{grp,cols,ramps,hw,hd,lv,roofY:s.core?H+.4:undefined,lamps:LPS,idoors:IDRS,
 // === JIM FIX END: U8-hoop-c ===
 mast:MX,door:{a,b,dh,pi,po,pm,style:DR.shutter?'roll':(DR.glass&&DR.right=='frame')?'glass':'wood',glass:!!DR.glass}}}
+const APTM=(()=>{
+// ===== v0.26.0 RIVERSIDE APARTMENTS (Plot 1, ported from v0.22.5/v0.23.2): 7 levels (lobby + 6 floors) + walkable roof, 26x16 footprint, elevator shaft + half-landing stair core, 4 flats per floor =====
+// v0.26.0 changes vs the v0.22.5 block: the stair core is a real switchback with half landings (makeModel2 s.core) so EVERY floor is reached from the hall side
+// (the old full-storey flights landed floors 2/4/6 against the core wall with no way out), stairs continue to a hollow roof bulkhead with a doorway,
+// elevator doors are closed steel leaves with colliders (the shaft used to be walk-in), roof parapet / bulkhead / machine room / roof gear have roof-level colliders.
+const NF=7,H=NF*FH,T6=[1,2,3,4,5,6],G0=[0],LV=k=>k?k*FH:.06;
+const EV={x0:1.4,x1:3.6,z0:-7.7,z1:-5.4,cx0:1.5,cx1:3.5,cz0:-7.6,cz1:-5.25,dx0:1.9,dx1:3.1,cx:2.5,cz:-6.6,wz:-5.3};
+const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e);
+const mzb=b=>[b[0],b[1],b[2],b[3],b[4],-b[6],-b[5]];
+const ax=(...e)=>{a(...e);a(...mzb(e))};
+// ---------- partitions ----------
+const P=[
+['x',-1.1,-12.7,1.0,[-2.0]],['z',1.0,-5.2,-1.1,[]],
+['z',6.5,-2.2,7.7,[-0.6],T6],['z',6.5,-2.2,7.7,[-0.6,4.5],G0],['x',-2.2,6.5,12.7,[]],
+['x',1.1,-12.7,6.5,[-2.0,3.7],T6],['x',1.1,-12.7,-5.0,[-9.0],G0],['z',-5.0,-1.1,1.1,[],G0],['z',1.0,1.1,7.7,[],T6],
+['z',-5.0,-7.7,-1.1,[-3.0]],['z',-9.0,-7.7,-4.6,[]],['x',-4.6,-12.7,-9.0,[-10.8]],
+['z',-5.0,1.1,7.7,[3.0]],['z',-9.0,4.6,7.7,[]],['x',4.6,-12.7,-9.0,[-10.8]],
+['z',3.0,1.1,4.0,[],T6],['x',4.0,1.0,3.0,[2.2],T6],
+['x',3.2,6.5,12.7,[9.6,11.8],T6],['z',10.5,3.2,7.7,[],T6]];
+const R=[
+[-12.7,-9.0,-7.7,-4.6,'tile'],[-9.0,-5.0,-7.7,-1.1,'carp'],[-12.7,-9.0,-4.6,-1.1,'carp'],[-5.0,1.0,-7.7,-1.1,'pl'],
+[-12.7,-9.0,4.6,7.7,'tile'],[-9.0,-5.0,1.1,7.7,'tile|carp'],[-12.7,-9.0,1.1,4.6,'tile|carp'],[-5.0,1.0,1.1,7.7,'tile|pl'],
+[-12.7,1.0,-1.1,1.1,'tile'],
+[1.0,3.0,1.1,4.0,'tile'],[3.0,6.5,1.1,4.0,'tile|carp'],[1.0,6.5,4.0,7.7,'tile|carp'],
+[1.0,6.5,-5.2,1.1,'tile'],[4.0,6.5,-7.7,-5.2,'tile'],[6.5,12.7,-7.7,-2.2,'tile'],
+[6.5,12.7,-2.2,3.2,'tile|carp'],[6.5,10.5,3.2,7.7,'tile|carp'],[10.5,12.7,3.2,7.7,'tile']];
+// ---------- furniture ----------
+const mz=e=>{const o=e.slice();o[2]=-e[2];if(e.length>3){const r=e[3]|0;o[3]=e[0]==='bed'?(r===1?3:r===3?1:r):(r===0?2:r===2?0:r)}return o};
+const BWbath=[['wc',-12.1,-7.35,0],['sink',-9.8,-7.45,0],['bath',-12.3,-5.6,1],['curtain',-11.85,-5.6,1,1.7]];
+const BW=[
+['bed',-7.3,-6.6,1],['table',-8.45,-7.3,0,.5,.45],['table',-6.15,-7.3,0,.5,.45],['wardrobe',-10.2,-1.65,2],['desk',-12.3,-2.1,1],['dresser',-5.4,-6.0,3],['rug',-7.6,-4.0,0,2.6,2.0],['plant',-5.55,-1.7],
+...BWbath,
+['fridge',-4.5,-7.33,0],['counter',-3.0,-7.4,0,2.0],['stove',-1.55,-7.38,0],['counter',-.15,-7.4,0,1.6],['dining',-1.0,-4.7,0,2.6],
+['sofa',-4.05,-3.0,1],['table',-3.0,-3.0,1,1.0,.6],['tv',.7,-3.0,3],['rug',-3.4,-3.0,1,2.4,2.0],['shelf',-4.1,-1.5,2,1.2],['plant',.55,-1.8]];
+const FC=[
+['wc',2.45,1.7,0],['sink',1.55,1.55,0],['bath',1.55,3.0,1],
+['stove',4.65,1.52,0],['counter',5.6,1.5,0,1.2],['fridge',6.05,2.4,3],
+['bed',5.25,4.9,2],['table',5.95,3.6,0,.5,.45],['wardrobe',1.4,4.75,1],['tv',1.35,6.4,1],['sofa',3.6,6.4,3],['rug',2.6,6.0,1,2.4,2.0],['plant',6.0,7.3]];
+const EU=[
+['fridge',12.0,-1.7,0],['counter',10.4,-1.75,0,2.0],['stove',8.5,-1.78,0],['counter',7.3,-1.75,0,1.4],
+['table',7.7,1.9,0,1.4,.9],['chair',7.2,1.1,0],['chair',8.2,1.1,0],['chair',7.2,2.7,2],['chair',8.2,2.7,2],
+['sofa',9.6,-.2,1],['table',10.9,-.2,1,1.0,.6],['tv',12.4,-.2,3],['rug',10.4,-.2,1,2.4,2.0],['plant',12.2,2.5],
+['bed',9.35,5.5,2],['table',10.1,4.4,0,.5,.45],['table',10.1,6.65,0,.5,.45],['wardrobe',6.9,6.5,1],['dresser',7.7,3.65,0,1.5],['rug',8.2,5.6,0,2.4,1.8],['plant',7.0,7.3],
+['wc',11.2,7.35,2],['sink',10.85,4.6,1],['bath',12.3,5.6,1]];
+const HALL=[['plant',5.9,.7],['ext',4.15,-6.5,1]];
+const LOBBY=[
+['regdesk',-.5,3.4,0,3],['chair',-.5,2.5,0],['bench',-3.4,7.2,2],['bench',3.4,7.2,2],['plant',-4.4,7.3],['plant',5.9,7.4],['vend',6.0,6.2,3],['rug',.8,5.4,0,4.0,2.4],['ext',-4.75,1.8,1]];
+const LAUNDRY=[
+['washer',-11.7,1.65,0],['washer',-10.7,1.65,0],['washer',-7.6,1.65,0],['washer',-6.6,1.65,0],
+['table',-7.8,4.0,0,2.0,.8],['chair',-8.4,3.2,0],['chair',-7.2,3.2,0],['chair',-8.4,4.8,2],['chair',-7.2,4.8,2],
+['bin',-5.7,7.0,3],['shelf',-5.35,5.0,3,1.6],
+...BWbath.map(mz)];
+const CLOSET=[['shelf',-10.6,-.78,0,2.4],['drum',-12.2,.6],['bin',-6.2,.2,0]];
+const COMM=[
+['counter',8.5,-1.75,0,2.2],['fridge',10.3,-1.7,0],['stove',11.2,-1.78,0],
+['table',9.5,1.0,0,2.4,1.0],['chair',8.6,.2,0],['chair',10.4,.2,0],['chair',8.6,1.8,2],['chair',10.4,1.8,2],
+['pool',9.0,5.6,0],['arcade',11.6,7.3,2],['arcade',12.4,7.3,2],['jukebox',12.2,4.2,3],['sofa',7.2,3.4,1],['tv',12.4,-.2,3],['plant',7.0,7.3]];
+const typ=[...BW,...BW.map(mz),...FC,...EU,...HALL];
+const gnd=[...BW,...LOBBY,...LAUNDRY,...CLOSET,...COMM,...HALL];
+// ---------- elevator shaft (static shell) ----------
+a('conc',1.0,1.4,0,H,-7.7,-5.2);a('conc',3.6,4.0,0,H,-7.7,-5.2);a('conc',1.4,1.9,0,H,-5.4,-5.2);a('conc',3.1,3.6,0,H,-5.4,-5.2);
+c(1.0,1.4,-7.7,-5.2,'*');c(3.6,4.0,-7.7,-5.2,'*');c(1.4,1.9,-5.4,-5.2,'*');c(3.1,3.6,-5.4,-5.2,'*');
+a('metal',1.4,1.46,0,H,-7.0,-6.94);a('metal',3.54,3.6,0,H,-7.0,-6.94);
+c(1.9,3.1,-5.42,-5.2,'*'); // closed elevator doors (all floors)
+for(let k=0;k<NF;k++){const y=LV(k);
+ a('conc',1.9,3.1,y+2.2,k<NF-1?(k+1)*FH-.3:H,-5.4,-5.2);
+ a('metal',1.9,2.485,y,y+2.2,-5.36,-5.3);a('metal',2.515,3.1,y,y+2.2,-5.36,-5.3);a('dark',2.485,2.515,y,y+2.2,-5.35,-5.31);a('dark',1.9,3.1,y,y+.03,-5.3,-5.2);
+ a('metal',1.82,1.9,y,y+2.28,-5.2,-5.15);a('metal',3.1,3.18,y,y+2.28,-5.2,-5.15);a('metal',1.82,3.18,y+2.2,y+2.28,-5.2,-5.15);
+ a('dark',3.3,3.56,y+.95,y+1.4,-5.2,-5.15);a('ember',3.37,3.49,y+1.2,y+1.28,-5.15,-5.14);a('ember',3.37,3.49,y+1.02,y+1.1,-5.15,-5.14);
+ a('exit',4.0,4.06,y+2.3,y+2.5,-6.3,-5.9);
+ a('red',4.0,4.22,y+1.0,y+1.9,-7.1,-6.5);a('glass',4.22,4.24,y+1.05,y+1.85,-7.05,-6.55);a('white',4.0,4.23,y+.95,y+1.0,-7.1,-6.5);
+ a('lamp',5.0,5.6,y+(k<NF-1?3.55:3.55),y+3.7,-7.0,-6.6);
+}
+// roof: elevator machine room, stair bulkhead, water tank, HVAC, vents, dish, chimney
+a('wall',1.0,4.0,H+.4,H+3.4,-7.7,-5.2);a('roof',.9,4.1,H+3.4,H+3.55,-7.8,-5.1);a('dark',1.3,3.7,H+1.5,H+2.7,-5.22,-5.2);a('metal',2.2,3.0,H+.4,H+2.4,-5.23,-5.2);
+c(1.0,4.0,-7.7,-5.2,NF);
+// v0.26.0 stair bulkhead: hollow shell over the whole stair core + a landing west of it, doorway (open steel leaf) facing the roof
+{const B={x0:4.4,x1:13.0,z0:-7.9,z1:-1.9,t:.2,d0:4.9,d1:6.3},Y0=H+.4,Y1=H+3.4;
+ a('wall',B.x0,B.x0+B.t,Y0,Y1,B.z0,B.z1);a('wall',B.x1-B.t,B.x1,Y0,Y1,B.z0,B.z1);a('wall',B.x0,B.x1,Y0,Y1,B.z0,B.z0+B.t);
+ a('wall',B.x0,B.d0,Y0,Y1,B.z1-B.t,B.z1);a('wall',B.d1,B.x1,Y0,Y1,B.z1-B.t,B.z1);a('wall',B.d0,B.d1,Y0+2.25,Y1,B.z1-B.t,B.z1);
+ a('trim',B.d0-.08,B.d0,Y0,Y0+2.3,B.z1-.24,B.z1+.04);a('trim',B.d1,B.d1+.08,Y0,Y0+2.3,B.z1-.24,B.z1+.04);a('trim',B.d0-.08,B.d1+.08,Y0+2.25,Y0+2.33,B.z1-.24,B.z1+.04);
+ a('roof',B.x0-.15,B.x1+.15,Y1,Y1+.15,B.z0-.15,B.z1+.15);a('lamp',5.1,5.9,Y1-.1,Y1-.02,-4.4,-3.6);a('lamp',11.4,12.2,Y1-.1,Y1-.02,-5.4,-4.6);
+ a('exit',5.3,5.9,Y0+2.4,Y0+2.58,B.z1+.01,B.z1+.03);a('metal',B.d1+.1,B.d1+.15,Y0+.02,Y0+2.2,B.z1,B.z1+1.3);a('dark',B.d1+.15,B.d1+.17,Y0+1.0,Y0+1.1,B.z1+1.05,B.z1+1.2);
+ c(B.x0,B.x0+B.t,B.z0,B.z1,NF);c(B.x1-B.t,B.x1,B.z0,B.z1,NF);c(B.x0,B.x1,B.z0,B.z0+B.t,NF);c(B.x0,B.d0,B.z1-B.t,B.z1,NF);c(B.d1,B.x1,B.z1-B.t,B.z1,NF);c(B.d1+.05,B.d1+.2,B.z1,B.z1+1.3,NF)}
+// roof-level colliders: parapet, water tank, HVAC, chimney
+c(-13.3,13.3,-8.3,-8.1,NF);c(-13.3,13.3,8.1,8.3,NF);c(-13.3,-13.1,-8.3,8.3,NF);c(13.1,13.3,-8.3,8.3,NF);
+c(-8.2,-5.4,-5.6,-2.8,NF);c(-1,1.4,2,3.6,NF);c(3,5.4,3,4.6,NF);c(-11.4,-10.2,-6.8,-5.6,NF);c(-3,-1.8,-3.4,-2.2,NF);
+for(const[x,z]of[[-8,-5.4],[-5.6,-5.4],[-8,-3],[-5.6,-3]])a('metal',x-.08,x+.08,H+.4,H+2.4,z-.08,z+.08);
+a('wood2',-8.2,-5.4,H+2.4,H+5.0,-5.6,-2.8);for(const y of[H+3,H+4])a('metal',-8.25,-5.35,y,y+.06,-5.65,-2.75);a('roof',-8.4,-5.2,H+5.0,H+5.5,-5.8,-2.6);a('metal',-6.9,-6.7,H+5.5,H+6.2,-4.3,-4.1);
+a('metal',-1,1.4,H+.4,H+1.4,2,3.6);a('dark',-.9,1.3,H+1.4,H+1.48,2.1,3.5);a('metal',3,5.4,H+.4,H+1.2,3,4.6);a('dark',3.2,5.2,H+1.2,H+1.28,3.2,4.4);
+a('metal',10.9,11.0,H+.4,H+7,4.9,5.0);a('metal',10.2,11.7,H+4.2,H+4.26,4.9,5.0);a('dark',-3,-1.8,H+.4,H+.9,-3.4,-2.2);a('brick',-11.4,-10.2,H+.4,H+3,-6.8,-5.6);a('dark',-11.5,-10.1,H+3,H+3.12,-6.9,-5.5);
+for(const x of[-9,-4,6.2])a('metal',x,x+.2,H+.4,H+1.4,5.6,5.8);
+// exterior: floor-line bands, downspouts, planters, bike rack, dumpster, condensers, fire escape (east)
+for(let k=1;k<NF;k++){const y=k*FH;if(k===1){a('conc',-13.1,-2.4,y-.2,y+.05,8,8.1);a('conc',2.4,13.1,y-.2,y+.05,8,8.1)}else a('conc',-13.1,13.1,y-.2,y+.05,8,8.1);a('conc',-13.1,13.1,y-.2,y+.05,-8.1,-8);a('conc',-13.1,-13,y-.2,y+.05,-8.1,8.1);a('conc',13,13.1,y-.2,y+.05,-8.1,8.1)}
+for(const[x,z]of[[12.8,8.06],[-12.8,8.06],[12.8,-8.06],[-10.4,-8.06]])a('metal',x-.06,x+.06,0,H,z-.06,z+.06);
+for(const x of[-4.6,3.0]){a('brick',x,x+1.6,0,.6,8.6,9.4);a('soil',x+.05,x+1.55,.6,.66,8.65,9.35);a('green',x+.2,x+1.4,.66,1.3,8.8,9.2);c(x,x+1.6,8.6,9.4)}
+for(let i=0;i<5;i++)a('metal',6.2+i*.4,6.26+i*.4,0,.8,9.0,9.04);a('metal',6.2,8.1,.78,.82,9.0,9.04);c(6.1,8.2,8.9,9.15);
+a('green',6,9,0,1.4,-10.4,-8.8);a('dark',5.95,9.05,1.4,1.5,-10.45,-8.75);c(5.95,9.05,-10.45,-8.75);
+for(const[x,z]of[[-8,-9.1],[-4,-9.1]]){a('metal',x-.6,x+.6,0,1,z-.4,z+.4);a('dark',x-.5,x+.5,1,1.06,z-.3,z+.3);c(x-.6,x+.6,z-.4,z+.4)}
+a('metal',-1.2,-.4,0,.9,-8.5,-8.1);c(-1.2,-.4,-8.5,-8.1);a('white',-1.15,-.45,.9,1.0,-8.45,-8.15);
+for(let k=1;k<NF;k++){const y=k*FH;a('metal',13,14.4,y-.1,y,.8,3.2);for(const z of[.8,3.1])a('metal',13,14.4,y,y+1,z,z+.05);a('metal',14.35,14.4,y,y+1,.8,3.2);
+ if(k<NF-1)for(let r=0;r<10;r++){const yy=y+.3+r*.36;a('metal',13.5,14.0,yy,yy+.04,1.4,1.44)}
+ if(k<NF-1){a('metal',13.5,13.56,y,y+FH,1.4,1.44);a('metal',13.94,14,y,y+FH,1.4,1.44)}}
+for(let r=0;r<9;r++){const yy=.3+r*.36;a('metal',13.5,14.0,yy,yy+.04,1.4,1.44)}a('metal',13.5,13.56,0,FH,1.4,1.44);a('metal',13.94,14,0,FH,1.4,1.44);
+// window AC units / satellite dishes on a few front windows
+for(const[k,x]of[[2,-7],[4,-3],[3,-11],[5,9],[2,5]]){const y=k*FH+.45;a('metal',x-.45,x+.45,y,y+.42,8.0,8.5);a('dark',x-.4,x+.4,y+.05,y+.09,8.5,8.52)}
+for(const[k,x]of[[1,-7],[3,-3],[6,9]]){const y=k*FH+1.6;a('metal',x+1.0,x+1.03,y,y+.5,8.0,8.3);a('white',x+.9,x+1.15,y+.5,y+.75,8.2,8.32)}
+// ---------- per-floor interior details ----------
+const flat=(k)=>{const y=LV(k);
+ ax('glass',-10.1,-9.5,y+1.2,y+2.0,-7.7,-7.67);ax('white',-12.7,-9.1,y+.9,y+1.2,-7.7,-7.68);
+ ax('white',-4,.6,y+.9,y+1.5,-7.7,-7.68);ax('wd',-1.1,.9,y+1.55,y+2.35,-7.7,-7.35);ax('metal',-1.9,-1.2,y+1.5,y+1.7,-7.7,-7.2);
+ ax('wood',-4.88,-4.82,y+1.4,y+2.1,-3.9,-2.1);ax('blue',-4.82,-4.8,y+1.45,y+2.05,-3.85,-2.15);
+ ax('wd',.7,.9,y+1.1,y+1.9,-3.85,-2.15);ax('lamp',-8.1,-7.5,y+3.62,y+3.7,-5.8,-5.2)};
+for(let k=0;k<NF;k++){const y=LV(k);
+ if(k>=1){flat(k);
+ // corridor: runner rug, wall sconces, FC bath mirror, studio kitchen backsplash, E unit kitchen splash + cabinets
+ a('fab1',-12.3,.9,y+.004,y+.011,-.55,.55);a('gold',-12.3,.9,y+.011,y+.014,-.5,-.45);a('gold',-12.3,.9,y+.011,y+.014,.45,.5);
+ for(const x of[-10,-6,-3])a('lamp',x-.12,x+.12,y+2.2,y+2.5,-1.0,-.93);for(const x of[-10,-6,.2])a('lamp',x-.12,x+.12,y+2.2,y+2.5,.93,1.0);
+ a('glass',1.5,2.1,y+1.2,y+2,1.2,1.23);a('white',4.3,6.4,y+.9,y+1.5,1.2,1.22);a('wd',4.3,6.4,y+1.55,y+2.35,1.2,1.55);
+ a('white',7.6,12.0,y+.9,y+1.5,-2.1,-2.08);a('wd',9.4,12.0,y+1.55,y+2.35,-2.1,-1.75);
+ a('exit',.4,.8,y+2.55,y+2.75,-.98,-.96);
+ // hall bench + notice board
+ a('wood2',2.0,3.6,y+.45,y+.5,-.5,-.1);a('wood',2.05,2.1,y,y+.45,-.5,-.1);a('wood',3.5,3.55,y,y+.45,-.5,-.1);c(2.0,3.6,-.5,-.1,k);
+ a('wood',4.6,5.6,y+1.3,y+2.0,-.98,-.94);a('white',4.7,4.95,y+1.5,y+1.8,-.94,-.93);a('white',5.05,5.3,y+1.6,y+1.9,-.94,-.93)}
+ // stair-landing handrail posts per flight are implicit; stair back-wall exit sign
+ a('exit',9.2,9.8,y+3.0,y+3.2,-7.66,-7.62);
+}
+// lobby mailboxes + notice board + fire panel + wall lamps
+for(let r=0;r<4;r++)for(let q=0;q<7;q++){const y=.95+r*.28,z0=4.05+q*.46;a('metal',-4.9,-4.78,y,y+.24,z0,z0+.4);a('dark',-4.79,-4.77,y+.1,y+.14,z0+.08,z0+.32);a('brass',-4.79,-4.77,y+.17,y+.2,z0+.18,z0+.22)}
+a('wood',-4.9,-4.86,1.2,2.0,1.4,2.6);a('white',-4.86,-4.84,1.35,1.7,1.5,1.9);a('white',-4.86,-4.84,1.5,1.9,2.0,2.4);
+for(const x of[-3,3.5])a('lamp',x-.4,x+.4,3.62,3.7,5.0,5.4);
+a('brass',-.6,.6,2.4,2.46,3.3,3.9);
+// laundry detail: counter + drying rack + sign boards
+a('wood2',-11.8,-9.4,0.9,0.95,6.9,7.6);a('wood',-11.8,-11.7,0,.9,6.95,7.05);a('wood',-9.5,-9.4,0,.9,6.95,7.05);
+return{X,XC,P,R,F:[gnd,typ],holes:EV,core:{x0:6.5,x1:12.7,z0:-7.7,z1:-2.3,land:1.7}};
+})();
 const MODELS=[
- // 0: brick apartment block - lobby, mailboxes, two flats per floor, stairwell
- makeModel2({w:18,d:14,fl:3,lv:3,dw:3,dh:3,mat:wt2('#7a4a3a',0),sign:['RIVERSIDE APARTMENTS','#2a3a4a','#e8e4d8'],curt:1,board:1,door:{canopy:1,right:'closed',glass:1},
-  
-// === JIM2 FIX START: C-riverside-bath-wall ===
-P:[['x',1,-8.7,8.7,[-6.8,.5,5.5]],['z',-1,-6.7,1,[-3.5]],['z',-5,1,6.7,[3.2]],['z',2.3,-6.7,1,[],[0,2]],['z',1.6,-6.7,1,[],[1]]],
-// === JIM2 FIX END: C-riverside-bath-wall ===
-
-  R:[[-5,8.7,1,6.7,'tile|carp'],[-8.7,-5,1,6.7,'pl'],[-8.7,-1,-6.7,1,'carp'],[-1,2.5,-6.7,1,'tile']],
-  F:[[['locker',8.35,3.5,1,3],['vend',7.3,6.2,0],['bench',-3,6.15,0],['plant',-4.4,6.1],['plant',5.8,6.1],['table',3.5,3.5,0,1.2,.7],['chair',3.5,2.7,0],
-   ['sofa',-8.1,4,1],['table',-6.6,4,1,1,.6],['shelf',-8.1,2.2,1,1.2],['tv',-5.6,1.45,0],
-   ['bed',-7.4,-4.7,0],['wardrobe',-5.3,-6.1,0],['desk',-3.2,-6,0],['table',-4,-2.3,0,1.4,.9],['chair',-4.5,-1.5,2],['chair',-3.5,-3.1,0],['wc',-.3,-6.2,0],['sink',1.1,-6.3,0],['bath',-.2,-3.2,1]],
-  [['sofa',3,5.8,0],['tv',3,1.6,2],['table',3,3.7,0,1.2,.7],['counter',-7.4,6.38,0,2],['stove',-5.9,6.38,0],['fridge',-8.3,1.5,0],['table',-7,3.5,0,1.2,.9],['chair',-7.5,2.7,0],
-   ['bed',-7.4,-4.7,0],['wardrobe',-5.3,-6.1,0],['desk',-3.2,-6,0],['table',-4,-2.3,0,1.4,.9],['chair',-3.5,-3.1,0],['wc',-.3,-6.2,0],['sink',1.1,-6.3,0],['bath',-.2,-3.2,1]]]}),
+ // 0: v0.26.0 RIVERSIDE APARTMENTS (ported from v0.22.5): 26x16, lobby + 6 floors + walkable roof, elevator shaft, half-landing stair core (see APTM)
+ ((m)=>{for(const c of m.cols)if(c.lv===undefined&&c.top===undefined)c.top=m.cols.H+.4;/*mast: the front floor band leaves no clear facade slot, so flag the meter service explicitly like HOUSE1/BAR/MILB (service + meter box go on the rear corner)*/if(m.mast==null)m.mast=5.0;return m})(makeModel2({w:26,d:16,fl:7,lv:7,dw:3,dh:3,mat:wt2('#7a4a3a',0),sign:['RIVERSIDE APARTMENTS','#2a3a4a','#e8e4d8'],curt:1,board:1,nogear:1,core:APTM.core,door:{canopy:1,right:'closed',glass:1},P:APTM.P,R:APTM.R,X:APTM.X,XC:APTM.XC,F:APTM.F})),
  // 1: corner store with flat upstairs
  makeModel2({w:16,d:12,fl:2,lv:2,dw:3,dh:3,mat:wt2('#b9a98a',1),sign:['CORNER STORE  24H','#7a1f1f','#f0e6c8'],curt:1,board:1,door:{canopy:1,right:'gone'},
   P:[['x',-2,-7.7,7.7,[-3,4.5]],['z',-1,-2,5.7,[2],[1]]],
@@ -51183,7 +51324,7 @@ new T.Mesh(mergeBoxes([[-.45,.45,-1.5,1.5,-.45,.45]]),M2.brick)
    if(lx>-7.7&&lx<7.7&&lz>-5.7&&lz<5.7){const inS=lx>=X0&&lx<=X1&&lz>=Z0&&lz<=Z1;let b=-3.2;const g=inS?.06-Math.min(13,Math.floor((lx-X0)/RUN)+1)*RISE:.06;if(g<=py+.7&&g>b)b=g;return b}
    return _fa(px,pz,py)};
   for(const zc of[-4.64,-3.16])boxes.push({x:I.x+((X0+X1)/2)*s,z:I.z+zc*s,hw:(X1-X0)/2,hd:.06,y0:-3.6,y1:0})}}
-function floorAt0(px,pz,py){for(const I of insts){const lx=(px-I.x)*I.s,lz=(pz-I.z)*I.s,m=I.m;if(Math.abs(lx)>m.hw||Math.abs(lz)>m.hd)continue;const c=[.06];for(let k=1;k<m.lv;k++){const r=m.ramps[k-1];if(!(lx>r.x0-.05&&lx<r.x1+.05&&lz>r.z0-.05&&lz<r.z1+.05))c.push(k*FH)}for(const r of m.ramps)if(lx>=r.x0&&lx<=r.x1&&lz>=r.z0&&lz<=r.z1)c.push(r.k*FH+(r.dir<0?(r.x1-lx):(lx-r.x0))/(r.x1-r.x0)*FH);let b=0;for(const v of c)if(v<=py+.7&&v>b)b=v;return b}return 0}
+function floorAt0(px,pz,py){for(const I of insts){const lx=(px-I.x)*I.s,lz=(pz-I.z)*I.s,m=I.m;if(Math.abs(lx)>m.hw||Math.abs(lz)>m.hd)continue;const c=[.06];for(let k=1;k<m.lv;k++){const r=m.ramps[k-1];if(!(lx>r.x0-.05&&lx<r.x1+.05&&lz>r.z0-.05&&lz<r.z1+.05))c.push(k*FH)}for(const r of m.ramps)if(!r.hole&&lx>=r.x0&&lx<=r.x1&&lz>=r.z0&&lz<=r.z1)c.push((r.y0!==undefined?r.y0:r.k*FH)+(r.dir<0?(r.x1-lx):(lx-r.x0))/(r.x1-r.x0)*(r.h!==undefined?r.h:FH));if(m.roofY!==undefined){const r=m.ramps[m.lv-1];/*DH26-ROOF*/if(!(r&&lx>r.x0-.05&&lx<r.x1+.05&&lz>r.z0-.05&&lz<r.z1+.05))c.push(m.roofY)}let b=0;for(const v of c)if(v<=py+.7&&v>b)b=v;return b}return 0}
 
 // ===== farm base (starter cabin): foundation, walls, doorway, windows, stairs, roof =====
 const BASE=makeModel({w:12,d:10,fl:2,lv:2,dw:2.4,dh:2.6,win:[-2.5,2],mat:new T.MeshStandardMaterial({map:tex(128,128,(g,w,h)=>{noise(g,w,h,'#8a6b45',30,2500);g.fillStyle='rgba(0,0,0,.25)';for(let y=0;y<h;y+=16)g.fillRect(0,y,w,2)},1,1),roughness:.95}),props:[[-3,2,2,2,.6],[-2,-3,1.5,1.5,.9],[3,3,1.6,1,.8]]});
@@ -51408,7 +51549,21 @@ const down=(a,b)=>K[a]||K[b];
 const ADM={spd:1,god:false,ammo:false,noclip:false};
 let foot=false,yaw=0,pit=0,drag=null;const pl=new T.Vector3(),FL=new T.SpotLight(0xfff4dd,0,45,.55,.6,1),helpEl=document.getElementById('help');scene.add(FL,FL.target);let flOn=true;
 addEventListener('keydown',e=>{if(e.code==='KeyE')toggleCar()});
-function toggleFL(){if(!foot)return;flOn=!flOn;const b=document.getElementById('gfl');if(b)b.classList.toggle('off',!flOn);try{blip(flOn?900:500,.04,'square')}catch(e){}toast(flOn?'Flashlight ON':'Flashlight OFF',1.2)}
+function toggleFL(){if(!foot)return;/*DH26-FLB*/if(!flOn&&flBat<FLB.minOn){try{blip(200,.08,'square')}catch(e){}toast('\u{1F526} Battery too low ('+Math.round(flBat*100)+'%) — wait for it to recharge',2);return}flOn=!flOn;const b=document.getElementById('gfl');if(b)b.classList.toggle('off',!flOn);try{blip(flOn?900:500,.04,'square')}catch(e){}toast(flOn?'Flashlight ON':'Flashlight OFF',1.2)}
+// ===== v0.26.0 FLASHLIGHT BATTERY (ported from v0.22.4): the torch drains while it is ON (on foot) and recharges while it is OFF or you are driving. Tune it in FLB. =====
+window.FLB={drain:120,recharge:90,minOn:.12,dim:.3}; // seconds of light from a full battery · seconds to recharge from empty · charge (0-1) needed before it will switch back on · below this charge the beam dims and flickers
+let flBat=1,flLowWarned=false,flUiT=0;
+{const st=document.createElement('style');st.textContent='button[title^="Flashlight"]{background-image:linear-gradient(to top,var(--batc,rgba(255,214,110,.6)) var(--bat,100%),rgba(0,0,0,0) var(--bat,100%))!important}';document.head.appendChild(st)}
+function flPow(){if(flBat>=FLB.dim)return 1;const k=flBat/FLB.dim;let p=.3+.7*k;if(k<.5&&Math.sin(performance.now()*.045)>.55)p*=.25;return p}
+function flTick(dt){
+ if(flOn&&foot){flBat-=dt/FLB.drain;
+  if(flBat<=FLB.dim&&!flLowWarned){flLowWarned=true;toast('\u{1F526} Flashlight battery low',2)}
+  if(flBat<=0){flBat=0;flOn=false;try{blip(300,.15,'sawtooth')}catch(e){}toast('\u{1F526} Flashlight battery DEAD — it recharges while it is off',3.5)}}
+ else{flBat=Math.min(1,flBat+dt/FLB.recharge);if(flBat>FLB.dim+.1)flLowWarned=false}
+ flUiT-=dt;if(flUiT<=0){flUiT=.25;const pct=Math.round(flBat*100),low=flBat<FLB.dim;
+  for(const b of document.querySelectorAll('button[title^="Flashlight"]')){b.style.setProperty('--bat',pct+'%');b.style.setProperty('--batc',low?'rgba(255,90,60,.65)':'rgba(255,214,110,.6)');b.title='Flashlight (L) · '+pct+'%'}
+  const g=document.getElementById('gfl');if(g)g.classList.toggle('off',!flOn)}
+}
 addEventListener('keydown',e=>{if(e.code==='KeyL'&&!e.repeat)toggleFL()});
 document.getElementById('be').addEventListener('pointerdown',toggleCar);
 const cv=ren.domElement;cv.style.touchAction='none';cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,e.pointerId]});['pointerup','pointercancel'].forEach(v=>addEventListener(v,e=>{if(drag&&e.pointerId===drag[2])drag=null}));
@@ -51425,7 +51580,7 @@ function step(dt){if(!foot){carStep(dt);return}
   for(const b of boxes)if(!b.c&&(b.y0===undefined||pl.y<b.y1&&pl.y+1.8>b.y0))push(b,.4);
   for(const I of insts)if(Math.abs(pl.x-I.x)<30&&Math.abs(pl.z-I.z)<30)for(const c of I.cols)if(c.lv===undefined||Math.abs(pl.y-c.lv*FH)<2.5)push(c,.4)}
  const ty=floorAt(pl.x,pl.z,pl.y);pl.y=ty>pl.y?Math.min(ty,pl.y+12*dt):Math.max(ty,pl.y-14*dt);
- cam.position.set(pl.x,pl.y+1.65,pl.z);cam.rotation.set(pit,yaw,0);FL.intensity=flOn?2.5:0;FL.position.copy(cam.position);FL.target.position.set(pl.x-Math.sin(yaw)*Math.cos(pit)*10,pl.y+1.65+Math.sin(pit)*10,pl.z-Math.cos(yaw)*Math.cos(pit)*10);
+ cam.position.set(pl.x,pl.y+1.65,pl.z);cam.rotation.set(pit,yaw,0);FL.intensity=flOn?2.5*flPow():0;FL.position.copy(cam.position);FL.target.position.set(pl.x-Math.sin(yaw)*Math.cos(pit)*10,pl.y+1.65+Math.sin(pit)*10,pl.z-Math.cos(yaw)*Math.cos(pit)*10);
  locEl.textContent=Math.hypot(pl.x-QX,pl.z-QZ)<58?'Ridgeline Quarry':pl.z>-130?'Farm':pl.z>-470?'Highway north':'Ruined city';spdEl.textContent=pl.y>1?'Floor '+(Math.round(pl.y/FH)+1):'On foot'}
 
 // sim
@@ -51475,7 +51630,7 @@ for(const I of insts){if(Math.abs(x-I.x)>30||Math.abs(z-I.z)>30)continue;const m
  if(m.lv>0){const lx=(x-I.x)*I.s,lz=(z-I.z)*I.s;if(Math.abs(lx)<m.hw&&Math.abs(lz)<m.hd){const H=m.cols&&m.cols.H||m.lv*FH;if(y>H-.1&&y<H+.4)return true;
   for(let k=1;k<m.lv;k++)if(y>k*FH-.44&&y<k*FH+.06){const r=m.ramps&&m.ramps[k-1];if(!(r&&lx>r.x0&&lx<r.x1&&lz>r.z0&&lz<r.z1))return true}}}
  // U3: walls/closed doors with a top block their full height; other levelled colliders (furniture, railings) stay 1.2 m low cover; thin walls count as 0.5 m thick
- for(const c of I.cols){const hw=c.hw<.25&&c.hd>=.5?.25:c.hw,hd=c.hd<.25&&c.hw>=.5?.25:c.hd;if(Math.abs(x-c.x)<hw&&Math.abs(z-c.z)<hd){if(c.lv===undefined){if(y<12.5)return true}else{const f=c.lv*FH;if(y>f&&y<(c.top!==undefined?c.top:f+1.2))return true}}}}
+ for(const c of I.cols){const hw=c.hw<.25&&c.hd>=.5?.25:c.hw,hd=c.hd<.25&&c.hw>=.5?.25:c.hd;if(Math.abs(x-c.x)<hw&&Math.abs(z-c.z)<hd){if(c.lv===undefined){if(y<(c.top!==undefined?c.top:12.5))return true}else{const f=c.lv*FH;if(y>f&&y<(c.top!==undefined?c.top:f+1.2))return true}}}}
 return false
 // === JESSICA FIX END ===
 }
@@ -53410,7 +53565,7 @@ function dhErr(where,e){try{const m=String(e&&e.message||e),k=where+': '+m,L=win
  let b=document.getElementById('dhErrBox');if(!b){b=document.createElement('div');b.id='dhErrBox';b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;max-height:34vh;overflow:auto;font:11px/1.35 ui-monospace,Menlo,monospace;color:#ffd0c8;background:rgba(60,10,8,.88);border:1px solid #ff6a5a;border-radius:8px;padding:6px 10px;white-space:pre-wrap;word-break:break-word';b.addEventListener('pointerdown',ev=>{ev.stopPropagation();b.style.display='none'});document.body.appendChild(b)}
  if(L.length<=4){b.style.display='block';b.textContent+=(b.textContent?'\n\n':'')+'\u26A0 '+k+'\n'+L[L.length-1].stack}}catch(_){}}
 addEventListener('error',e=>{dhErr('window',e.error||e.message||'unknown')});addEventListener('unhandledrejection',e=>dhErr('promise',e.reason));
-const _TK=[['step',()=>step],['env',()=>env],['zTick',()=>zTick],['resTick',()=>resTick],['buildTick',()=>buildTick],['bTick2',()=>bTick2],['bdoorTick',()=>bdoorTick],['vTick',()=>vTick],['invTick',()=>invTick]];
+const _TK=[['step',()=>step],['env',()=>env],['zTick',()=>zTick],['resTick',()=>resTick],['buildTick',()=>buildTick],['bTick2',()=>bTick2],['bdoorTick',()=>bdoorTick],['flTick',()=>flTick],['brkTick',()=>brkTick],['vTick',()=>vTick],['invTick',()=>invTick]];
 function frame(){try{_frame()}catch(e){dhErr('frame',e);try{ren.render(scene,cam)}catch(_){}}requestAnimationFrame(frame)}
 function _frame(){
  const dt=Math.min(clock.getDelta(),.05);if(window.dhPaused){ren.render(scene,cam);return}for(const[n,g]of _TK){try{g()(dt)}catch(e){dhErr(n,e)}}
@@ -54053,7 +54208,7 @@ cyl(.035,.035,6.48,metM,0,5.16,.03,g,0,0,6);
   M2.pwG.color.setHex(POWER.on?0x35ff6a:0x103a18);M2.pwR.color.setHex(POWER.on?0x3a1010:(Math.sin(t*4)>0?0xff3020:0x701810));
   const nTr=POWER.on?ALLB.reduce((n,B)=>n+(B.brk?0:1),0):0,bt=POWER.on?(POWER.wave<POWER.len2?'⚡ Grid: energising…':'⚡ Grid: ON'+(nTr?' · '+nTr+' breaker'+(nTr>1?'s':'')+' tripped':'')):'⚡ Grid: OFF';if(bt!==bdT){bdT=bt;bd.textContent=bt;bd.style.color=POWER.on?'#8dffb0':'#ffb0a0'}
   // inside a building: dark ambient (very dark with no power) so the lights matter
-  insideI=null;if(foot){for(const I of BLD)if(inside(I,pl.x,pl.z)&&pl.y<I.m.lv*FH+.8){insideI=I;break}}
+  insideI=null;if(foot){for(const I of BLD)if(inside(I,pl.x,pl.z)&&pl.y<(I.m.roofY!==undefined?I.m.roofY-.3:I.m.lv*FH+.8)){insideI=I;break}}
   const itg=insideI?Math.max(insideI.lit>.4?.4:.08,.36*LV):1;inK+=(itg-inK)*Math.min(1,dt*3);hemi.intensity*=inK;sun.intensity*=1-(1-inK)*.85;
   {const W=window.DH_BOUNCE;if(W){W.k+=((insideI?1:0)-W.k)*Math.min(1,dt*3);if(insideI)W.lit=insideI.lit;const dl=Math.max(0,(LV-.06)/.94),k=W.k,lt=W.lit,f=k*(.03*dl+.075*lt),c=k*(.20*dl+.34*lt);
    W.fill.r=f;W.fill.g=f*.95;W.fill.b=f*.85;W.ceil.r=c;W.ceil.g=c*.96;W.ceil.b=c*.88}}
@@ -54196,6 +54351,22 @@ try{const MI=insts.find(q=>q.m===MILB);if(MI){
   for(const p of PF){if(!G.on){p.m.visible=false;continue}p.t=(p.t+dt*.35)%1;p.m.visible=true;p.m.position.set(15.6+p.t*1.4,6.9+p.t*3.2,-23.6);p.m.scale.setScalar(.6+p.t*2.2);p.m.material.opacity=.4*(1-p.t)}}}
 }catch(e){console.error('Fort Harvest runtime',e)}
 function mergeGeos(list){const P=[],N=[],I=[];let o=0;for(const g of list){const p=g.attributes.position,n=g.attributes.normal;for(let i=0;i<p.count;i++){P.push(p.getX(i),p.getY(i),p.getZ(i));N.push(n.getX(i),n.getY(i),n.getZ(i))}for(const k of g.index.array)I.push(k+o);o+=p.count}const G=new T.BufferGeometry();G.setAttribute('position',new T.Float32BufferAttribute(P,3));G.setAttribute('normal',new T.Float32BufferAttribute(N,3));G.setIndex(I);return G}
+// ===== v0.26.0 RANDOM BREAKER TRIPS (ported from v0.22.4): a closed main breaker that has been feeding power for BRK.minLive s rolls the dice every BRK.rollEvery s; on a hit the building's lights flicker for BRK.warn s and then the breaker TRIPS (flip it back on at the meter box with F). Every building + the quarry and sawmill. BRK.on=false disables. =====
+window.BRK={on:true,minLive:120,rollEvery:30,chance:.2,warn:2.5,hold:['calm','surge','barn','barnLights','plant','quarry','sawmill']};
+function brkHeld(B){const S=window.STORY;if(S&&S.cur&&BRK.hold.includes(S.cur.id))return'story';if(!POWER.on||!(POWER.wave>=POWER.len2))return'energising';
+ if(foot&&pl.y<-1.5)return'underground';const G=window.FORT_GATE;if(G&&G.locked&&B&&B.m&&B.m.name==='Fort Harvest Military Outpost')return'fort';return''}
+function brkTrip(B){B.brk=false;B.bkT=0;B.bkR=BRK.rollEvery;B.bkW=0;const nm=(B.m&&B.m.name)||B.name||'Building',P=foot?pl:car.position,d=Math.hypot(P.x-B.x,P.z-B.z);try{blip(150,.25,'square')}catch(e){}toast('\u26A1 '+nm+': main breaker TRIPPED — '+(d<90?'go flip it back on at the meter box (F)':'power lost, someone needs to flip it back on'),4)}
+function brkTick(dt){
+ if(!BRK.on)return;const L=window.ALLBK;if(!L)return;
+ for(const B of L){
+  if(!(B.brk&&B.live)){B.bkT=0;B.bkR=BRK.rollEvery;B.bkW=0;continue}
+  if(brkHeld(B)){if(B.bkW>0){B.bkW=0;B.fl=0}continue}
+  if(B.bkW>0){B.bkW-=dt;if(B.bkW<=0){B.bkW=0;brkTrip(B)}continue}
+  B.bkT=(B.bkT||0)+dt;if(B.bkT<BRK.minLive)continue;
+  B.bkR=(B.bkR===undefined?BRK.rollEvery:B.bkR)-dt;
+  if(B.bkR<=0){B.bkR=BRK.rollEvery;if(Math.random()<BRK.chance){B.bkW=BRK.warn;B.fl=BRK.warn;const P=foot?pl:car.position;if(Math.hypot(P.x-B.x,P.z-B.z)<50){try{blip(900,.05,'square')}catch(e){}}}}
+ }
+}
 function setGrid(on){if(POWER.on===on)return;POWER.on=on;POWER.wave=0;const first=on&&!POWER.did;if(on)POWER.did=true;for(const B of window.ALLBK||[]){if(B.D0===undefined)B.D0=B.D;B.D=B.D0;if(first)B.brk=false}toast(on?(first?'⚡ Grid energised — the start-up surge TRIPPED every main breaker! Go to each building\u2019s meter box and flip its breaker (F) to power that building.':'⚡ Grid energised — power is travelling down the lines…'):'Grid shut down — the lights go out',on&&first?7:4);blip(on?260:150,.35,'sawtooth');if(on)setTimeout(()=>blip(120,.25,'square'),700)}
 
 // ===== THE RUSTY ANCHOR: IN-DEPTH MULTI-TRACK MUSIC SYSTEM, 3D STAGE LIGHT SHOW, DANCE FLOOR & JUKEBOX UI =====
@@ -55584,6 +55755,8 @@ function snap(){
   fort:FG?{locked:FG.locked,open:FG.open,found:FG.found.slice()}:null,
   side:SD?{started:SD.started,done:SD.done}:null,
   h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates}:null,
+  flb:typeof flBat!=='undefined'?Math.round(flBat*1000)/1000:null,/*DH26-FLB-SAVE*/
+  brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
   builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
 function save(why){if(!armed)return false;try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(VKEY,String(VER));return true}catch(e){console.warn('[save] failed',e);return false}}
 function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');return d&&(d.v===1||d.v===2)&&d.v===vk?d:null}catch(e){return null}}
@@ -55597,6 +55770,7 @@ function apply(d){
   if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
   ST.goto(d.story.idx)}
  if(d.power.on){POWER.did=true;POWER.on=true;POWER.wave=Math.max(POWER.wave,d.power.wave||0,(POWER.len2||1)+40)}
+ if(Array.isArray(d.brkOff))for(const B of window.ALLBK||[]){B.brk=!d.brkOff.includes((B.m&&B.m.name)||B.name);B.bkT=0;B.bkW=0}/*DH26-BRK-LOAD*/
  if(RT.barn&&d.barn){RT.barn.closed=d.barn.closed;RT.barn.mode=d.barn.mode}
  if('night'in RT)RT.night=d.story.night;
  // player
@@ -55607,6 +55781,7 @@ function apply(d){
  for(const k in d.mills)if(MS[k]){const m=d.mills[k];Object.assign(MS[k],{on:m.on,lv:m.lv,fuel:m.fuel,wear:m.wear,jam:m.jam});Object.assign(MS[k].out,m.out)}
  if(FG&&d.fort){FG.found=d.fort.found.slice();if(!d.fort.locked){FG.locked=false;if(d.fort.open&&FG.unlock){FG.unlock();FG.found=d.fort.found.slice()}}}
  if(SD&&d.side){SD.started=d.side.started;SD.done=d.side.done;SD.t=99;if(RT.brk15)RT.brk15.on=SD.done;if(RT.sideMk)RT.sideMk.visible=SD.started&&!SD.done}
+ if(d.flb!=null&&typeof flBat!=='undefined'){flBat=Math.max(0,Math.min(1,+d.flb||0));flLowWarned=flBat<=FLB.dim}/*DH26-FLB-LOAD*/
  if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates}
  if(Array.isArray(d.builds)&&typeof construct==='function'){
   for(const p of pieces.slice())if(p.kind!=='tc')killPiece(p);for(const p of pieces.slice())killPiece(p);
