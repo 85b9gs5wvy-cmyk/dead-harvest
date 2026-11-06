@@ -20,6 +20,6 @@ A single-file 3D survival game that runs in your browser. Click **PLAY** above t
 ## Files
 - `index.html`: the whole game. GitHub Pages serves it at the PLAY link above.
 - `test.html`: separate test build. TEST PLAY links to `/test.html`. It does not replace `index.html`.
-- `campaign-test.html`: developer campaign tester only. Potato graphics and on-screen diagnostics, not the normal game graphics. Its campaign saves use `dhSaveHarness` and `dhSaveVerHarness`, separate from the live `dhSave`. [Campaign tester](https://85b9gs5wvy-cmyk.github.io/dead-harvest/campaign-test.html) (not normal graphics).
+- `campaign-test.html`: developer campaign tester only. Potato graphics and on-screen diagnostics, not the normal game graphics. Its saves and settings use harness keys only (`dhSaveHarness`, `dhSaveVerHarness`, `dhGfxHarness`, `dhCtlHarness`, `dhLockV1Harness`, `dhFpsHarness`, `dhSensHarness`, `dhMuteHarness`). [Campaign tester](https://85b9gs5wvy-cmyk.github.io/dead-harvest/campaign-test.html) (not normal graphics).
 
-TEST PLAY uses the same browser save names as PLAY (`dhSave`, `dhSaveVer`, `dhGfx2`). On this site those two pages share storage, so a test session can read or write the live Play save. The campaign tester does not write those save keys.
+Live Play saves and settings stay on `index.html` keys: `dhSave`, `dhSaveVer`, `dhGfx2`, `dhCtl`, `dhLockV1`, `dhFps`, `dhSens`, and `dhMute`. TEST PLAY uses `dhSaveTest`, `dhSaveVerTest`, `dhGfxTest`, `dhCtlTest`, `dhLockV1Test`, `dhFpsTest`, `dhSensTest`, and `dhMuteTest`. Neither test page writes the live keys, so a test session leaves the live Play save untouched.

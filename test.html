@@ -54781,14 +54781,14 @@ const MUSIC=(()=>{
  // (v0.20.5: removed the old Maple Crest start teleport; the farm barn is the only spawn)
 }
 // ===== CONTROLS OPTIONS (v0.19.5): choose PC or Mobile, show/hide the on-screen control UI, optional locked-cursor mouse look. 🎮 button or press O. Saved in localStorage =====
-{const mobUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),coarse=matchMedia('(pointer:coarse)').matches&&!(matchMedia('(any-pointer:fine)').matches&&!mobUA);let C={plat:(()=>{try{return localStorage.getItem('dhCtl')===null&&coarse&&(navigator.maxTouchPoints>0||'ontouchstart'in window)?'mobile':'pc'}catch(e){return'pc'}})(),ui:'auto',lock:1};try{Object.assign(C,JSON.parse(localStorage.getItem('dhCtl')||'{}'))}catch(e){}if(C.plat!=='mobile')C.plat='pc';if(!C.v221){C.v221=1;C.lock=1}/*v0.22.1: always start in PC mode; Mobile only when picked in Controls*/
- try{if(!coarse&&!localStorage.getItem('dhLockV1')){C.lock=1;localStorage.setItem('dhLockV1','1')}}catch(e){}
+{const mobUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),coarse=matchMedia('(pointer:coarse)').matches&&!(matchMedia('(any-pointer:fine)').matches&&!mobUA);let C={plat:(()=>{try{return localStorage.getItem('dhCtlTest')===null&&coarse&&(navigator.maxTouchPoints>0||'ontouchstart'in window)?'mobile':'pc'}catch(e){return'pc'}})(),ui:'auto',lock:1};try{Object.assign(C,JSON.parse(localStorage.getItem('dhCtlTest')||'{}'))}catch(e){}if(C.plat!=='mobile')C.plat='pc';if(!C.v221){C.v221=1;C.lock=1}/*v0.22.1: always start in PC mode; Mobile only when picked in Controls*/
+ try{if(!coarse&&!localStorage.getItem('dhLockV1Test')){C.lock=1;localStorage.setItem('dhLockV1Test','1')}}catch(e){}
  const plat=()=>C.plat==='auto'?(coarse?'mobile':'pc'):C.plat,uiOn=()=>C.ui==='auto'?plat()==='mobile':C.ui==='on';
  const PCH={foot:'On foot · WASD move · Shift run · drag mouse to look · click / Space fire · R reload · 1-9 weapons · E vehicle · F interact · B build · I inventory · H heal · P admin · O controls',drive:'Drive: WASD steer · Space handbrake · E get out · O controls'};
  const fix=()=>{if(plat()!=='pc')return;const t=helpEl.textContent,n=/^Drive/.test(t)?PCH.drive:/^On foot/.test(t)?PCH.foot:t;if(n!==t)helpEl.textContent=n};
  new MutationObserver(fix).observe(helpEl,{childList:true,characterData:true,subtree:true});
  const apply=()=>{const b=document.body.classList;b.toggle('noui',!uiOn());b.toggle('plat-pc',plat()==='pc');b.toggle('plat-mobile',plat()==='mobile');if(window.JB)JB.id='jbx';
-  if(!(plat()==='pc'&&C.lock)&&document.pointerLockElement)document.exitPointerLock();if(plat()==='pc')helpEl.textContent=foot?PCH.foot:PCH.drive;try{localStorage.setItem('dhCtl',JSON.stringify(C))}catch(e){}};
+  if(!(plat()==='pc'&&C.lock)&&document.pointerLockElement)document.exitPointerLock();if(plat()==='pc')helpEl.textContent=foot?PCH.foot:PCH.drive;try{localStorage.setItem('dhCtlTest',JSON.stringify(C))}catch(e){}};
  const btn=document.createElement('button');btn.textContent='🎮';btn.title='Controls (O)';btn.style.cssText='position:fixed;left:14px;top:calc(env(safe-area-inset-top,0px) + 222px);width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.5);color:#e8e4d8;font-size:22px;z-index:40';
  const pan=document.createElement('div');pan.style.cssText='position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 60px);width:min(320px,90vw);max-height:78vh;overflow:auto;padding:12px;border-radius:12px;background:rgba(10,12,16,.94);border:1px solid rgba(255,255,255,.3);color:#e8e4d8;font:14px system-ui;z-index:42;display:none;touch-action:pan-y';
  document.body.append(btn,pan);
@@ -54820,10 +54820,10 @@ const MUSIC=(()=>{
  const memo=(el,prop,proto)=>{const d=Object.getOwnPropertyDescriptor(proto,prop);let t=el[prop];Object.defineProperty(el,prop,{configurable:true,get:()=>t,set:v=>{v=String(v);if(v!==t){t=v;d.set.call(el,v)}}})};
  memo(locEl,'textContent',Node.prototype);memo(spdEl,'textContent',Node.prototype);memo(ac,'innerHTML',Element.prototype)}
 // ===== v0.21.5 FPS COUNTER: toggle with the FPS button (top-right) or F3. Shows FPS · avg ms · worst frame · draw calls · triangles. State is remembered. =====
-{let on=true;try{on=localStorage.getItem('dhFps')!=='0'}catch(e){}
+{let on=true;try{on=localStorage.getItem('dhFpsTest')!=='0'}catch(e){}
  const el=document.createElement('div');el.style.cssText='position:fixed;right:14px;top:88px;z-index:4;font:11px/1.3 ui-monospace,Consolas,Menlo,monospace;color:#9dffb0;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:6px;pointer-events:none;white-space:pre';el.textContent='FPS …';document.body.appendChild(el);
  const bt=document.createElement('button');bt.textContent='FPS';bt.title='FPS counter (F3)';bt.style.cssText='position:fixed;right:14px;top:50px;z-index:40;height:30px;min-width:38px;padding:0 8px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(12,14,12,.72);color:#e8e4d8;font:700 12px system-ui;cursor:pointer';document.body.appendChild(bt);
- const set=v=>{on=v;el.style.display=on?'block':'none';bt.style.background=on?'rgba(40,120,60,.85)':'rgba(12,14,12,.72)';bt.style.color=on?'#fff':'#e8e4d8';try{localStorage.setItem('dhFps',on?'1':'0')}catch(e){}};set(on);window.dhFps={get:()=>on,set};
+ const set=v=>{on=v;el.style.display=on?'block':'none';bt.style.background=on?'rgba(40,120,60,.85)':'rgba(12,14,12,.72)';bt.style.color=on?'#fff':'#e8e4d8';try{localStorage.setItem('dhFpsTest',on?'1':'0')}catch(e){}};set(on);window.dhFps={get:()=>on,set};
  bt.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();set(!on)});
  addEventListener('keydown',e=>{if(e.code==='F3'){e.preventDefault();set(!on)}});
  let fr=0,t0=performance.now(),last=t0,worst=0,lastErr='',gpu='?';try{const g=ren.getContext(),d=g.getExtension('WEBGL_debug_renderer_info');if(d)gpu=String(g.getParameter(d.UNMASKED_RENDERER_WEBGL)).replace(/^ANGLE \((.*)\)$/,'$1').slice(0,60)}catch(e){}
@@ -54958,7 +54958,7 @@ body.plat-pc.noui #bm2,body.plat-pc.noui #invp{width:min(92vw,520px)!important;b
 const sty=document.createElement('style');sty.textContent=css;document.head.appendChild(sty);
 const E=(tag,cls,html,par)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;if(par)par.appendChild(e);return e};
 const BC=document.body.classList,pcm=()=>BC.contains('plat-pc')&&BC.contains('noui');
-const lockOn=()=>{try{return!!JSON.parse(localStorage.getItem('dhCtl')||'{}').lock}catch(e){return false}};
+const lockOn=()=>{try{return!!JSON.parse(localStorage.getItem('dhCtlTest')||'{}').lock}catch(e){return false}};
 const root=E('div',null,null,document.body);root.id='pcui';ip.id='invp';
 const setT=(el,s)=>{if(el._t!==s){el._t=s;el.textContent=s}};
 const key=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c,bubbles:true}));
@@ -55460,13 +55460,13 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
 {const base=Math.min(devicePixelRatio,matchMedia("(pointer:coarse)").matches?1.25:2),sh0=sun.shadow.mapSize.x;
  const Q=[{n:'High',px:base,sh:sh0,on:true},{n:'Medium',px:base*.75,sh:Math.max(512,sh0/2),on:true},{n:'Low',px:base*.55,sh:sh0/2,on:false,far:300},{n:'Potato',px:base*.4,sh:sh0/2,on:false,far:180}];
  const ORDER=[3,2,1,0];   // button cycles upward: Potato > Low > Medium > High > back to Potato
- let qi=2;try{const t=localStorage.getItem('dhGfx2');if(t!==null){const v=+t;if(v>=0&&v<4)qi=v|0}}catch(e){}   // starts on LOW until you pick otherwise
+ let qi=2;try{const t=localStorage.getItem('dhGfxTest');if(t!==null){const v=+t;if(v>=0&&v<4)qi=v|0}}catch(e){}   // starts on LOW until you pick otherwise
  const bt=document.createElement('button');bt.style.cssText='position:fixed;right:64px;top:50px;z-index:40;height:30px;padding:0 8px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(12,14,12,.82);color:#e8e4d8;font:700 12px system-ui;cursor:pointer';bt.title='Graphics quality (F4)';document.body.appendChild(bt);
  const apply=()=>{const q=Q[qi];bt.textContent='GFX '+q.n;
   ren.setPixelRatio(q.px);ren.setSize(innerWidth,innerHeight);const fr=q.far||900;if(cam.far!==fr){cam.far=fr;cam.updateProjectionMatrix()}
   if(sun.shadow.mapSize.x!==q.sh){if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}sun.shadow.mapSize.set(q.sh,q.sh)}
   if(ren.shadowMap.enabled!==q.on){ren.shadowMap.enabled=q.on;scene.traverse(o=>{if(o.material)[].concat(o.material).forEach(m=>m.needsUpdate=true)})}
-  try{localStorage.setItem('dhGfx2',String(qi))}catch(e){}};
+  try{localStorage.setItem('dhGfxTest',String(qi))}catch(e){}};
  const next=()=>{qi=ORDER[(ORDER.indexOf(qi)+1)%4];apply();window.dhGfxChanged&&window.dhGfxChanged()};
  window.dhGfx={get:()=>qi,set:i=>{qi=i;apply()},names:Q.map(q=>q.n),order:ORDER};
  bt.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();next()});
@@ -55504,7 +55504,7 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
 
 // ===== v0.22.0 PAUSE MENU: Esc (or the ☰ button) freezes the game and opens settings: graphics tier, FPS counter, sound, mouse sensitivity, fullscreen, shortcuts to Controls / Help / Inventory / Admin / Jukebox, teleport-to-farm (if stuck) and reset. =====
 {const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
- window.dhSens=+LS('dhSens')||1;let muted=LS('dhMute')==='1',open=false,lastKey=0,ctxs=[];
+ window.dhSens=+LS('dhSensTest')||1;let muted=LS('dhMuteTest')==='1',open=false,lastKey=0,ctxs=[];
  const OA=window.AudioContext||window.webkitAudioContext;
  if(OA){const W=class extends OA{constructor(...a){super(...a);ctxs.push(this);if(muted)try{this.suspend()}catch(e){}}};window.AudioContext=W}
  const audio=f=>{try{if(typeof AC!=='undefined'&&AC&&ctxs.indexOf(AC)<0)ctxs.push(AC)}catch(e){}for(const c of ctxs)try{f(c)}catch(e){}};
@@ -55533,17 +55533,17 @@ window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,
   head('Display & sound');const dr=row();
   btn(dr,'FPS counter: '+(window.dhFps.get()?'ON':'OFF'),()=>{window.dhFps.set(!window.dhFps.get());draw()},window.dhFps.get()?on_:off_);
   btn(dr,document.fullscreenElement?'Fullscreen: ON':'Fullscreen: OFF',()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()}catch(e){}setTimeout(draw,400)},document.fullscreenElement?on_:off_);
-  btn(dr,muted?'Sound: MUTED':'Sound: ON',()=>{muted=!muted;LS('dhMute',muted?'1':'0');audio(c=>muted?c.suspend():0);draw()},muted?off_:on_);
+  btn(dr,muted?'Sound: MUTED':'Sound: ON',()=>{muted=!muted;LS('dhMuteTest',muted?'1':'0');audio(c=>muted?c.suspend():0);draw()},muted?off_:on_);
   head('Mouse sensitivity');const sr=el('div','display:flex;align-items:center;gap:10px');
   const sl=el('input','flex:1',null,sr);sl.type='range';sl.min=.3;sl.max=3;sl.step=.05;sl.value=window.dhSens;const sv=el('span','width:46px;text-align:right',window.dhSens.toFixed(2)+'×',sr);
-  sl.addEventListener('input',()=>{window.dhSens=+sl.value;sv.textContent=window.dhSens.toFixed(2)+'×';LS('dhSens',String(window.dhSens))});
+  sl.addEventListener('input',()=>{window.dhSens=+sl.value;sv.textContent=window.dhSens.toFixed(2)+'×';LS('dhSensTest',String(window.dhSens))});
   head('Shortcuts');const sh=row();
   btn(sh,'🎮 Controls (O)',()=>later(()=>kd('KeyO')));btn(sh,'❔ Key help (F1)',()=>later(()=>kd('F1')));
   const sh2=el('div','display:flex;gap:6px;flex-wrap:wrap;margin-top:6px');
   btn(sh2,'🎒 Inventory (I)',()=>later(()=>kd('KeyI')));btn(sh2,'🎵 Jukebox (J)',()=>later(()=>kd('KeyJ')));btn(sh2,'⚙ Admin (P)',()=>later(()=>kd('KeyP')));
   head('Trouble');const tr=row();
   btn(tr,'🌾 Teleport to Farm',()=>later(()=>{try{if(!foot)exitV();farmSpawn();toast('Teleported to Farm',2)}catch(e){console.error(e)}}));
-  btn(tr,'↺ Reset settings',()=>{G.set(2);window.dhSens=1;LS('dhSens','1');window.dhFps.set(true);muted=false;LS('dhMute','0');audio(c=>{if(c.state==='suspended')c.resume()});draw()});
+  btn(tr,'↺ Reset settings',()=>{G.set(2);window.dhSens=1;LS('dhSensTest','1');window.dhFps.set(true);muted=false;LS('dhMuteTest','0');audio(c=>{if(c.state==='suspended')c.resume()});draw()});
   note('Esc or ▶ Resume to continue — click the game once to re-capture the mouse.')};
  const show=()=>{if(open)return;open=true;window.dhPaused=true;if(document.pointerLockElement)document.exitPointerLock();draw();root.style.display='block';audio(c=>c.suspend())};
  window.dhGfxChanged=()=>{if(open)draw()};
@@ -55838,7 +55838,7 @@ enter(0);
 <script id="will-save">
 /* ===== v0.24.1 SAVE / LOAD (Will, B7): localStorage autosave every 60 s + on page hide, Continue / New Game on start ===== */
 (function(){try{
-const KEY='dhSave',VKEY='dhSaveVer',VER=2;/*WILL_FIX3_BUILDS*/let armed=false;
+const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=2;/*WILL_FIX3_BUILDS*/let armed=false;
 const prim=o=>{const r={};for(const k in o){const v=o[k];if(v==null||typeof v!=='object'&&typeof v!=='function')r[k]=v}return r};
 function snap(){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
