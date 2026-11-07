@@ -85,7 +85,7 @@ test('production index and the plot viewer keep the pre-fix death and reach line
     assert.equal(src.includes(OLD_DEATH), true);
     assert.equal(src.includes(OLD_REACHED), true);
     assert.equal(src.includes('__vehRsp'), false);
-    assert.equal(src.includes('actP'), false);
+    assert.equal(src.includes('const actP='), false);
     assert.equal(src.includes(SAVE_FIELDS), false);
   }
   assert.match(indexHtml, /if\(!reached\(g\.reach,r\+50\)\)window\.__willRsp=0/);

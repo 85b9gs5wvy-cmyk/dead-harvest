@@ -51739,7 +51739,7 @@ function tracer(a,b){const s=TR.reduce((q,w)=>w.t<q.t?w:q,TR[0]),p=s.l.geometry.
 function blood(x,y,z,n){for(let i=0;i<n;i++){const m=new T.Mesh(bgm,bmt);m.scale.setScalar(.04+Math.random()*.04);m.position.set(x,y,z);scene.add(m);fxs.push({m,vx:R(-2,2),vy:R(1,3),vz:R(-2,2),t:.7})}while(fxs.length>80)scene.remove(fxs.shift().m)}
 const msgEl=$('msg'),hitEl=$('hit'),stEl=$('st'),xhEl=$('xh'),gbEl=$('gb');
 function toast(t,s){msgEl.textContent=t;msgEl.style.opacity=1;toastT=s||4}
-function hurt(a){if(ADM.god)return;if(navigator.vibrate)navigator.vibrate(40);pHP-=a;hitEl.style.opacity=1;hitT=.25;blip(120,.1,'sawtooth');if(pHP<=0){window.__willRsp=1;window.__willRspNote=0;toast('You died. Back at the farm.',4);pHP=100;if(foot)farmSpawn();else car.position.set(0,0,18);for(const z of zs)if(!z.dead&&Math.hypot(z.x-BX,z.z-BZ)<25)z.al=false}}
+function hurt(a){if(ADM.god)return;if(navigator.vibrate)navigator.vibrate(40);pHP-=a;hitEl.style.opacity=1;hitT=.25;blip(120,.1,'sawtooth');if(pHP<=0){window.__willRsp=1;window.__willRspNote=0;toast('You died. Back at the farm.',4);pHP=100;if(foot)farmSpawn();else{if(drv){drv.x=0;drv.z=18;drv.spd=0;drv.steer=0}spd=0;car.position.set(0,pitH(0,18),18);window.__vehRsp=1}for(const z of zs)if(!z.dead&&Math.hypot(z.x-BX,z.z-BZ)<25)z.al=false}}
 function killZ(z){if(!z.dead)zAlive=Math.max(0,zAlive-1);z.dead=true;z.fall=0;if(z.spot){z.spot.dead=day;z.spot.zb=null}}
 function hurtZ(z,dm,head,e){z.hp-=dm;z.al=true;blood(e.x,e.y,e.z,head?9:5);xhEl.style.background='#f33';setTimeout(()=>xhEl.style.background='rgba(255,255,255,.85)',120);if(z.hp<=0)killZ(z)}
 function trace(o,d,g,s){let bt=g.range,hit=null,head=false,legs=false;
@@ -53532,13 +53532,13 @@ function carStep(dt){const v=drv;if(!v)return;v.spd=spd;
  const f=Math.max(-1,Math.min(1,(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0)+gasBtn-revBtn)),s=Math.max(-1,Math.min(1,(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0)+JX)),brk=!!(K.Space||btnBrake),n=Math.ceil(dt/.034),hh=dt/n;
  for(let i=0;i<n&&drv===v;i++){let thr=v.hp<=0?0:f;if(thr!==0&&v.fb<=0){thr=0;if(performance.now()-fuelWarn>4000){fuelWarn=performance.now();toast('Out of fuel \u2014 get out and press F / tap ✋ beside it (5 wood)',3)}}
   v.fb=Math.max(0,v.fb-(v.S.idle+v.S.burn*Math.abs(thr))*hh);v.thr=thr;phys(v,hh,thr,s,brk)}
- if(drv!==v)return;spd=v.spd;h=v.h;car.position.set(v.x,pitH(v.x,v.z),v.z);car.rotation.y=v.h;yaw=v.h;if(eng)eng.o.frequency.value=38+Math.abs(v.spd)*4.5+(v.thr?14:0);
+ if(drv!==v){window.__vehRsp=0;return}if(window.__vehRsp){window.__vehRsp=0;v.x=0;v.z=18;v.spd=0;v.steer=0;spd=0}spd=v.spd;h=v.h;car.position.set(v.x,pitH(v.x,v.z),v.z);car.rotation.y=v.h;yaw=v.h;if(eng)eng.o.frequency.value=38+Math.abs(v.spd)*4.5+(v.thr?14:0);
  locEl.textContent=v.z>-130?'Farm':v.z>-470?'Highway north':'Ruined city';spdEl.textContent=Math.round(Math.abs(v.spd)*3.6)+' km/h'}
 const nearV=()=>{let b=null,bd=5;for(const v of VEH){const d=Math.hypot(v.x-pl.x,v.z-pl.z);if(d<bd){bd=d;b=v}}return b};
 function engOn(){try{AC=AC||new AudioContext();if(eng)return;const o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';g.gain.value=.03;o.connect(g);g.connect(AC.destination);o.start();eng={o,g}}catch(e){}}
 function engOff(){if(eng){try{eng.o.stop()}catch(e){}eng=null}}
 function enterV(v){drv=v;foot=false;h=v.h;spd=v.spd;car.position.set(v.x,pitH(v.x,v.z),v.z);car.rotation.y=v.h;yaw=v.h;v.man.visible=true;FL.intensity=0;bsel=null;clearGhost();menu(false);engOn();helpEl.textContent='Drive: joystick or WASD \u00b7 \u25a0 handbrake \u00b7 E to get out'}
-function exitV(){const v=drv;if(!v)return;drv=null;foot=true;v.man.visible=false;v.spd=0;spd=0;engOff();let ok=false;for(const e of v.S.exit){const p=L2(v,e[0],e[2]);if(!blockedAt(p[0],.5,p[1])){pl.set(p[0],0,p[1]);ok=true;break}}if(!ok)pl.set(v.x+3,0,v.z);yaw=v.h;pit=0;cam.rotation.order='YXZ';helpEl.textContent='On foot \u00b7 joystick move \u00b7 drag right side to look \u00b7 \ud83d\udd25 fire \u00b7 E enter vehicle'}
+function exitV(){if(window.__vehRsp)window.__vehRsp=0;const v=drv;if(!v)return;drv=null;foot=true;v.man.visible=false;v.spd=0;spd=0;engOff();let ok=false;for(const e of v.S.exit){const p=L2(v,e[0],e[2]);if(!blockedAt(p[0],.5,p[1])){pl.set(p[0],0,p[1]);ok=true;break}}if(!ok)pl.set(v.x+3,0,v.z);yaw=v.h;pit=0;cam.rotation.order='YXZ';helpEl.textContent='On foot \u00b7 joystick move \u00b7 drag right side to look \u00b7 \ud83d\udd25 fire \u00b7 E enter vehicle'}
 function toggleCar(){if(foot){const v=nearV();if(!v){toast('No vehicle nearby',2);return}enterV(v)}else exitV()}
 function vService(){const v=nearV();if(!v)return false;
  if(v.fb<v.fmax*.95){if(!canPay({w:5})){toast('Need 5 wood to fuel it (wood gas)',2);return true}pay({w:5});v.fb=Math.min(v.fmax,v.fb+10);blip(300,.1,'triangle');toast('Fuelled',1.5);return true}
@@ -55860,7 +55860,7 @@ function enter(i){if(typeof clearFreeClock==='function')clearFreeClock();if(S.cu
     (POWER.on right after surge path should be false). Keep for save-resume when plant already done. */
  if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
 function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
-const reached=(t,r)=>{const p=place(t);return p&&Math.hypot(pl.x-p.x,pl.z-p.z)<r};
+const actP=()=>!foot&&typeof car!=='undefined'&&car?car.position:pl;const reached=(t,r)=>{const p=place(t);const q=actP();return p&&Math.hypot(q.x-p.x,q.z-p.z)<r};
 const baseInfo=()=>{
  /* Campaign 2x1: ANY edge-adjacent foundation PAIR with full outer perimeter (6) + doorway/door counts.
     Extra/misplaced pads are ignored for done — do not softlock early placement mistakes. No auto-demolish. */
@@ -55934,7 +55934,7 @@ if(S.cur.clock==='countdown'&&dayT>=NF)speed=1;/* refresh after nightfall hour e
 if(S.cur.id==='return'&&nightShown)o=C.text.nightfallObjective;
 if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
 if(gl.baseBuilt){const q=baseInfo();const fLab=q.adj?'pair OK':'need adjacent pair';sub=(q.tc?'TC ✓':'TC ✗')+' · '+fLab+(q.target?' · focus '+q.target:'')+' · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
-if(S.tgt)sub=(sub?sub+' · ':'')+Math.round(Math.hypot(S.tgt.x-pl.x,S.tgt.z-pl.z))+' m';
+if(S.tgt)sub=(sub?sub+' · ':'')+Math.round(Math.hypot(S.tgt.x-actP().x,S.tgt.z-actP().z))+' m';
 /* nightfall countdown UI removed; nightfall popup + objective + day/night system kept */
 if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(sub?'<br><span style="color:#ffd24c;font-weight:700">'+sub+'</span>':'')}else oEl.style.display='none'}
 {const se=sEl;
@@ -55965,6 +55965,7 @@ function snap(){
  const p=foot?pl:(typeof car!=='undefined'&&car?car.position:pl);
  return{v:VER,t:Date.now(),
   pl:{x:p.x,y:foot?pl.y:0,z:p.z,yaw,pit,hp:pHP},
+  willRsp:window.__willRsp?1:0,willRspNote:window.__willRspNote?1:0,
   inv:JSON.parse(JSON.stringify(inv)),carry:{...carry},stored:{...stored},wi,wp:WP.map(w=>({mag:w.mag,res:w.res})),
   clock:{day,dayT,raidDay,farmHP,farmMax,farmLv},
   story:{idx:ST?ST.idx:0,night:!!RT.night},
@@ -55994,7 +55995,7 @@ function apply(d){
  if('night'in RT)RT.night=d.story.night;
  // player
  if(!foot&&typeof exitV==='function')exitV();
- pl.set(d.pl.x,d.pl.y,d.pl.z);yaw=d.pl.yaw;pit=d.pl.pit;pHP=d.pl.hp;
+ pl.set(d.pl.x,d.pl.y,d.pl.z);yaw=d.pl.yaw;pit=d.pl.pit;pHP=d.pl.hp;window.__willRsp=d.willRsp?1:0;window.__willRspNote=d.willRspNote?1:0;
  for(const k in d.inv)inv[k]=d.inv[k];Object.assign(carry,d.carry);Object.assign(stored,d.stored);
  d.wp.forEach((w,i)=>{if(WP[i]){WP[i].mag=w.mag;WP[i].res=w.res}});if(typeof setW==='function')setW(d.wi);else wi=d.wi;
  for(const k in d.mills)if(MS[k]){const m=d.mills[k];Object.assign(MS[k],{on:m.on,lv:m.lv,fuel:m.fuel,wear:m.wear,jam:m.jam});Object.assign(MS[k].out,m.out)}
