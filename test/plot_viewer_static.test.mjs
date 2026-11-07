@@ -16,16 +16,34 @@ const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
 const viewer = read('plot-viewer.html');
 const indexHtml = read('index.html');
 const ATTACHED_SHA256 = '8eab8a4aa70229d8bfebd6310c451d0db705958299c2687d8579b4a67e5add19';
+/* Game, boot, manifest, and story bytes. dhv-runtime is the only viewer control surface this branch edits. */
+const FROZEN_WITHOUT_RUNTIME_SHA256 = '52f7e0c20378b80d1c837732e444fdd6a102e1514cbd7c54a1346a40c6033733';
 
-test('plot-viewer is the attached file plus the scope bridge only', () => {
+function withoutBridge(src) {
   const marker = '/* DHV_SCOPE_BRIDGE:';
   const end = '</script>\n<script id="story-config">';
-  const i = viewer.indexOf(marker);
-  const j = viewer.indexOf(end, i);
+  const i = src.indexOf(marker);
+  const j = src.indexOf(end, i);
   assert.ok(i > 0 && j > i);
-  const restored = viewer.slice(0, i) + viewer.slice(j);
-  assert.equal(createHash('sha256').update(restored).digest('hex'), ATTACHED_SHA256);
+  return src.slice(0, i) + src.slice(j);
+}
+
+test('plot-viewer game body is the attached file; only dhv-runtime changed', () => {
+  const restored = withoutBridge(viewer);
+  const a = restored.indexOf('<script id="dhv-runtime">');
+  const b = restored.indexOf('</script>', a);
+  assert.ok(a > 0 && b > a);
+  const frozen = restored.slice(0, a) + '<script id="dhv-runtime"></script>' + restored.slice(b + '</script>'.length);
+  assert.equal(createHash('sha256').update(frozen).digest('hex'), FROZEN_WITHOUT_RUNTIME_SHA256);
   assert.equal(viewer.includes('DHV_SCOPE_BRIDGE'), true);
+  assert.notEqual(createHash('sha256').update(restored).digest('hex'), ATTACHED_SHA256);
+  const runtime = restored.slice(a, b);
+  assert.match(runtime, /proto\.requestPointerLock=wrapped/);
+  assert.match(runtime, /function camPreset/);
+  assert.match(runtime, /function tpBasement/);
+  assert.match(runtime, /zIndex='9600'/);
+  assert.match(runtime, /data-dhv/);
+  assert.equal(runtime.includes("orbSet(nm);orbToggle(true)"), false);
 });
 
 test('inline scripts parse and the page does not load external files', () => {
