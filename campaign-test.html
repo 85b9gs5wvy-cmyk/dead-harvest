@@ -54269,7 +54269,28 @@ cyl(.035,.035,6.48,metM,0,5.16,.03,g,0,0,6);
 }
 
 // ===== FORT HARVEST runtime (v0.21.0): UNIQUE FEATURE = BLACK-START GENERATOR. Every other building goes dark when the grid is down or its breaker trips; Fort Harvest has its own diesel set (start it with F at the control cabinet behind the HQ) and keeps its lights, searchlight and radar running. Grid tie + main breaker work like every other building. =====
-try{const MI=insts.find(q=>q.m===MILB);if(MI){
+/* FORT_ACCESS_BEGIN */
+function fortAccess(MI){
+ const FH=4,s=MI.s,m=MI.m,D=m.door,H=(m.cols&&m.cols.H)||m.lv*FH;
+ // P22-C01: the facade above the entrance is solid from the door head to the roof. y0=dh leaves the ground opening clear.
+ boxes.push({x:MI.x+((D.a+D.b)/2)*s,z:MI.z+D.pm*s,hw:(D.b-D.a)/2,hd:(D.po-D.pi)/2,y0:D.dh,y1:H,fortLintel:1});
+ const r=m.ramps&&m.ramps[0];
+ const prev=floorAt;
+ floorAt=function(px,pz,py){
+  if(!r||r.hole)return prev(px,pz,py);
+  const lx=(px-MI.x)*s,lz=(pz-MI.z)*s;
+  if(Math.abs(lx)>m.hw||Math.abs(lz)>m.hd)return prev(px,pz,py);
+  const span=r.x1-r.x0;
+  const rampH=(r.y0!==undefined?r.y0:r.k*FH)+(r.dir<0?(r.x1-lx):(lx-r.x0))/span*(r.h!==undefined?r.h:FH);
+  // P22-C02: the flight is the floor even when it is more than 0.7 m above the feet, so the body cannot stay inside a solid tread.
+  if(lx>=r.x0&&lx<=r.x1&&lz>=r.z0&&lz<=r.z1)return rampH;
+  // P22-C03: the 5 cm hole margin on the landing is the upper floor, level with the top of the flight.
+  if(lx>r.x0-.05&&lx<r.x0&&lz>r.z0-.05&&lz<r.z1+.05)return (r.k+1)*FH;
+  return prev(px,pz,py);
+ };
+}
+/* FORT_ACCESS_END */
+try{const MI=insts.find(q=>q.m===MILB);if(MI){fortAccess(MI);
  const G=MI.gen={on:false,start:0},g=MI.g,s=MI.s,mkM=(c,m)=>new T.MeshStandardMaterial({color:c,roughness:.55,metalness:m||0,side:T.DoubleSide});let spin=0;
  // rotating air-search radar on the roof
  const rad=new T.Group();rad.position.set(-9,8.4+3.5,-3.5);g.add(rad);
