@@ -177,3 +177,64 @@ test('quarry office flight is a run of treads onto the container roof, not a ver
   assert.ok(Math.abs(climbed.x - x) < 0.15, 'pushed to ' + climbed.x);
   assert.ok(climbed.z < QZ - 14);
 });
+
+function pushAt(p, b) {
+  if (b.y0 !== undefined && !(p.y < b.y1 && p.y + 1.8 > b.y0)) return;
+  const r = 0.4;
+  const dx = p.x - b.x, dz = p.z - b.z;
+  const ox = b.hw + r - Math.abs(dx), oz = b.hd + r - Math.abs(dz);
+  if (ox > 0 && oz > 0) {
+    if (ox < oz) p.x += Math.sign(dx || 1) * ox;
+    else p.z += Math.sign(dz || 1) * oz;
+  }
+}
+
+/** Horizontal shove using the page's push rule. y is held so the seam can be tested on its own. */
+function shove(boxes, x, y, z, tx, tz) {
+  const p = { x, y, z };
+  for (let i = 0; i < 90; i++) {
+    const dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx, dz);
+    if (d < 0.03) break;
+    const st = Math.min(0.05, d);
+    p.x += (dx / d) * st;
+    p.z += (dz / d) * st;
+    for (const b of boxes) pushAt(p, b);
+  }
+  return p;
+}
+
+test('office colliders block the solid below the roof, through the seam, and around the upper container', () => {
+  const S = loadScenic(read('test.html'));
+  const boxes = S.office;
+  assert.equal(boxes[0].y1, 2.6);
+  assert.equal(boxes[1].y0, 2.64);
+  const lower = { x0: 28.5, x1: 34.5, z0: -15.7, z1: -13.3, y1: 2.6 };
+  const upper = { x0: 28.1, x1: 34.1, z0: -15.7, z1: -13.3 };
+  const bites = (p, box) => p.x > box.x0 + 0.05 && p.x < box.x1 - 0.05 && p.z > box.z0 + 0.05 && p.z < box.z1 - 0.05;
+  for (const y of [0.2, 1.2, 2.2, 2.4, 2.48, 2.52, 2.56, 2.59]) {
+    const east = shove(boxes, 37.2, y, -14.5, 30, -14.5);
+    const west = shove(boxes, 26.5, y, -14.5, 33, -14.5);
+    const south = shove(boxes, 31.5, y, -11.6, 31.5, -16);
+    const north = shove(boxes, 31.5, y, -17.4, 31.5, -12);
+    const under = shove(boxes, 36.4, y, -14.5, 32, -14.5);
+    for (const p of [east, west, south, north, under]) {
+      assert.equal(bites(p, lower), false, y + ' ' + JSON.stringify(p));
+      assert.equal(bites(p, upper), false, y + ' ' + JSON.stringify(p));
+    }
+    assert.ok(east.x >= 34.5, 'east ' + y + ' ' + east.x);
+    assert.ok(under.x >= 34.5, 'under ' + y + ' ' + under.x);
+    assert.ok(west.x <= 28.5, 'west ' + y + ' ' + west.x);
+    assert.ok(south.z >= -13.3, 'south ' + y + ' ' + south.z);
+    assert.ok(north.z <= -15.7, 'north ' + y + ' ' + north.z);
+  }
+  for (const y of [2.62, 2.7, 3.2, 4.2]) {
+    const east = shove(boxes, 37.2, y, -14.5, 30, -14.5);
+    const west = shove(boxes, 26.5, y, -14.5, 33, -14.5);
+    const south = shove(boxes, 31.5, y, -11.6, 31.5, -16);
+    const north = shove(boxes, 31.5, y, -17.4, 31.5, -12);
+    for (const p of [east, west, south, north]) assert.equal(bites(p, upper), false, y + ' ' + JSON.stringify(p));
+    assert.ok(east.x >= 34.1, 'upper east ' + y + ' ' + east.x);
+  }
+  const stood = shove(boxes, 35.85, 2.62, -14.2, 35.85, -14.2);
+  assert.ok(Math.abs(stood.x - 35.85) < 0.05, stood.x);
+});
