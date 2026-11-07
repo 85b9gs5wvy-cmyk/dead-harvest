@@ -104,6 +104,20 @@ function session(html) {
   return { m, boxes: sb.boxes, floorAt: () => sb.floorAt, r: m.ramps[0], door: m.door };
 }
 
+function aperture(m, door) {
+  const y = door.l * FH + 0.06;
+  let best = 0, run = 0;
+  for (let u = door.g0 + 0.02; u <= door.g1 - 0.02 + 1e-9; u += 0.02) {
+    const pts = door.ax === 'z'
+      ? [[door.pos, u], [door.pos - 0.6, u], [door.pos + 0.6, u]]
+      : [[u, door.pos], [u, door.pos - 0.6], [u, door.pos + 0.6]];
+    const open = pts.every(([x, z]) => !m.cols.some(c => colHits(c, x, z, y)));
+    if (open) { run += 0.02; best = Math.max(best, run); }
+    else run = 0;
+  }
+  return +best.toFixed(3);
+}
+
 function stepY(floorAt, x, z, y) {
   const ty = floorAt(x, z, y);
   return ty > y ? Math.min(ty, y + 12 / 60) : Math.max(ty, y - 14 / 60);
@@ -190,5 +204,25 @@ for (const page of pages) {
     assert.ok(y > 3.9, `seam y=${y}`);
     // A point outside the fort still uses the previous floor (ground).
     assert.equal(fa(400, 400, 1), 0);
+  });
+
+  test(`${page}: upper doors keep a 0.30 m channel and every interior door blocks when shut`, () => {
+    const { m } = session(read(page));
+    assert.equal(m.idoors.length, 16);
+    const yOf = d => d.l * FH + 0.06;
+    for (const d of m.idoors) {
+      const closed = {
+        x: d.ax === 'x' ? d.g : d.pos,
+        z: d.ax === 'x' ? d.pos : d.g,
+        hw: d.ax === 'x' ? 0.55 : 0.12,
+        hd: d.ax === 'x' ? 0.12 : 0.55,
+        lv: d.l
+      };
+      assert.equal(colHits(closed, closed.x, closed.z, yOf(d)), true, `closed ${d.ax} ${d.pos} ${d.g} lv ${d.l}`);
+    }
+    const dresserDoor = m.idoors.find(d => d.ax === 'x' && d.pos === 3 && d.g === -12 && d.l === 1);
+    assert.ok(dresserDoor);
+    const dresserGap = aperture(m, dresserDoor);
+    assert.ok(dresserGap >= 0.3, `dresser door channel ${dresserGap}`);
   });
 }
