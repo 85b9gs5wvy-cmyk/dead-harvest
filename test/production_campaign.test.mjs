@@ -67,7 +67,7 @@ test('farm foot-spawn is outside the return circle and inside the old r+50 ring'
 });
 
 test('death outside the circle no longer blocks a later empty walk-in', () => {
-  for (const html of [testHtml, harnessHtml]) {
+  for (const html of [testHtml, harnessHtml, read('functional-test.html')]) {
     const { goalMet, context } = loadGoalMet(html);
     context.window.__willRsp = 1;
     context.player = { ...FARM_SPAWN };
@@ -127,7 +127,9 @@ test('fort reach is not held by the return haul guard', () => {
 test('both test pages share the same goalMet and still use separate save keys', () => {
   const a = extract(testHtml, 'const goalMet=s=>', '\n');
   const b = extract(harnessHtml, 'const goalMet=s=>', '\n');
+  const c = extract(read('functional-test.html'), 'const goalMet=s=>', '\n');
   assert.equal(a, b);
+  assert.equal(a, c);
   assert.match(a, /!reached\(g\.reach,r\)/);
   assert.doesNotMatch(a, /r\+50/);
   assert.match(testHtml, /KEY='dhSaveTest',VKEY='dhSaveVerTest'/);
