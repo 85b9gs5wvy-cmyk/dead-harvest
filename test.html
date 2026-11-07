@@ -54285,7 +54285,8 @@ function fortAccess(MI){
   // P22-C02: the flight is the floor even when it is more than 0.7 m above the feet, so the body cannot stay inside a solid tread.
   if(lx>=r.x0&&lx<=r.x1&&lz>=r.z0&&lz<=r.z1)return rampH;
   // P22-C03: the 5 cm hole margin on the landing is the upper floor, level with the top of the flight.
-  if(lx>r.x0-.05&&lx<r.x0&&lz>r.z0-.05&&lz<r.z1+.05)return (r.k+1)*FH;
+  // Only when the feet are already within the normal 0.7 m step of that floor. A ground-floor body under the strip stays on the ground.
+  if(lx>r.x0-.05&&lx<r.x0&&lz>r.z0-.05&&lz<r.z1+.05&&py+.7>=(r.k+1)*FH)return (r.k+1)*FH;
   return prev(px,pz,py);
  };
 }

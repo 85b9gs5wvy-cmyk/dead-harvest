@@ -204,6 +204,20 @@ for (const page of pages) {
     assert.ok(y > 3.9, `seam y=${y}`);
     // A point outside the fort still uses the previous floor (ground).
     assert.equal(fa(400, 400, 1), 0);
+    // The same strip is open hallway at ground level. A body at y≈0 must not be launched to floor 2.
+    for (const z of [-11.6, -10, -9.1]) {
+      let gy = 0.06;
+      const sx = r.x0 - 0.025;
+      for (let i = 0; i < 90; i++) gy = stepY(fa, sx, z, gy);
+      assert.ok(gy < 0.5, `ground stand x=${sx} z=${z} rose to ${gy}`);
+    }
+    let gy = 0.06;
+    let peak = gy;
+    for (let x = 10; x < r.x0; x += 3.6 / 60) {
+      gy = stepY(fa, x, -10, gy);
+      if (gy > peak) peak = gy;
+    }
+    assert.ok(peak < 0.5, `ground walk along the hall rose to ${peak}`);
   });
 
   test(`${page}: upper doors keep a 0.30 m channel and every interior door blocks when shut`, () => {
