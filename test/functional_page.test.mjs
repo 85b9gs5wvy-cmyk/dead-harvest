@@ -17,8 +17,13 @@ const testHtml = read('test.html');
 const funcHtml = read('functional-test.html');
 const indexHtml = read('index.html');
 
-const RETURN_FIX = '4c1ff358140a69ea757714fb198864ad6cdd1409';
 const GAMEPLAY = 'c06a10260cc37775945efc584ebe500b863744ae';
+
+function goalMetLine(html) {
+  const i = html.indexOf('const goalMet=s=>');
+  assert.ok(i >= 0);
+  return html.slice(i, html.indexOf('\n', i));
+}
 
 function stripScripts(html, ids) {
   let out = html;
@@ -88,8 +93,12 @@ test('index.html stays the live game while test.html carries the return guard', 
   assert.equal(createHash('sha256').update(indexHtml).digest('hex'), 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
   assert.match(testHtml, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
   assert.doesNotMatch(testHtml, /r\+50/);
+  const guard = goalMetLine(funcHtml);
+  assert.equal(guard, goalMetLine(testHtml));
+  assert.match(guard, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.match(guard, /S\.cur\.id==='return'&&!\(carry\.w\+carry\.s\+carry\.m>0\)/);
+  assert.doesNotMatch(guard, /r\+50/);
   assert.equal(funcHtml.includes(GAMEPLAY), true);
-  assert.equal(funcHtml.includes(RETURN_FIX), true);
 });
 
 function loadGoalMet(html) {
