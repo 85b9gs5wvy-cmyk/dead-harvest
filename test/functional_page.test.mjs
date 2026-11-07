@@ -1,7 +1,6 @@
 /**
- * functional-test.html is the main-branch test build plus a diagnostic renderer.
- * Gameplay bytes match test.html except the labeled return-fix, storage names,
- * Potato-start default, and the functional boot/runtime blocks.
+ * functional-test.html matches test.html gameplay, including the shared return-death guard.
+ * Differences are the diagnostic renderer, storage names, Potato-start default, and boot/runtime blocks.
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -18,8 +17,13 @@ const testHtml = read('test.html');
 const funcHtml = read('functional-test.html');
 const indexHtml = read('index.html');
 
-const RETURN_FIX = '4c1ff358140a69ea757714fb198864ad6cdd1409';
 const GAMEPLAY = 'c06a10260cc37775945efc584ebe500b863744ae';
+
+function goalMetLine(html) {
+  const i = html.indexOf('const goalMet=s=>');
+  assert.ok(i >= 0);
+  return html.slice(i, html.indexOf('\n', i));
+}
 
 function stripScripts(html, ids) {
   let out = html;
@@ -41,14 +45,6 @@ function normalizeFunctional(html) {
   const qiOld = "let qi=2;try{const t=localStorage.getItem('dhGfxFunctional');if(t!==null){const v=+t;if(v>=0&&v<4)qi=v|0}}catch(e){}   // starts on LOW until you pick otherwise";
   assert.equal(out.includes(qiNew), true);
   out = out.replace(qiNew, qiOld);
-  const newHurt = "if(pHP<=0){window.__willRsp=1;window.__willRspNote=0;toast('You died. Back at the farm.',4);";
-  const oldHurt = "if(pHP<=0){window.__willRsp=1;toast('You died. Back at the farm.',4);";
-  assert.equal(out.includes(newHurt), true);
-  out = out.replace(newHurt, oldHurt);
-  const newGoal = "if(window.__willRsp){/* RETURN FIX from PR10 4c1ff358140a69ea757714fb198864ad6cdd1409. Death respawn counts as arriving only inside the real return circle. Farm foot-spawn is outside that circle, so clear there; empty-handed completion stays blocked while still inside, and any haul clears it. */if(!reached(g.reach,r))window.__willRsp=0;else if(S.cur&&S.cur.id==='return'&&!(carry.w+carry.s+carry.m>0)){if(!window.__willRspNote){window.__willRspNote=1;try{toast('Death put you on the farm empty-handed. Step outside this area and walk back in, or bring a haul.',5)}catch(e){}}return false}else window.__willRsp=0}";
-  const oldGoal = "if(window.__willRsp){if(!reached(g.reach,r+50))window.__willRsp=0;else if(S.cur&&S.cur.id==='return'&&!(carry.w+carry.s+carry.m>0))return false;else window.__willRsp=0}";
-  assert.equal(out.includes(newGoal), true);
-  out = out.replace(newGoal, oldGoal);
   for (const [b, a] of [
     ['dhSaveVerFunctional', 'dhSaveVerTest'],
     ['dhSaveFunctional', 'dhSaveTest'],
@@ -70,7 +66,7 @@ function normalizeFunctional(html) {
   return out;
 }
 
-test('functional page matches test.html except the labeled renderer and return fix', () => {
+test('functional page matches test.html except the labeled renderer', () => {
   const norm = normalizeFunctional(funcHtml);
   assert.equal(norm, testHtml);
 });
@@ -93,11 +89,16 @@ test('scripts parse and storage keys stay off the live, test, and harness names'
   }
 });
 
-test('index.html and test.html bytes are the current main game and test build', () => {
+test('index.html stays the live game while test.html carries the return guard', () => {
   assert.equal(createHash('sha256').update(indexHtml).digest('hex'), 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
-  assert.equal(createHash('sha256').update(testHtml).digest('hex'), '3cd3c0ed8e88bb0093ddeacdc4fd8ebc19f211e7df36145d331dae88c9f9016e');
+  assert.match(testHtml, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.doesNotMatch(testHtml, /r\+50/);
+  const guard = goalMetLine(funcHtml);
+  assert.equal(guard, goalMetLine(testHtml));
+  assert.match(guard, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.match(guard, /S\.cur\.id==='return'&&!\(carry\.w\+carry\.s\+carry\.m>0\)/);
+  assert.doesNotMatch(guard, /r\+50/);
   assert.equal(funcHtml.includes(GAMEPLAY), true);
-  assert.equal(funcHtml.includes(RETURN_FIX), true);
 });
 
 function loadGoalMet(html) {
@@ -127,7 +128,7 @@ function loadGoalMet(html) {
 
 const RETURN = { id: 'return', goal: { reach: { x: 10, z: 18 }, radius: 30 } };
 
-test('return fix matches PR10 behavior on this page only', () => {
+test('return fix on the functional page matches the shared guard', () => {
   const ctx = loadGoalMet(funcHtml);
   ctx.window.__willRsp = 1;
   assert.equal(ctx.goalMet(RETURN), false);
