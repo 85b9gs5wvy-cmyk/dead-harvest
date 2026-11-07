@@ -95,7 +95,7 @@ test('scripts parse and storage keys stay off the live, test, and harness names'
 
 test('index.html and test.html bytes are the current main game and test build', () => {
   assert.equal(createHash('sha256').update(indexHtml).digest('hex'), 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
-  assert.equal(createHash('sha256').update(testHtml).digest('hex'), '99e049bcb3f897e591ff52435e518bddfd7e7dbb9c40ed33194116495852fe13');
+  assert.equal(createHash('sha256').update(testHtml).digest('hex'), '76c9733df5a17fdc689364dd13635eeb1e60ecfbdb6c87b30ed42b7bcb5b4634');
   assert.equal(funcHtml.includes(GAMEPLAY), true);
   assert.equal(funcHtml.includes(RETURN_FIX), true);
 });

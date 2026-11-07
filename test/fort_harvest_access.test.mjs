@@ -224,5 +224,9 @@ for (const page of pages) {
     assert.ok(dresserDoor);
     const dresserGap = aperture(m, dresserDoor);
     assert.ok(dresserGap >= 0.3, `dresser door channel ${dresserGap}`);
+    const trophyDoor = m.idoors.find(d => d.ax === 'z' && d.pos === 6 && d.g === 7 && d.l === 1);
+    assert.ok(trophyDoor);
+    const trophyGap = aperture(m, trophyDoor);
+    assert.ok(trophyGap >= 0.3, `trophy door channel ${trophyGap}`);
   });
 }
