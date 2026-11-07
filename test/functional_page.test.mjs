@@ -60,6 +60,10 @@ function normalizeFunctional(html) {
     ['dhSensFunctional', 'dhSensTest'],
   ]) out = out.replaceAll(b, a);
   out = out.replace(
+    'if ( material.emissive && uniforms.emissive ) {',
+    'if ( material.emissive ) {',
+  );
+  out = out.replace(
     '<title>TEST ONLY FUNCTIONAL — not normal graphics — Dead Harvest v0.26.0-campaign-nov5',
     '<title>Dead Harvest v0.26.0-campaign-nov5',
   );
