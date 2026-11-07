@@ -56395,6 +56395,32 @@ var V=window.__DHV,G=window.DHV_GEOM;if(!V){console.error('[DHV] boot missing');
 var TT=THREE,rects=V.region.rects,errs=V.errors=[];
 function E(where,e){errs.push(where+': '+(e&&e.message||e));console.error('[DHV] '+where,e);try{paint()}catch(_){}}
 function tryf(where,f){try{return f()}catch(e){E(where,e)}}
+/* Viewer chrome is not a game modal (display is unset, so dhAnyModal ignores it) and the
+   panel only stopped events in the bubble phase. The game's window mousedown listener is
+   capture-phase and runs first: a click on the panel that is not a button calls
+   requestPointerLock. Once locked, the browser retargets later clicks to the canvas, so a
+   Floor / Camera button never runs and the locked mousedown fires the pistol. */
+function dhvUI(node){return !!(node&&node.closest&&node.closest('[data-dhv]'))}
+function pointUI(e){
+ if(!e)return null;
+ if(dhvUI(e.target))return e.target;
+ var x=e.clientX,y=e.clientY;if(!(isFinite(x)&&isFinite(y)))return null;
+ var el=null;try{el=document.elementFromPoint(x,y)}catch(_){}
+ return dhvUI(el)?el:null}
+var gunSwallow=false;
+(function(){var proto=Element.prototype,orig=proto.requestPointerLock;if(!orig||orig.__dhv)return;
+ function wrapped(opts){var e=window.event;if(e&&pointUI(e)){try{return Promise.resolve()}catch(_){return}}
+  return orig.apply(this,arguments)}
+ wrapped.__dhv=1;proto.requestPointerLock=wrapped})();
+function armInput(){if(window.__DHV_INPUT)return;window.__DHV_INPUT=1;
+ try{if(typeof fireGun==='function'){var _f=fireGun;fireGun=function(){if(gunSwallow)return;return _f.apply(this,arguments)}}}catch(e){}
+ function guard(e){var hit=pointUI(e);if(!hit)return;gunSwallow=true;setTimeout(function(){gunSwallow=false},0);
+  try{if(document.pointerLockElement&&document.exitPointerLock)document.exitPointerLock()}catch(_){}
+  if(!dhvUI(e.target)){e.stopPropagation();e.preventDefault();
+   if((e.type==='pointerdown'||e.type==='mousedown')&&hit.closest){var b=hit.closest('button');
+    if(b)setTimeout(function(){try{b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,pointerId:1,pointerType:'mouse',button:0}))}catch(_){}},0)}}}
+ ['pointerdown','mousedown','pointerup','mouseup','click','auxclick','contextmenu','wheel'].forEach(function(ev){window.addEventListener(ev,guard,true)});
+ window.addEventListener('keydown',function(e){if(dhvUI(e.target)){e.stopPropagation();if(e.code==='Space')e.preventDefault()}},true)}
 /* ---------- selection ---------- */
 var P=V.comp?null:(window.PLOTS||[])[V.plot-1],SI=null;
 function selInst(){if(!P||!P.occ)return null;return insts.find(function(q){return q.m===P.occ})||null}
@@ -56436,6 +56462,12 @@ function freeSpot(I,y){var m=I.m,c=[],st=.75,D=m.door,ax=D?(D.a+D.b)/2:0,az=m.hd
  c.sort(function(a,b){return a[2]-b[2]});for(var i=0;i<c.length;i++){var wx=I.x+c[i][0]*I.s,wz=I.z+c[i][1]*I.s,f=floorAt(wx,wz,y+.3);if(Math.abs(f-y)>.12)continue;
   if(blockedAt(wx,y+.5,wz)||blockedAt(wx,y+1.6,wz))continue;var ok=true;for(var k=0;k<4&&ok;k++){var ox=k<2?(k?.45:-.45):0,oz=k>=2?(k===3?.45:-.45):0;if(blockedAt(wx+ox,y+.5,wz+oz))ok=false}if(ok)return[wx,wz]}return null}
 function tpLevel(k,roof){if(!SI)return;var y=roof?SI.m.roofY:k*FH,s=freeSpot(SI,y);if(!s){E('teleport','no free spot found on '+(roof?'roof':'level '+k)+' (floorAt/blockedAt) - this itself may be a finding');return}tp(s[0],y,s[1],SI.s>0?0:Math.PI,roof?'roof':'Floor '+(k+1))}
+/* Below-ground floor that floorAt actually returns. makeModel2 lv does not count the plot-15 basement (lv stays 1, slab at y=-3.2). */
+function basementY(I){if(!I||typeof floorAt!=='function')return null;var y=null,n=0,st=1.6,m=I.m;
+ for(var lx=-m.hw+1.2;lx<=m.hw-1.2;lx+=st)for(var lz=-m.hd+1.2;lz<=m.hd-1.2;lz+=st){var f;try{f=floorAt(I.x+lx*I.s,I.z+lz*I.s,-0.5)}catch(e){continue}
+  if(typeof f==='number'&&f<-0.45){y=y==null?f:Math.min(y,f);n++}}return n?y:null}
+function tpBasement(){if(!SI)return;var y=basementY(SI);if(y==null){E('basement','no below-ground floor');return}var s=freeSpot(SI,y);
+ if(!s){E('basement','floor y='+y.toFixed(2)+' has no free spot');return}tp(s[0],y,s[1],SI.s>0?0:Math.PI,'basement')}
 /* ---------- orbit camera ---------- */
 var orb=V.orbit={on:false,az:0,el:.45,dist:60,tx:0,ty:6,tz:0};var ov=null;
 function orbSet(name){var B=selBox(),s=B.s,f=s>0?0:Math.PI;orb.tx=B.x;orb.tz=B.z;orb.ty=Math.max(1.5,B.h*.45);var D=Math.max(B.hw,B.hd)*2.6+12;
@@ -56443,8 +56475,10 @@ function orbSet(name){var B=selBox(),s=B.s,f=s>0?0:Math.PI;orb.tx=B.x;orb.tz=B.z
 function orbApply(c){var ce=Math.cos(orb.el);c.position.set(orb.tx+orb.dist*ce*Math.sin(orb.az),orb.ty+orb.dist*Math.sin(orb.el),orb.tz+orb.dist*ce*Math.cos(orb.az));c.lookAt(orb.tx,orb.ty,orb.tz);c.updateMatrixWorld()}
 function orbToggle(on){orb.on=on;if(on){var B=selBox();if(Math.hypot(pl.x-B.x,pl.z-B.z)>60)tpFront();if(!orb.dist||orb.tx===0&&orb.tz===0)orbSet('iso');try{if(document.exitPointerLock)document.exitPointerLock()}catch(e){}}
  if(ov)ov.style.display=on?'block':'none';paint()}
+/* Named camera buttons must not call tpFront. That teleport is what put the player back on the front door. */
+function camPreset(name){orbSet(name);orb.on=true;if(ov)ov.style.display='block';try{if(document.pointerLockElement&&document.exitPointerLock)document.exitPointerLock()}catch(e){}}
 (function(){var _r=ren.render;ren.render=function(s,c){if(orb.on&&s===scene)orbApply(c);return _r.call(this,s,c)}})();
-function mkOverlay(){ov=document.createElement('div');ov.id='dhvOrbit';ov.style.cssText='position:fixed;inset:0;z-index:9000;display:none;cursor:grab;touch-action:none;background:transparent';
+function mkOverlay(){ov=document.createElement('div');ov.id='dhvOrbit';ov.setAttribute('data-dhv','1');ov.style.cssText='position:fixed;inset:0;z-index:9000;display:none;cursor:grab;touch-action:none;background:transparent';
  var pts={},last=null;function cnt(){return Object.keys(pts).length}
  ov.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();pts[e.pointerId]=[e.clientX,e.clientY];last=null;try{ov.setPointerCapture(e.pointerId)}catch(_){}});
  ov.addEventListener('pointermove',function(e){if(!pts[e.pointerId])return;e.stopPropagation();var o=pts[e.pointerId],dx=e.clientX-o[0],dy=e.clientY-o[1];pts[e.pointerId]=[e.clientX,e.clientY];
@@ -56457,7 +56491,7 @@ function mkOverlay(){ov=document.createElement('div');ov.id='dhvOrbit';ov.style.
 /* ---------- collision overlay ---------- */
 var colG=null,colOpt=V.colOpt={on:false,xray:true,level:'all'},colSig='';
 function edges(P2,x0,x1,y0,y1,z0,z1){var c=[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],e=[0,1,1,2,2,3,3,0,4,5,5,6,6,7,7,4,0,4,1,5,2,6,3,7];for(var i=0;i<e.length;i++)P2.push(c[e[i]][0],c[e[i]][1],c[e[i]][2])}
-function lvOK(y0,y1){if(colOpt.level==='all')return true;var k=+colOpt.level,a=k*FH-.2,b=k*FH+FH;return y1>a&&y0<b}
+function lvOK(y0,y1){if(colOpt.level==='all')return true;if(colOpt.level==='base')return y1>-4.6&&y0<-0.35;var k=+colOpt.level,a=k*FH-.2,b=k*FH+FH;return y1>a&&y0<b}
 function buildCol(){if(colG){scene.remove(colG);colG.traverse(function(c){if(c.geometry)c.geometry.dispose()});colG=null}if(!colOpt.on)return;
  colG=new TT.Group();colG.userData.dhv=1;colG.name='DHV collision overlay';var L={};function add(k,col,x0,x1,y0,y1,z0,z1){if(!lvOK(y0,y1))return;(L[k]=L[k]||{c:col,p:[]});edges(L[k].p,x0,x1,y0,y1,z0,z1)}
  var inR=function(x0,x1,z0,z1){return G.boxInRects({x0:x0,x1:x1,z0:z0,z1:z1},rects)};
@@ -56474,14 +56508,19 @@ function doorSig(){var s='';(typeof bdoors!=='undefined'?bdoors:[]).forEach(func
 /* ---------- UI ---------- */
 var root,info,live,banner;
 function el(t,css,txt){var e=document.createElement(t);if(css)e.style.cssText=css;if(txt!=null)e.textContent=txt;return e}
-function btn(parent,label,fn,title){var b=el('button','margin:2px;padding:4px 7px;border-radius:6px;border:1px solid #6a6a50;background:#26261c;color:#f0e8c8;font:600 11px system-ui;cursor:pointer',label);if(title)b.title=title;
- b.addEventListener('pointerdown',function(e){e.stopPropagation()});b.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();tryf(label,fn);paint()});parent.appendChild(b);return b}
+function btn(parent,label,fn,title){var b=el('button','margin:2px;padding:4px 7px;border-radius:6px;border:1px solid #6a6a50;background:#26261c;color:#f0e8c8;font:600 11px system-ui;cursor:pointer',label);if(title)b.title=title;b.type='button';
+ /* Act on pointerdown. A click listener never runs when mouseup is lost to pointer lock or a 10s tool timeout. */
+ b.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();tryf(label,fn);paint()});parent.appendChild(b);return b}
 function sec(t){var d=el('div','margin-top:6px;border-top:1px solid #444;padding-top:4px');d.appendChild(el('div','font:700 11px system-ui;color:#ffd24c;letter-spacing:.05em',t));root.appendChild(d);return d}
 function go(q){var u=new URLSearchParams();for(var k in q)if(q[k]!==''&&q[k]!=null)u.set(k,q[k]);location.search=u.toString()}
 function buildUI(){
- banner=el('div','position:fixed;left:0;right:0;top:0;z-index:9003;padding:3px 10px;font:700 12px/1.35 system-ui;text-align:center;background:#7a1f1f;color:#ffe9a8;pointer-events:none;box-shadow:0 2px 8px #000');document.body.appendChild(banner);
+ banner=el('div','position:fixed;left:0;right:0;top:0;z-index:9003;padding:3px 10px;font:700 12px/1.35 system-ui;text-align:center;background:#7a1f1f;color:#ffe9a8;pointer-events:none;box-shadow:0 2px 8px #000');banner.setAttribute('data-dhv','1');document.body.appendChild(banner);
  root=el('div','position:fixed;left:6px;top:44px;z-index:9002;width:300px;max-height:calc(100vh - 60px);overflow:auto;background:rgba(14,14,10,.92);color:#eee;border:1px solid #7a6a30;border-radius:8px;padding:6px 8px;font:11px/1.35 system-ui');
- ['pointerdown','pointerup','click','wheel','touchstart','keydown'].forEach(function(ev){root.addEventListener(ev,function(e){e.stopPropagation()})});document.body.appendChild(root);
+ root.id='dhvRoot';root.setAttribute('data-dhv','1');
+ ['pointerdown','pointerup','mousedown','mouseup','click','auxclick','contextmenu','wheel','touchstart','keydown'].forEach(function(ev){root.addEventListener(ev,function(e){e.stopPropagation()})});document.body.appendChild(root);
+ /* Admin menu is z-index 41 on the left, under this panel. The orbit mask is z-index 9000 and covers the toolbar button. */
+ (function liftChrome(){var kids=document.body.children;for(var i=0;i<kids.length;i++){var eln=kids[i];if(eln.id==='sPop'||eln.id==='sHud'||eln.id==='sFlash'||eln.id==='sObj'||eln.id==='sSide')continue;var z=eln.style.zIndex;if(z==='41'||z==='42')eln.style.zIndex='9600'}
+  var pause=document.getElementById('dhpause');if(pause)pause.style.zIndex='9700';var bar=document.getElementById('pcbar');if(bar)bar.style.zIndex='9100'})();
  var hd=el('div','display:flex;justify-content:space-between;align-items:center');hd.appendChild(el('b','color:#ffd24c','DHV isolated viewer · TEST ONLY'));var body=el('div');
  var col=btn(hd,'–',function(){body.style.display=body.style.display==='none'?'block':'none'});root.appendChild(hd);root.appendChild(body);var R0=root;root=body;
  var s=sec('Selection (reloads page)');var sel=el('select','width:100%;margin:2px 0;background:#222;color:#eee');
@@ -56491,14 +56530,17 @@ function buildUI(){
  var cx=mini('ctx',[[0,'0 plot only'],[1,'1 +same-row'],[2,'2 +across/diag']],V.ctx),md=mini('mode',[['cull','cull (full gen, prune graph)'],['gen','gen (skip other plots)']],V.mode),gx=mini('gfx',[[0,'High'],[1,'Medium'],[2,'Low (prod default)'],[3,'Potato']],V.gfx);
  btn(s,'Load selection',function(){var v=sel.value,q={ctx:cx.value,mode:md.value,gfx:gx.value};if(V.margin!==12)q.margin=V.margin;if(v[0]==='p')q.plot=v.slice(1);else q.comp=v.slice(1);go(q)});
  s=sec('Teleport (original walk movement)');btn(s,'Front',tpFront);btn(s,'Rear',function(){tpSide('rear')});btn(s,'West',function(){tpSide('west')});btn(s,'East',function(){tpSide('east')});
- if(SI){for(var k=0;k<SI.m.lv;k++)(function(k){btn(s,'Floor '+(k+1)+(k===0?' (ground)':''),function(){tpLevel(k,false)},'inside, y='+(k*FH)+' (free spot via floorAt+blockedAt)')})(k);if(SI.m.roofY!=null)btn(s,'Roof',function(){tpLevel(0,true)},'y='+SI.m.roofY)}
+ if(SI){for(var k=0;k<SI.m.lv;k++)(function(k){btn(s,'Floor '+(k+1)+(k===0?' (ground)':''),function(){tpLevel(k,false)},'inside, y='+(k*FH)+' (free spot via floorAt+blockedAt)')})(k);if(SI.m.roofY!=null)btn(s,'Roof',function(){tpLevel(0,true)},'y='+SI.m.roofY);
+  V.basementY=basementY(SI);V.basementSpot=V.basementY==null?null:freeSpot(SI,V.basementY);
+  if(V.basementSpot)btn(s,'Basement',tpBasement,'inside, y='+V.basementY.toFixed(2)+' (floorAt; not a makeModel2 level)');
+  else if(V.basementY!=null)s.appendChild(el('div','color:#aaa','Basement floor y='+V.basementY.toFixed(2)+' is in the world, but no free standing spot was found.'))}
  else s.appendChild(el('div','color:#aaa',P?'Filler house: solid box, not enterable (no floors).':'Compound: interior/floor teleports NOT implemented; use Admin (P) teleports or walk.'));
  s=sec('Camera');btn(s,'Walk (original)',function(){orbToggle(false)});btn(s,'Orbit',function(){orbToggle(true)});
- ['front','rear','west','east','top','iso'].forEach(function(nm){btn(s,nm,function(){orbSet(nm);orbToggle(true)})});btn(s,'zoom +',function(){orb.dist=Math.max(2,orb.dist/1.25)});btn(s,'zoom −',function(){orb.dist=Math.min(400,orb.dist*1.25)});
+ ['front','rear','west','east','top','iso'].forEach(function(nm){btn(s,nm,function(){camPreset(nm)})});btn(s,'zoom +',function(){orb.dist=Math.max(2,orb.dist/1.25)});btn(s,'zoom −',function(){orb.dist=Math.min(400,orb.dist*1.25)});
  btn(s,'target ↑',function(){orb.ty+=FH});btn(s,'target ↓',function(){orb.ty-=FH});
  s.appendChild(el('div','color:#aaa','Orbit: drag = rotate, shift/right-drag = pan, wheel/pinch = zoom. Orbit captures input; Walk returns control to the game.'));
  s=sec('Collision bounds overlay');btn(s,'toggle overlay',function(){colOpt.on=!colOpt.on;buildCol()});btn(s,'x-ray on/off',function(){colOpt.xray=!colOpt.xray;buildCol()});
- var lvSel=el('select','background:#222;color:#eee');[['all','all levels']].concat((SI?Array.from({length:SI.m.lv},function(_,i){return[i,'Floor '+(i+1)]}):[])).forEach(function(v){var o=el('option',null,v[1]);o.value=v[0];lvSel.appendChild(o)});lvSel.addEventListener('change',function(){colOpt.level=lvSel.value;buildCol()});s.appendChild(lvSel);
+ var lvSel=el('select','background:#222;color:#eee');var lvOpts=[['all','all levels']].concat(SI?Array.from({length:SI.m.lv},function(_,i){return[String(i),'Floor '+(i+1)]}):[]);if(V.basementY!=null)lvOpts.push(['base','Basement']);lvOpts.forEach(function(v){var o=el('option',null,v[1]);o.value=v[0];lvSel.appendChild(o)});lvSel.addEventListener('change',function(){colOpt.level=lvSel.value;buildCol()});s.appendChild(lvSel);
  s.appendChild(el('div','color:#aaa','red=box(y0..y1; unbounded drawn to 4 m) · orange=low cover · yellow=shell AABB (skipped by push) · magenta=I.cols all-height · cyan=I.cols per-level · green=closed door col · grey=open door · blue=ramp · white=hole'));
  s=sec('Scene / parity');btn(s,'Restore full scene',function(){unprune();V.parityLive=null});btn(s,'Re-prune',function(){if(!V.pruned){prune()}});btn(s,'Manifest → console',function(){var m=window.DHV_COLLECT({sel:V.sel,region:V.region,includeList:true});window.DHV_LAST_MANIFEST=m;console.log('[DHV manifest]',JSON.stringify(m));try{navigator.clipboard&&navigator.clipboard.writeText(JSON.stringify(m,null,1))}catch(e){}});
  info=el('pre','white-space:pre-wrap;margin:4px 0;font:10px/1.3 ui-monospace,monospace;color:#d8d8c0');root.appendChild(info);
@@ -56508,7 +56550,7 @@ var fpsS={n:0,t0:performance.now(),worst:0,last:performance.now(),txt:'measuring
 function paint(){if(!banner)return;var R=V.region,sel=V.comp?G.COMP[V.comp].label:('PLOT '+V.plot+' · '+(P&&P.occ?P.occ.name:'filler'));
  banner.textContent='TEST ONLY · isolated viewer · '+sel+' · mode '+V.mode+' · NO SAVES (storage in-memory'+(V.storageIsolated?'':' — ISOLATION FAILED')+') · '+(R.excludedNeighbours.length?'⚠ NEIGHBOUR PLOTS EXCLUDED: '+R.excludedNeighbours.join(',')+' — cross-plot boundary checks vs these are NOT valid here':'neighbour context: '+(R.ctxPlots.join(',')||'n/a'));
  if(!info)return;var pr=V.prune,lines=['sel: '+JSON.stringify(V.sel)+'  gfx tier '+V.gfx+' ('+(window.dhGfx?window.dhGfx.names[window.dhGfx.get()]:'?')+')','region: '+R.note,'context plots kept: '+(R.ctxPlots.join(',')||'none'),'excluded neighbours: '+(R.excludedNeighbours.join(',')||'none')];
- if(SI)lines.push('model: '+SI.m.name+' (MODELS['+MODELS.indexOf(SI.m)+'])','inst x '+SI.x.toFixed(2)+' z '+SI.z.toFixed(2)+' s '+SI.s+' hw '+SI.m.hw+' hd '+SI.m.hd+' lv '+SI.m.lv+(SI.m.roofY!=null?' roofY '+SI.m.roofY:''),'cols '+SI.cols.length+' · doors '+bdoors.filter(function(d){return d.I===SI}).length+' · ramps '+(SI.m.ramps||[]).length);
+ if(SI)lines.push('model: '+SI.m.name+' (MODELS['+MODELS.indexOf(SI.m)+'])','inst x '+SI.x.toFixed(2)+' z '+SI.z.toFixed(2)+' s '+SI.s+' hw '+SI.m.hw+' hd '+SI.m.hd+' lv '+SI.m.lv+(V.basementY!=null?' + basement y='+V.basementY.toFixed(2):'')+(SI.m.roofY!=null?' roofY '+SI.m.roofY:''),'cols '+SI.cols.length+' · doors '+bdoors.filter(function(d){return d.I===SI}).length+' · ramps '+(SI.m.ramps||[]).length);
  else if(P)lines.push('filler house (solid, not enterable)');
  if(V.mode==='gen')lines.push('gen: placed plots '+V.placed.join(',')+' · skipped '+V.skipped.length);
  lines.push('prune: removed '+pr.removed+' top-level objs, kept '+pr.kept+', inst compacted '+pr.instCompacted+' (-'+pr.instRemovedInstances+' instances)','tris (geometry est.) '+pr.trisBefore+' → '+pr.trisAfter+(pr.note?' · '+pr.note:''));
@@ -56520,10 +56562,12 @@ function paint(){if(!banner)return;var R=V.region,sel=V.comp?G.COMP[V.comp].labe
  info.textContent=lines.join('\n')}
 function liveTick(){if(!live)return;try{var y=pl.y,f=floorAt(pl.x,pl.z,y),b=blockedAt(pl.x,y+.5,pl.z),ins=SI?(Math.abs((pl.x-SI.x))<SI.m.hw&&Math.abs(pl.z-SI.z)<SI.m.hd):false,nd=null;
  (typeof bdoors!=='undefined'?bdoors:[]).forEach(function(d){var k=Math.hypot(d.x-pl.x,d.z-pl.z);if(Math.abs((d.y||0)-y)<2.5&&(!nd||k<nd[0]))nd=[k,d]});
- live.textContent='FPS '+fpsS.txt+'\npl '+pl.x.toFixed(2)+', '+y.toFixed(2)+', '+pl.z.toFixed(2)+' yaw '+(yaw%(2*Math.PI)).toFixed(2)+' · Floor '+(Math.round(y/FH)+1)+(orb.on?' · ORBIT':' · WALK')+'\nfloorAt '+f.toFixed(3)+' · blockedAt(y+.5) '+b+' · inside sel footprint '+ins+(nd?'\nnearest door '+nd[1].name+' '+nd[0].toFixed(1)+' m '+(nd[1].open?'open':'closed'):'')+(V.lastTp?'\nlast tp: '+V.lastTp:'');
+ var floorName=y<-0.45?'Basement':('Floor '+(Math.round(y/FH)+1));
+ live.textContent='FPS '+fpsS.txt+'\npl '+pl.x.toFixed(2)+', '+y.toFixed(2)+', '+pl.z.toFixed(2)+' yaw '+(yaw%(2*Math.PI)).toFixed(2)+' · '+floorName+(orb.on?' · ORBIT':' · WALK')+'\nfloorAt '+f.toFixed(3)+' · blockedAt(y+.5) '+b+' · inside sel footprint '+ins+(nd?'\nnearest door '+nd[1].name+' '+nd[0].toFixed(1)+' m '+(nd[1].open?'open':'closed'):'')+(V.lastTp?'\nlast tp: '+V.lastTp:'');
  var sg=doorSig();if(colOpt.on&&sg!==colSig){colSig=sg;buildCol()}}catch(e){live.textContent='live readout error '+e}}
 /* ---------- init ---------- */
 function init(){
+ armInput();
  tryf('zombies',zOff);SI=selInst();V.selInst=SI;
  if(P&&P.occ&&!SI)E('select','selected plot model was NOT placed — viewer invalid');
  var pre=null;if(V.mode==='cull')pre=tryf('manifest pre',function(){return window.DHV_COLLECT({sel:V.sel,region:V.region})});
