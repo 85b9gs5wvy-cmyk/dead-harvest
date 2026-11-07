@@ -22803,7 +22803,7 @@ function WebGLMaterials( properties ) {
 
 		}
 
-		if ( material.emissive ) {
+		if ( material.emissive && uniforms.emissive ) {
 
 			uniforms.emissive.value.copy( material.emissive ).multiplyScalar( material.emissiveIntensity );
 
@@ -49251,17 +49251,19 @@ function WebGLRenderer(params){
   p.antialias = false;
   delete p.powerPreference;
   var r = new OrigRenderer(p);
-  var setPixelRatio = r.setPixelRatio.bind(r);
-  var setSize = r.setSize.bind(r);
+  var origSetPixelRatio = r.setPixelRatio.bind(r);
+  var origSetSize = r.setSize.bind(r);
   var MAX_EDGE = 480;
+  // three.js setPixelRatio() calls this.setSize(). Replacing setSize first and then
+  // calling setPixelRatio recurses until the stack overflows, so the canvas is never appended.
+  origSetPixelRatio(1);
   function apply(){
     var cssW = Math.max(1, window.innerWidth || 1);
     var cssH = Math.max(1, window.innerHeight || 1);
     var scale = Math.min(1, MAX_EDGE / Math.max(cssW, cssH));
     var bw = Math.max(160, Math.round(cssW * scale));
     var bh = Math.max(120, Math.round(cssH * scale));
-    setPixelRatio(1);
-    setSize(bw, bh, false);
+    origSetSize(bw, bh, false);
     var el = r.domElement;
     el.style.width = cssW + 'px';
     el.style.height = cssH + 'px';
@@ -49283,27 +49285,43 @@ THREE.WebGLRenderer = WebGLRenderer;
 var Basic = THREE.MeshBasicMaterial;
 function makeBasic(params){
   var p = params || {};
-  var m = new Basic({
+  var spec = {
     color: p.color !== undefined ? p.color : 0xffffff,
     map: p.map || null,
-    alphaMap: p.alphaMap || null,
     transparent: !!p.transparent,
     opacity: p.opacity !== undefined ? p.opacity : 1,
-    side: p.side,
     alphaTest: p.alphaTest || 0,
     depthWrite: p.depthWrite !== false,
     depthTest: p.depthTest !== false,
-    blending: p.blending,
     vertexColors: !!p.vertexColors,
     wireframe: !!p.wireframe,
     fog: false
-  });
+  };
+  if (p.alphaMap) spec.alphaMap = p.alphaMap;
+  if (p.side !== undefined) spec.side = p.side;
+  if (p.blending !== undefined) spec.blending = p.blending;
+  var m = new Basic(spec);
+  m.defines = {};
   m.emissive = new THREE.Color(p.emissive !== undefined ? p.emissive : 0);
   m.emissiveMap = p.emissiveMap || null;
   m.emissiveIntensity = p.emissiveIntensity !== undefined ? p.emissiveIntensity : 1;
   m.roughness = p.roughness;
   m.metalness = p.metalness;
   m.dhUnlit = 1;
+  var origClone = m.clone.bind(m);
+  m.clone = function(){
+    var c = origClone();
+    c.defines = Object.assign({}, m.defines);
+    c.emissive = m.emissive ? m.emissive.clone() : new THREE.Color(0);
+    c.emissiveMap = m.emissiveMap || null;
+    c.emissiveIntensity = m.emissiveIntensity;
+    c.roughness = m.roughness;
+    c.metalness = m.metalness;
+    c.dhUnlit = 1;
+    var next = c.clone.bind(c);
+    c.clone = function(){ var d = next(); d.defines = Object.assign({}, c.defines); d.emissive = c.emissive ? c.emissive.clone() : new THREE.Color(0); d.emissiveIntensity = c.emissiveIntensity; d.dhUnlit = 1; return d; };
+    return c;
+  };
   return m;
 }
 ['MeshStandardMaterial','MeshPhysicalMaterial','MeshPhongMaterial','MeshLambertMaterial'].forEach(function(name){
