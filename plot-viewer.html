@@ -56409,7 +56409,9 @@ function pointUI(e){
  return dhvUI(el)?el:null}
 var gunSwallow=false;
 (function(){var proto=Element.prototype,orig=proto.requestPointerLock;if(!orig||orig.__dhv)return;
- function wrapped(opts){var e=window.event;if(e&&pointUI(e)){try{return Promise.resolve()}catch(_){return}}
+ function wrapped(opts){var e=window.event,t=e&&e.target;
+  /* Only a click on the game canvas may lock. Panel clicks, and the load-time timer (no event), must not. */
+  if(!(t&&(t.tagName==='CANVAS'||(t.closest&&t.closest('canvas'))))){try{return Promise.resolve()}catch(_){return}}
   return orig.apply(this,arguments)}
  wrapped.__dhv=1;proto.requestPointerLock=wrapped})();
 function armInput(){if(window.__DHV_INPUT)return;window.__DHV_INPUT=1;
@@ -56464,7 +56466,7 @@ function freeSpot(I,y){var m=I.m,c=[],st=.75,D=m.door,ax=D?(D.a+D.b)/2:0,az=m.hd
 function tpLevel(k,roof){if(!SI)return;var y=roof?SI.m.roofY:k*FH,s=freeSpot(SI,y);if(!s){E('teleport','no free spot found on '+(roof?'roof':'level '+k)+' (floorAt/blockedAt) - this itself may be a finding');return}tp(s[0],y,s[1],SI.s>0?0:Math.PI,roof?'roof':'Floor '+(k+1))}
 /* Below-ground floor that floorAt actually returns. makeModel2 lv does not count the plot-15 basement (lv stays 1, slab at y=-3.2). */
 function basementY(I){if(!I||typeof floorAt!=='function')return null;var y=null,n=0,st=1.6,m=I.m;
- for(var lx=-m.hw+1.2;lx<=m.hw-1.2;lx+=st)for(var lz=-m.hd+1.2;lz<=m.hd-1.2;lz+=st){var f;try{f=floorAt(I.x+lx*I.s,I.z+lz*I.s,-0.5)}catch(e){continue}
+ for(var lx=-m.hw+1.2;lx<=m.hw-1.2;lx+=st)for(var lz=-m.hd+1.2;lz<=m.hd-1.2;lz+=st){var f;try{f=floorAt(I.x+lx*I.s,I.z+lz*I.s,-1)}catch(e){continue}
   if(typeof f==='number'&&f<-0.45){y=y==null?f:Math.min(y,f);n++}}return n?y:null}
 function tpBasement(){if(!SI)return;var y=basementY(SI);if(y==null){E('basement','no below-ground floor');return}var s=freeSpot(SI,y);
  if(!s){E('basement','floor y='+y.toFixed(2)+' has no free spot');return}tp(s[0],y,s[1],SI.s>0?0:Math.PI,'basement')}
@@ -56510,7 +56512,7 @@ var root,info,live,banner;
 function el(t,css,txt){var e=document.createElement(t);if(css)e.style.cssText=css;if(txt!=null)e.textContent=txt;return e}
 function btn(parent,label,fn,title){var b=el('button','margin:2px;padding:4px 7px;border-radius:6px;border:1px solid #6a6a50;background:#26261c;color:#f0e8c8;font:600 11px system-ui;cursor:pointer',label);if(title)b.title=title;b.type='button';
  /* Act on pointerdown. A click listener never runs when mouseup is lost to pointer lock or a 10s tool timeout. */
- b.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();tryf(label,fn);paint()});parent.appendChild(b);return b}
+ b.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();try{if(document.pointerLockElement&&document.exitPointerLock)document.exitPointerLock()}catch(_){}tryf(label,fn);paint()});parent.appendChild(b);return b}
 function sec(t){var d=el('div','margin-top:6px;border-top:1px solid #444;padding-top:4px');d.appendChild(el('div','font:700 11px system-ui;color:#ffd24c;letter-spacing:.05em',t));root.appendChild(d);return d}
 function go(q){var u=new URLSearchParams();for(var k in q)if(q[k]!==''&&q[k]!=null)u.set(k,q[k]);location.search=u.toString()}
 function buildUI(){
