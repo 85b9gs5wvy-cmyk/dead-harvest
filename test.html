@@ -55403,7 +55403,11 @@ const press=playerTop=>{
  else{LF.tgt=playerTop?TOP:BOT;say('Calling the elevator...')}};
 const lockToggle=()=>{if(st.lockdown){st.lockdown=false;say('Lockdown cleared. Access controls restored.')}else{st.lockdown=true;mainD.open=false;labD.open=false;say('LOCKDOWN ACTIVE: access doors are secured.')}};
 // -- surface
-N(0,33.5,()=>gate.open?'close the perimeter gate':'open the perimeter gate',()=>{gate.open=!gate.open;say(gate.open?'Perimeter gate opening.':'Perimeter gate closing.')},0,5);
+const gateWord=()=>gate.open?'close the perimeter gate':'open the perimeter gate';
+const toggleGate=()=>{gate.open=!gate.open;say(gate.open?'Perimeter gate opening.':'Perimeter gate closing.')};
+// Yard switch stays at local z 33.5. The closed leaf occupies z 37.5–38.5 and blocks reach(), and every station prompt is capped at 1.9 m, so the road approach gets its own switch past that leaf.
+N(0,33.5,gateWord,toggleGate,0,5);
+N(0,40,gateWord,toggleGate,0,1.9);
 N(-9.5,32,'press the guard-house intercom',()=>say('Intercom: "Station H-9 security. Visitors check in at reception. Hazmat is mandatory below ground."'),0,3);
 N(0,9,()=>mainD.open?'secure the operations entrance':'unlock the operations entrance',()=>{if(st.lockdown){say('Access denied: facility lockdown is active.');return}mainD.open=!mainD.open;say(mainD.open?'Operations entrance unlocked.':'Operations entrance secured.')},0,3.4);
 N(-5.8,3.4,()=>st.badge<1?'take a visitor badge from reception':'reception desk (badge Level '+st.badge+')',()=>{if(st.badge<1){st.badge=1;pop('VISITOR BADGE ISSUED','<b>Level 1</b> badge collected. It lets you ride the elevator down to the B1 research level. Deeper doors need a higher level.',7)}else say('You are already badged in (Level '+st.badge+').')},0,3,{kc:1,mh:1.9});
