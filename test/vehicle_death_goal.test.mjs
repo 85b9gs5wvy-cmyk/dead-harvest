@@ -7,8 +7,8 @@
  * _frame. Pointer lock is not used.
  *
  * test.html is executed. campaign-test.html and functional-test.html must
- * carry the same patched snippets; index.html and plot-viewer.html stay on
- * the pre-fix goal and death lines.
+ * carry the same patched snippets. index.html keeps the Main Play port of
+ * those lines. plot-viewer.html stays on the pre-fix goal and death lines.
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -25,7 +25,7 @@ const PAGES = ['test.html', 'campaign-test.html', 'functional-test.html'];
 const html = Object.fromEntries(PAGES.map((n) => [n, read(n)]));
 const indexHtml = read('index.html');
 const viewerHtml = read('plot-viewer.html');
-const INDEX_SHA = 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6';
+const INDEX_SHA = 'd22b09a006fe9b2b4718a93d624304b360818d42d8b96b2657ed97f8081f699e';
 
 const DEATH_SNAP = 'if(foot)farmSpawn();else{if(drv){drv.x=0;drv.z=18;drv.spd=0;drv.steer=0}spd=0;car.position.set(0,pitH(0,18),18);window.__vehRsp=1}';
 const DRIVE_SNAP = 'if(drv!==v){window.__vehRsp=0;return}if(window.__vehRsp){window.__vehRsp=0;v.x=0;v.z=18;v.spd=0;v.steer=0;spd=0}spd=v.spd;';
@@ -79,17 +79,22 @@ test('test pages keep their own save keys and startup defaults', () => {
   assert.doesNotMatch(html['functional-test.html'], /dhSaveTest|dhSaveHarness/);
 });
 
-test('production index and the plot viewer keep the pre-fix death and reach lines', () => {
+test('production index keeps the ported death lines; the plot viewer keeps the pre-fix lines', () => {
   assert.equal(createHash('sha256').update(indexHtml).digest('hex'), INDEX_SHA);
-  for (const src of [indexHtml, viewerHtml]) {
-    assert.equal(src.includes(OLD_DEATH), true);
-    assert.equal(src.includes(OLD_REACHED), true);
-    assert.equal(src.includes('__vehRsp'), false);
-    assert.equal(src.includes('const actP='), false);
-    assert.equal(src.includes(SAVE_FIELDS), false);
+  for (const piece of [DEATH_SNAP, DRIVE_SNAP, EXIT_CLEAR, REACHED, SAVE_FIELDS]) {
+    assert.equal(indexHtml.includes(piece), true, piece.slice(0, 70));
   }
-  assert.match(indexHtml, /if\(!reached\(g\.reach,r\+50\)\)window\.__willRsp=0/);
-  assert.doesNotMatch(indexHtml, /dhSaveTest|dhSaveHarness|dhSaveFunctional|__willRspNote/);
+  assert.equal(indexHtml.includes(OLD_DEATH), false);
+  assert.equal(indexHtml.includes(OLD_REACHED), false);
+  assert.match(indexHtml, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.doesNotMatch(indexHtml, /r\+50/);
+  assert.doesNotMatch(indexHtml, /dhSaveTest|dhSaveHarness|dhSaveFunctional/);
+
+  assert.equal(viewerHtml.includes(OLD_DEATH), true);
+  assert.equal(viewerHtml.includes(OLD_REACHED), true);
+  assert.equal(viewerHtml.includes('__vehRsp'), false);
+  assert.equal(viewerHtml.includes('const actP='), false);
+  assert.equal(viewerHtml.includes(SAVE_FIELDS), false);
 });
 
 test('inline scripts on the three test pages still parse', () => {

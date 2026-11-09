@@ -17,7 +17,8 @@ const viewer = read('plot-viewer.html');
 const indexHtml = read('index.html');
 const ATTACHED_SHA256 = '8eab8a4aa70229d8bfebd6310c451d0db705958299c2687d8579b4a67e5add19';
 /* Game, boot, manifest, and story bytes. dhv-runtime is the only viewer control surface this branch edits. */
-const FROZEN_WITHOUT_RUNTIME_SHA256 = '52f7e0c20378b80d1c837732e444fdd6a102e1514cbd7c54a1346a40c6033733';
+/* Game body includes the dead-tree instanceColor allocation fix. dhv-runtime is still excluded. */
+const FROZEN_WITHOUT_RUNTIME_SHA256 = '2b0d63f8c25c5ed8d6455336ef1cd49f94ef9220097e92e817d2476ac5d574c3';
 
 function withoutBridge(src) {
   const marker = '/* DHV_SCOPE_BRIDGE:';

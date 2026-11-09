@@ -1,6 +1,8 @@
 # TEST-ONLY viewer parity — not a plot inspection
 
-**Publication and range fan-out remain ON HOLD.** No browser was started, no port opened, nothing published/pushed, and no production source, saves or user settings were changed. No real-browser load, WebGL pixels or FPS has been validated. These are Node/jsdom construction and smoke checks only. Static sweep completion must not be promoted to completed visual plot coverage.
+**The 58/58 table in this file is the original jsdom construction sweep.** It was not re-run after the dead-tree colour fix, and it is not a browser, pixel, or GPU frame-rate result. A later headless Chrome load with SwiftShader is recorded in `NOTE.md`. That check used software WebGL. It does not replace this sweep and it is not a discrete-GPU measurement.
+
+The paragraphs below are the attached handoff. Where they say no browser was started, that describes the jsdom sweep, not the later Chrome check.
 
 Baseline: `/workspace/campaign_nov5/dead-harvest-main/index.html`, MD5 **`1aea5a0a56af8c85ddb2d465342cf72b`**. The generator now refuses another baseline or an output equal to its source.
 
@@ -46,7 +48,9 @@ Causal evidence in `root_cause_evidence.json`: without any viewer pruning, a pro
 
 Production's tree builder (`index.html:51521`) starts with `.count=0`, increments it before its first `setColorAt`, and thereby allocates a colour buffer for only one instance. The group later has many instances but still only one colour. Compaction used to move a tree at source index 40 (no colour entry) to index 0 (a defined colour), changing its attribute association. This was a genuine **viewer-only rendered-state hazard**, not the cause of the original nested P6 group hash differences.
 
-**Viewer fix:** preserve all three truncated-colour groups whole; never compact them or attempt to repair production's undersized attribute. This costs about 75k extra geometry-estimate triangles in Plot 1 but preserves original instance indexing/colour semantics. `integrity_evidence.json` records each group's instance/colour capacity. The production defect itself is not fixed, and its real GPU behavior remains unverified.
+**Viewer fix:** preserve all three truncated-colour groups whole; never compact them or attempt to repair an undersized attribute. On the unfixed builder this kept about 75k extra geometry-estimate triangles in Plot 1 and preserved original instance indexing. `integrity_evidence.json` records each group's instance/colour capacity from that sweep.
+
+The production builder is fixed in this repo: each dead-tree mesh allocates one instance colour per tree before `setColorAt`. The viewer guard is unchanged. In the headless Chrome check, Plot 1's initial prune reported `unsafeColorGroupsKept` 0, and forcing one full-colour group back to a 1-colour buffer made the guard keep that group (`unsafeColorGroupsKept` 1) until the full buffer was restored. The old 75k-triangle note was not remeasured.
 
 Pruning also no longer constructs temporary `THREE.Mesh` objects just to calculate geometry bounds: it uses the existing read-only geometry bounds helper, avoiding unnecessary UUID allocations that consumed the game's random stream.
 
