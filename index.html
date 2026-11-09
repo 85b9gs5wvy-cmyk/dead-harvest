@@ -49794,21 +49794,22 @@ const R=[
 [1.0,6.5,-5.2,1.1,'tile'],[4.0,6.5,-7.7,-5.2,'tile'],[6.5,12.7,-7.7,-2.2,'tile'],
 [6.5,12.7,-2.2,3.2,'tile|carp'],[6.5,10.5,3.2,7.7,'tile|carp'],[10.5,12.7,3.2,7.7,'tile']];
 // ---------- furniture ----------
+// Plot 1 clearance: sofas sit off the bedroom and community doors, arcade cabinets stay inside the east and north walls, and the studio bath, sink, and wardrobe leave a walkable door.
 const mz=e=>{const o=e.slice();o[2]=-e[2];if(e.length>3){const r=e[3]|0;o[3]=e[0]==='bed'?(r===1?3:r===3?1:r):(r===0?2:r===2?0:r)}return o};
 const BWbath=[['wc',-12.1,-7.35,0],['sink',-9.8,-7.45,0],['bath',-12.3,-5.6,1],['curtain',-11.85,-5.6,1,1.7]];
 const BW=[
 ['bed',-7.3,-6.6,1],['table',-8.45,-7.3,0,.5,.45],['table',-6.15,-7.3,0,.5,.45],['wardrobe',-10.2,-1.65,2],['desk',-12.3,-2.1,1],['dresser',-5.4,-6.0,3],['rug',-7.6,-4.0,0,2.6,2.0],['plant',-5.55,-1.7],
 ...BWbath,
 ['fridge',-4.5,-7.33,0],['counter',-3.0,-7.4,0,2.0],['stove',-1.55,-7.38,0],['counter',-.15,-7.4,0,1.6],['dining',-1.0,-4.7,0,2.6],
-['sofa',-4.05,-3.0,1],['table',-3.0,-3.0,1,1.0,.6],['tv',.7,-3.0,3],['rug',-3.4,-3.0,1,2.4,2.0],['shelf',-4.1,-1.5,2,1.2],['plant',.55,-1.8]];
+['sofa',-2.5,-2.95,1],['table',-1.45,-2.95,1,1.0,.6],['tv',.7,-3.0,3],['rug',-2.05,-2.95,1,2.4,2.0],['shelf',-4.1,-1.5,2,1.2],['plant',.55,-1.8]];
 const FC=[
-['wc',2.45,1.7,0],['sink',1.55,1.55,0],['bath',1.55,3.0,1],
+['wc',2.55,1.55,0],['sink',2.58,2.15,0],['bath',1.525,2.05,1],
 ['stove',4.65,1.52,0],['counter',5.6,1.5,0,1.2],['fridge',6.05,2.4,3],
-['bed',5.25,4.9,2],['table',5.95,3.6,0,.5,.45],['wardrobe',1.4,4.75,1],['tv',1.35,6.4,1],['sofa',3.6,6.4,3],['rug',2.6,6.0,1,2.4,2.0],['plant',6.0,7.3]];
+['bed',5.25,4.9,2],['table',5.95,3.6,0,.5,.45],['wardrobe',5.85,6.45,1],['tv',1.35,6.4,1],['sofa',3.6,6.4,3],['rug',2.6,6.0,1,2.4,2.0],['plant',6.0,7.3]];
 const EU=[
 ['fridge',12.0,-1.7,0],['counter',10.4,-1.75,0,2.0],['stove',8.5,-1.78,0],['counter',7.3,-1.75,0,1.4],
 ['table',7.7,1.9,0,1.4,.9],['chair',7.2,1.1,0],['chair',8.2,1.1,0],['chair',7.2,2.7,2],['chair',8.2,2.7,2],
-['sofa',9.6,-.2,1],['table',10.9,-.2,1,1.0,.6],['tv',12.4,-.2,3],['rug',10.4,-.2,1,2.4,2.0],['plant',12.2,2.5],
+['sofa',9.6,-.2,1],['table',10.9,-.2,1,1.0,.6],['tv',12.4,-.2,3],['rug',10.4,-.2,1,2.4,2.0],['plant',12.2,0.85],
 ['bed',9.35,5.5,2],['table',10.1,4.4,0,.5,.45],['table',10.1,6.65,0,.5,.45],['wardrobe',6.9,6.5,1],['dresser',7.7,3.65,0,1.5],['rug',8.2,5.6,0,2.4,1.8],['plant',7.0,7.3],
 ['wc',11.2,7.35,2],['sink',10.85,4.6,1],['bath',12.3,5.6,1]];
 const HALL=[['plant',5.9,.7],['ext',4.15,-6.5,1]];
@@ -49823,7 +49824,7 @@ const CLOSET=[['shelf',-10.6,-.78,0,2.4],['drum',-12.2,.6],['bin',-6.2,.2,0]];
 const COMM=[
 ['counter',8.5,-1.75,0,2.2],['fridge',10.3,-1.7,0],['stove',11.2,-1.78,0],
 ['table',9.5,1.0,0,2.4,1.0],['chair',8.6,.2,0],['chair',10.4,.2,0],['chair',8.6,1.8,2],['chair',10.4,1.8,2],
-['pool',9.0,5.6,0],['arcade',11.6,7.3,2],['arcade',12.4,7.3,2],['jukebox',12.2,4.2,3],['sofa',7.2,3.4,1],['tv',12.4,-.2,3],['plant',7.0,7.3]];
+['pool',9.0,5.6,0],['arcade',10.55,6.9,2],['arcade',11.5,6.9,2],['jukebox',12.2,4.2,3],['sofa',8.4,2.7,1],['tv',12.4,-.2,3],['plant',7.0,7.3]];
 const typ=[...BW,...BW.map(mz),...FC,...EU,...HALL];
 const gnd=[...BW,...LOBBY,...LAUNDRY,...CLOSET,...COMM,...HALL];
 // ---------- elevator shaft (static shell) ----------
@@ -50172,7 +50173,7 @@ const FB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x,
   for(const s of[-1,1]){q('dark',x+s*1.6,z1-.7,.3,.05,1.9,.4);q('metal',x+s*1.34,z1-.9,.02,.15,1.8,.05);q('dark',x+s*1.5,z1-.7,.2,.7,.5,.05)}
   for(const s of[-.6,.4])q('dark',x+s,z1+.03,.7,.02,1.9,.03);q('white',x,z1+.29,.5,.02,.55,.25);q('metal',x,cz-.9,.15,.15,2.92,.3);q('metal',x,cz-.55,.1,.6,3.2,.1)}
  q('white',12,1.5,.25,.25,.06,.9);q('green',12,1.5,.18,.18,.96,.1);q('red',11.2,.5,.5,.35,.06,.3);q('white',11.2,.5,.2,.02,.2,.1);q('metal',9.5,2.2,.4,.5,.06,.25);
- tr(-.8,-14.5,5.4,0);
+ tr(-.8,-18.2,5.4,0);
  const sg=(x0,z0,x1,z1)=>a('yel',Math.min(x0,x1)-.07,Math.max(x0,x1)+.07,.06,.15,Math.min(z0,z1)-.07,Math.max(z0,z1)+.07);
  {const pts=[[-10.9,1.2],[-12.1,1.2],[-12.1,6.5],[-11.3,6.5],[-11.3,9.4]];for(let i=1;i<pts.length;i++)sg(...pts[i-1],...pts[i]);a('brass',-11.45,-11.15,.06,.22,9.4,9.75)}
  for(const z of[1,4,7])for(const[x0,x1]of[[-14.7,-5.3],[5.3,14.7]]){a('metal',x0,x1,3.38,3.7,z-.09,z+.09);a('metal',x0,x1,3.3,3.38,z-.2,z+.2)}
@@ -50232,14 +50233,14 @@ const FIRE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.4,dh:3,mat:wt2('#8a4a3a',0),sign
  X:FB.X,XC:FB.XC,
  F:[[['pole',-6.5,8.6],['ext',-14.55,8.6,1],['wbench',-14.35,1,1,3],['comp',-13.9,-1.7,0],['tires',-7.3,-1.7,0],['drum',-5.9,8.7],['cone',-11.5,9.3],['cone',-7.5,9.3],['vic',-11.7,6.8,1,'cov'],['bin',-14.1,4.3,1],
    ['medcart',13.9,2,3],['gurney',9.5,1,1],['bodybag',12.5,.8,0],['vic',11.8,7.2,1],['vic',7.3,1.5,0,'cov'],['ext',14.55,8.6,3],['hdrum',13.9,5.5],
-   ['regdesk',0,.6,0,4.4],['chair',-3.8,5.5,0],['chair',-3.8,6.5,0],['bench',-3.4,7.9,2],['plant',-4.5,9],['plant',4.5,9],['vend',4.7,6.5,3],['barr',-2.4,7.2,0],['vic',2.4,6.5,0],
+   ['regdesk',0,.6,0,4.4],['chair',-4.55,5.55,0],['chair',-4.55,6.55,0],['bench',-4.05,7.45,2],['plant',-4.5,9],['plant',4.5,9],['vend',4.7,6.5,3],['barr',-4.05,4.7,0],['vic',2.4,6.5,0],
    ['gear',-12.25,-9.45,0,4.4],['gear',-14.4,-5.5,1,3.6],['bench',-12,-6.5,0],['vic',-12.6,-4.5,1],
    ['scba',-8.8,-9.3,0],['scba',-6.6,-9.3,0],['comp',-9.2,-8,1],['wbench',-5.65,-8.3,3,2.4],
    ['disp',0,-8.9,0],['chair',-.6,-7.9,2],['desk',-3.8,-9,0],['tv',3.5,-9.4,0],['cool',4.5,-2.85,2],['safe',4.2,-9.1,0],['plant',-4.5,-3],['vic',2.2,-6,1,'cov'],
    ['shelf',11,-2.9,2,5],['shelf',14.5,-5.2,3,2.4],['medcart',6.4,-6.8,1],['sacks',13,-5.5,0],['sink',5.5,-8,1],['hdrum',6,-3.4],['trophy',-4.8,1.2,1],['washer',-13.6,-3.1,2],['washer',-12.5,-3.1,2]],
   [['polecap',-6.5,8.6],['bunk',-13.5,1.6,1],['bunk',-13.5,4.4,1],['bunk',-13.5,7.2,1],['bunk',-10.4,1.6,1],['bunk',-10.4,4.4,1],['bunk',-10.4,7.2,1],['wardrobe',-7.2,9.1,2],['chair',-8,5,0],['vic',-8,3,0],['vic',-11.9,3.2,1,'cov'],
    ['desk',-9,-8.2,0],['safe',-14.2,-9.2,0],['cab',-14.4,-6,1],['bed',-13,-3.6,0],['plant',-6,-1.8],['vic',-7.4,-3,0],
-   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],['bin',4.7,.6,3],
+   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],['bin',4.65,2.45,3],
    ['wc',-4,-9.3,0],['wc',-2.6,-9.3,0],['wc',-1.2,-9.3,0],['sink',1,-9.35,0],['sink',2.4,-9.35,0],['bath',4,-8.2,0],['vic',-3,-5,1,'cov'],
    ['sofa',10.5,-5.7,0],['tv',10.5,1.55,2],['table',10.5,-1.4,0,1.4,.8],['chair',7.5,-3,3],['vic',12.8,-3.2,0],['vend',14.1,-1,3],['plant',6,-6],
    ['weights',9,4.5,0],['weights',12.5,4.5,0],['treadm',9.5,8.4,0],['treadm',11.3,8.4,0],['treadm',13.1,8.4,0],['ext',14.55,2.6,3],['vic',7,6,1],['pool',12.5,-.5,0],['bshelf',14.5,1,3,1.4],['hbag',8.2,3.2,0],['dumb',14.45,6.5,3]]]});
@@ -53858,7 +53859,7 @@ M.box(mG,10.5,.08,FZ0+.5,16,.1,.16);M.box(mGd,-3.9,.9,FZ0+.5,.3,1.8,.3);M.box(mG
 const bcM=new T.MeshBasicMaterial({color:0xffa010}),bcG=new T.Group();bcG.position.set(-4.6,1.55,FZ0+1.1);PGp.add(bcG);pCy(bcG,mDm,.14,.18,.1,0,0,0,0,0,10);const bcL=new T.Mesh(new T.CylinderGeometry(.13,.13,.2,12),bcM);bcL.position.y=.15;bcG.add(bcL);pBx(bcG,bcM,0,.15,0,.02,.02,.22);
 PLX.gate={gmL,gmR,gpL,gsL,gsB,gsX:0,bcG,bcM};
 // boom barrier at the guard booth lane + gate gantry sign
-{const bm=new T.Group();bm.position.set(.4,1.05,18.4);PGp.add(bm);pBx(bm,mWht,-2.4,0,0,4.8,.12,.12);for(let i=0;i<8;i++)pBx(bm,i%2?mRed:mWht,-.3-i*.6,0,0,.3,.125,.125).scale.set(1,1,1);pBx(PGp,mRed,.4,.55,18.4,.5,1.1,.5);pBx(PGp,mCo,.4,.03,18.4,.9,.06,.9);PLX.boom=bm;
+{const bm=new T.Group();bm.position.set(-8.2,1.05,18.4);PGp.add(bm);pBx(bm,mWht,-2.4,0,0,4.8,.12,.12);for(let i=0;i<8;i++)pBx(bm,i%2?mRed:mWht,-.3-i*.6,0,0,.3,.125,.125).scale.set(1,1,1);pBx(PGp,mRed,-8.2,.55,18.4,.5,1.1,.5);pBx(PGp,mCo,-8.2,.03,18.4,.9,.06,.9);PLX.boom=bm;
  for(const x of[-6.4,6.4]){M.box(mGd,x,2.7,FZ1+.2,.3,5.4,.3);M.box(mCo,x,.2,FZ1+.2,.7,.4,.7)}M.box(mGd,0,5.3,FZ1+.2,13.1,.4,.3);M.box(mGd,0,4.95,FZ1+.2,13.1,.08,.1);
  pSign([['RIVERSIDE POWER STATION',40,70],['AUTHORISED PERSONNEL ONLY',22,118]],'#1f3b57','#f2f4f8',512,150,8,1.5,0,4.3,FZ1+.38,0);pSign([['NO UNAUTHORISED ENTRY',34,64],['CCTV · GUARDS · LIVE FIRE?',16,110]],'#b3201a','#f2f4f8',512,140,6,1.2,0,4.3,FZ1+.0,PI2)}
 // ---- guard towers with searchlights (beams run on grid power)
@@ -53958,8 +53959,8 @@ pSign([['HYDROGEN',40,56],['NO NAKED FLAME',16,98]],'#d9a516','#16161a',256,110,
 // ---- guard booth upgrade + sandbag nest + jersey barriers + cones + spike strip
 {for(let k=0;k<3;k++)for(let i=0;i<8;i++)M.box(mBag,3.2+i*.48+(k%2)*.24,.12+k*.21,18.6,.5,.2,.34,0,rr(-.1,.1),0);pW(5,18.6,2.1,.3,true);
  for(const x of[-9,-7.2,9.5,11.3])M.box(mCoD,x,.4,19.6,1.8,.8,.5);M.box(mYl,6.2,2.9,15.2,2.9,.12,.05);
- for(let i=0;i<8;i++)M.box(mWr,-3.3+i*.4,.07,19.8,.06,.14,.3);M.box(mGd,-2,.04,19.8,3.5,.06,.3);
- for(const[x,z]of[[-1,17.2],[2,19],[-5,19.4],[8,19.2]])M.add(mHz,new T.ConeGeometry(.2,.6,10),x,.3,z)}
+ for(let i=0;i<8;i++)M.box(mWr,8.4+i*.4,.07,17.2,.06,.14,.3);M.box(mGd,9.8,.04,17.2,3.5,.06,.3);
+ for(const[x,z]of[[-8.4,17.4],[8.6,17.2],[-8.2,19.8],[10.4,19.2]])M.add(mHz,new T.ConeGeometry(.2,.6,10),x,.3,z)}
 // ---- CCTV posts (heads pan) + perimeter floodlight masts
 PLX.cc=[];for(const[x,z,a0]of[[-20,20.6,PI2],[10,20.6,PI2],[18.4,-12,PI2/2],[18.4,8,PI2/2],[-33.6,-20,-PI2/2],[-10,-40.8,0],[-20,-40.8,0]]){M.cyl(mGd,.07,.09,3.6,x,1.8,z,0,0,0,8);const g=new T.Group();g.position.set(x,3.75,z);PGp.add(g);pBx(g,mWht,0,0,.2,.25,.22,.6);pBx(g,mDm,0,0,.52,.2,.18,.06);const l=new T.Mesh(new T.SphereGeometry(.03,6,4),pRed);l.position.set(.08,.1,.12);g.add(l);PLX.cc.push({g,a0,ph:rr(0,6),l})}
 for(const[x,z]of[[-12,20.3],[12.5,20.3],[18.7,-24],[-34,-24],[-34,6],[18.7,-4],[-14,-41.3],[0,-41.3],[10,-41.3]]){M.box(mG,x,3.2,z,.14,6.4,.14);M.box(mDm,x+(x<0?.5:-.5)*0,6.5,z,1.0,.1,.3);M.box(pLamp,x,6.4,z,.8,.06,.22);pSpill(x,z,8)}
@@ -54005,7 +54006,7 @@ if(plantI&&PLX.G){const P=PLX,sn=Math.sin,PI2=Math.PI,pS=plantI.s;let t=0,rn=POW
   gate.gmL.rotation.y=PI2/2+1.4+sn(t*.5)*.04+gust*.08;gate.gpL.rotation.y=-.9+sn(t*.9)*.2+sn(t*2.7)*.04;
   {const near=Math.hypot(cam.position.x-plantI.x,cam.position.z-(plantI.z+-42*pS))<22,d=((near&&on)?1:0)-gsX;if(on)gsX+=Math.sign(d)*Math.min(Math.abs(d),dt*1.3/7);gate.gsL.position.x=-3.5+gsX*7;gate.gsB.x=plantI.x+gsX*7*pS;
    gate.bcG.rotation.y+=dt*(Math.abs(d)>.001&&on?10:on?2:0);gate.bcM.color.setRGB(1,.6,.05).multiplyScalar(on?(sn(t*3)>.2?1:.3):.1)}
-  {const near=Math.hypot(cam.position.x-(plantI.x+.4*pS),cam.position.z-(plantI.z+18.4*pS))<11,tg=near?1.35:.02;boomA+=(tg-boomA)*Math.min(1,dt*1.6);P.boom.rotation.z=-boomA}
+  {const near=Math.hypot(cam.position.x-(plantI.x+-8.2*pS),cam.position.z-(plantI.z+18.4*pS))<11,tg=near?1.35:.02;boomA+=(tg-boomA)*Math.min(1,dt*1.6);P.boom.rotation.z=-boomA}
   // towers / searchlights
   const L=rn>.5?1:0;P.lensM.color.setRGB(1,.94,.75).multiplyScalar(.2+.8*n*L);P.mBeam.opacity=.2*n*L;P.mSpot.opacity=.85*n*L;P.bcRed.color.setRGB(1,.1,.05).multiplyScalar(sn(t*2.6)>.55?1:.12);
   for(const w of P.tw){const yaw=w.y0+sn(t*.4+w.ph)*1.15+sn(t*1.1+w.ph)*.1,pit=.42+sn(t*.8+w.ph)*.07;w.sl.rotation.set(pit,yaw,0);const hh=6.73,Lg=hh/Math.sin(pit),d=hh/Math.tan(pit),s=Lg/34;w.sl.children[w.sl.children.length-1].scale.set(s,s,s);w.spot.position.set(w.tx+sn(yaw)*d,.27,w.tz+Math.cos(yaw)*d);w.spot.rotation.y=yaw;const sw=3.4*s*3.5/7;w.spot.scale.set(sw,sw/Math.sin(pit),1)}
