@@ -51517,9 +51517,9 @@ _limb(parts,end.clone().addScaledVector(d,-len*Math.random()*.25),nd,len*(.55+Ma
 function _deadTreeGeo(){const parts=[],col=0x4a4036;_limb(parts,new T.Vector3(0,0,0),new T.Vector3((Math.random()-.5)*.12,1,(Math.random()-.5)*.12),5.2,.46,.2,col,3);
 for(let i=0;i<4;i++){const a=Math.random()*6.283;_limb(parts,new T.Vector3(0,.15,0),new T.Vector3(Math.cos(a)*1.4,-.15,Math.sin(a)*1.4),1.1,.2,.06,col,0)}
 parts.push({g:new T.CylinderGeometry(.5,.62,.3,6),m:new T.Matrix4().compose(new T.Vector3(0,.12,0),new T.Quaternion(),new T.Vector3(1,1,1)),c:0x2f2820});return _mg(parts)}
-{const n=TRS.length,V=[_deadTreeGeo(),_deadTreeGeo(),_deadTreeGeo()],mat=new T.MeshStandardMaterial({vertexColors:true,roughness:1,metalness:0}),o=new T.Object3D(),col=new T.Color(),ims=V.map(g=>{const m=new T.InstancedMesh(g,mat,n);m.count=0;return m});
-TRS.forEach(([x,z,h],i)=>{const m=ims[i%3],j=m.count++;o.position.set(x,0,z);o.rotation.set((Math.random()-.5)*.14,Math.random()*6.283,(Math.random()-.5)*.14);const s=h/8*(.85+Math.random()*.5);o.scale.set(s,s*(.9+Math.random()*.4),s);o.updateMatrix();m.setMatrixAt(j,o.matrix);const t=.7+Math.random()*.5;col.setRGB(t,t*.97,t*.92);m.setColorAt(j,col)});
-for(const m of ims){m.castShadow=true;m.frustumCulled=false;scene.add(m)}}
+{const n=TRS.length,cnt=[0,0,0];for(let i=0;i<n;i++)cnt[i%3]++;const V=[_deadTreeGeo(),_deadTreeGeo(),_deadTreeGeo()],mat=new T.MeshStandardMaterial({vertexColors:true,roughness:1,metalness:0}),o=new T.Object3D(),col=new T.Color(),ims=V.map((g,k)=>{const c=cnt[k],m=new T.InstancedMesh(g,mat,Math.max(1,c));/* setColorAt sizes instanceColor from the current count. Allocate one colour per tree before any write, or the first call (old count was 1) leaves every later tree untinted. */m.instanceColor=new T.BufferAttribute(new Float32Array(Math.max(c,1)*3),3);m.count=c;return m});
+const ix=[0,0,0];TRS.forEach(([x,z,h],i)=>{const k=i%3,m=ims[k],j=ix[k]++;o.position.set(x,0,z);o.rotation.set((Math.random()-.5)*.14,Math.random()*6.283,(Math.random()-.5)*.14);const s=h/8*(.85+Math.random()*.5);o.scale.set(s,s*(.9+Math.random()*.4),s);o.updateMatrix();m.setMatrixAt(j,o.matrix);const t=.7+Math.random()*.5;col.setRGB(t,t*.97,t*.92);m.setColorAt(j,col)});
+for(const m of ims){if(m.instanceColor)m.instanceColor.needsUpdate=true;m.castShadow=true;m.frustumCulled=false;scene.add(m)}}
 
 // car
 const car=new T.Group();

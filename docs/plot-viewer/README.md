@@ -1,6 +1,6 @@
 # Dead Harvest: isolated plot viewer (TEST ONLY, read-only placement audit)
 
-**Publication is ON HOLD. This artifact has not been browser-validated or measured for FPS.**
+**The attached jsdom sweep below was not a browser test.** A later headless Chrome + SwiftShader load of `plot-viewer.html` is recorded in `NOTE.md`. Those frame rates are software-rendered, not a discrete GPU.
 
 **Artifact:** `viewer.html`, one self-contained file of about 2.07 MB. three.js r128 is inlined, as in production. It loads no CDN, asset, font or network files, so it can be published as a single file under any name.
 **Generated from:** `/workspace/campaign_nov5/dead-harvest-main/index.html` (md5 `1aea5a0a56af8c85ddb2d465342cf72b`). The generator only reads this file, and its md5 is the same before and after every build (see `anchors.json`).
@@ -26,7 +26,7 @@ Examples: `viewer.html?plot=1`, `viewer.html?plot=1&ctx=0`, `viewer.html?plot=15
 - A red TEST ONLY banner is always shown. It names the excluded neighbour plots, for which cross-plot checks are not valid.
 
 ## What the viewer changes (viewer file only)
-1. Region prune (cull mode). After every production builder has run, top-level scene objects whose world AABB misses the region are removed from the scene graph; they remain in memory. Instanced meshes with complete colour attributes are compacted to their in-region instances, using the same in-place method as production LOD. Three production tree groups have truncated colour attributes; those groups are kept whole to avoid reassigning colours. Lights, camera, Points and Lines are always kept. The selected and context plots' nested objects and geometry attributes are never touched. Top-level shared-world instance matrices/colours are remapped only in the viewer and restored by Unprune. Colliders (`boxes`, `insts`, `bdoors`) are not modified, so pruned areas keep invisible colliders.
+1. Region prune (cull mode). After every production builder has run, top-level scene objects whose world AABB misses the region are removed from the scene graph; they remain in memory. Instanced meshes with complete colour attributes are compacted to their in-region instances, using the same in-place method as production LOD. A group whose colour buffer is shorter than its instance count is kept whole so colours are not reassigned. The dead-tree builder used to be one of those groups; it now allocates a full colour buffer, and the guard remains. Lights, camera, Points and Lines are always kept. The selected and context plots' nested objects and geometry attributes are never touched. Top-level shared-world instance matrices/colours are remapped only in the viewer and restored by Unprune. Colliders (`boxes`, `insts`, `bdoors`) are not modified, so pruned areas keep invisible colliders.
 2. Zombie spawn spots are emptied and raids disabled.
 3. On load the player teleports to the selected plot's front door, using the same spot as production admin `goH`.
 
