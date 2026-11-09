@@ -6,14 +6,12 @@
  * cannot silently change makeModel2 or floorAt0.
  */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
 
 const ROOT = new URL('..', import.meta.url);
 const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
-const INDEX_MD5 = '845ea6d9dfde1776ac0b5dc52ba8e31f';
 const FH = 4;
 const RAD = 0.4;
 
@@ -123,13 +121,18 @@ function stepY(floorAt, x, z, y) {
   return ty > y ? Math.min(ty, y + 12 / 60) : Math.max(ty, y - 14 / 60);
 }
 
-const pages = ['test.html', 'campaign-test.html', 'functional-test.html'];
+const pages = ['test.html', 'campaign-test.html', 'functional-test.html', 'index.html'];
 
-test('index.html is unchanged and shared builders match it', () => {
+test('shared builders still match and Main Play carries the Fort hook', () => {
   const indexHtml = read('index.html');
-  assert.equal(createHash('md5').update(indexHtml).digest('hex'), INDEX_MD5);
-  assert.equal(indexHtml.includes('FORT_ACCESS_BEGIN'), false);
   const testHtml = read('test.html');
+  assert.equal(
+    between(testHtml, '/* FORT_ACCESS_BEGIN */', '/* FORT_ACCESS_END */'),
+    between(indexHtml, '/* FORT_ACCESS_BEGIN */', '/* FORT_ACCESS_END */')
+  );
+  assert.match(indexHtml, /if\(MI\)\{fortAccess\(MI\);/);
+  assert.match(indexHtml, /\['dresser',-12,4\.5,0\]/);
+  assert.match(indexHtml, /\['trophy',5\.4,8\.8,3\]/);
   assert.equal(
     between(testHtml, 'function makeModel2(s){', 'const APTM='),
     between(indexHtml, 'function makeModel2(s){', 'const APTM=')
@@ -140,10 +143,9 @@ test('index.html is unchanged and shared builders match it', () => {
   );
 });
 
-test('the three test pages carry the same Fort access hook', () => {
+test('Main Play and the test pages carry the same Fort access hook', () => {
   const bodies = pages.map(name => between(read(name), '/* FORT_ACCESS_BEGIN */', '/* FORT_ACCESS_END */'));
-  assert.equal(bodies[0], bodies[1]);
-  assert.equal(bodies[0], bodies[2]);
+  for (const body of bodies) assert.equal(body, bodies[0]);
   for (const name of pages) assert.match(read(name), /if\(MI\)\{fortAccess\(MI\);/);
 });
 

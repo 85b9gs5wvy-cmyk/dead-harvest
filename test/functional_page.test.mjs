@@ -3,7 +3,6 @@
  * Differences are the diagnostic renderer, storage names, Potato-start default, and boot/runtime blocks.
  */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
@@ -89,8 +88,7 @@ test('scripts parse and storage keys stay off the live, test, and harness names'
   }
 });
 
-test('index.html stays the live game while test.html carries the return guard', () => {
-  assert.equal(createHash('sha256').update(indexHtml).digest('hex'), 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
+test('index.html uses the real radius while test.html keeps the return-step guard', () => {
   assert.match(testHtml, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
   assert.doesNotMatch(testHtml, /r\+50/);
   const guard = goalMetLine(funcHtml);
@@ -98,6 +96,11 @@ test('index.html stays the live game while test.html carries the return guard', 
   assert.match(guard, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
   assert.match(guard, /S\.cur\.id==='return'&&!\(carry\.w\+carry\.s\+carry\.m>0\)/);
   assert.doesNotMatch(guard, /r\+50/);
+  const live = goalMetLine(indexHtml);
+  assert.match(live, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.match(live, /__willRspNote/);
+  assert.doesNotMatch(live, /r\+50/);
+  assert.doesNotMatch(live, /S\.cur\.id==='return'/);
   assert.equal(funcHtml.includes(GAMEPLAY), true);
 });
 
