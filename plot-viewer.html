@@ -56522,7 +56522,9 @@ function buildUI(){
  ['pointerdown','pointerup','mousedown','mouseup','click','auxclick','contextmenu','wheel','touchstart','keydown'].forEach(function(ev){root.addEventListener(ev,function(e){e.stopPropagation()})});document.body.appendChild(root);
  /* Admin menu is z-index 41 on the left, under this panel. The orbit mask is z-index 9000 and covers the toolbar button. */
  (function liftChrome(){var kids=document.body.children;for(var i=0;i<kids.length;i++){var eln=kids[i];if(eln.id==='sPop'||eln.id==='sHud'||eln.id==='sFlash'||eln.id==='sObj'||eln.id==='sSide')continue;var z=eln.style.zIndex;if(z==='41'||z==='42')eln.style.zIndex='9600'}
-  var pause=document.getElementById('dhpause');if(pause)pause.style.zIndex='9700';var bar=document.getElementById('pcbar');if(bar)bar.style.zIndex='9100'})();
+  var pause=document.getElementById('dhpause');if(pause)pause.style.zIndex='9700';var bar=document.getElementById('pcbar');if(bar)bar.style.zIndex='9100';
+  /* ☰ Menu stays z-index 40, under the orbit mask (9000). Walk mode can hit it; Orbit cannot. */
+  var menuBtn=document.querySelector('button[title="Pause menu (Esc)"]');if(menuBtn)menuBtn.style.zIndex='9100'})();
  var hd=el('div','display:flex;justify-content:space-between;align-items:center');hd.appendChild(el('b','color:#ffd24c','DHV isolated viewer · TEST ONLY'));var body=el('div');
  var col=btn(hd,'–',function(){body.style.display=body.style.display==='none'?'block':'none'});root.appendChild(hd);root.appendChild(body);var R0=root;root=body;
  var s=sec('Selection (reloads page)');var sel=el('select','width:100%;margin:2px 0;background:#222;color:#eee');

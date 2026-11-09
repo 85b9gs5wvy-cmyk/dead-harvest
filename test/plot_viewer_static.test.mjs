@@ -46,6 +46,19 @@ test('plot-viewer game body is the attached file; only dhv-runtime changed', () 
   assert.equal(runtime.includes("orbSet(nm);orbToggle(true)"), false);
 });
 
+test('orbit mask does not sit above the pause Menu button', () => {
+  const a = viewer.indexOf('<script id="dhv-runtime">');
+  const b = viewer.indexOf('</script>', a);
+  const runtime = viewer.slice(a, b);
+  const overlay = runtime.match(/dhvOrbit[\s\S]{0,220}/);
+  assert.ok(overlay, 'orbit overlay missing');
+  assert.match(overlay[0], /z-index:9000/);
+  assert.match(runtime, /querySelector\('button\[title="Pause menu \(Esc\)"\]'\)/);
+  assert.match(runtime, /menuBtn\.style\.zIndex='9100'/);
+  const gameMenu = viewer.slice(0, a);
+  assert.match(gameMenu, /mb\.style\.cssText='position:fixed;right:152px;top:50px;z-index:40/);
+});
+
 test('inline scripts parse and the page does not load external files', () => {
   const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   let m, n = 0;
