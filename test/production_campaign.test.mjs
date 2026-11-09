@@ -4,7 +4,6 @@
  * Raid night is audited, not changed: the HUD label is the calendar day, separate from the spawn queue.
  */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
@@ -67,7 +66,7 @@ test('farm foot-spawn is outside the return circle and inside the old r+50 ring'
 });
 
 test('death outside the circle no longer blocks a later empty walk-in', () => {
-  for (const html of [testHtml, harnessHtml, read('functional-test.html')]) {
+  for (const html of [testHtml, harnessHtml, read('functional-test.html'), indexHtml]) {
     const { goalMet, context } = loadGoalMet(html);
     context.window.__willRsp = 1;
     context.player = { ...FARM_SPAWN };
@@ -141,11 +140,16 @@ test('both test pages share the same goalMet and still use separate save keys', 
   assert.match(harnessHtml, /window\.__willRsp=1;window\.__willRspNote=0;/);
 });
 
-test('live index.html is the unchanged pre-fix game', () => {
-  const sha = createHash('sha256').update(indexHtml).digest('hex');
-  assert.equal(sha, 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
-  assert.match(indexHtml, /if\(!reached\(g\.reach,r\+50\)\)window\.__willRsp=0/);
-  assert.doesNotMatch(indexHtml, /dhSaveTest|dhSaveHarness|__willRspNote/);
+test('index.html uses the real reach radius and the death toast, and keeps live save keys', () => {
+  const line = extract(indexHtml, 'const goalMet=s=>', '\n');
+  assert.match(line, /if\(!reached\(g\.reach,r\)\)window\.__willRsp=0/);
+  assert.doesNotMatch(line, /r\+50/);
+  assert.match(line, /__willRspNote/);
+  assert.match(line, /Death put you on the farm empty-handed/);
+  assert.doesNotMatch(line, /S\.cur\.id==='return'/);
+  assert.match(indexHtml, /window\.__willRsp=1;window\.__willRspNote=0;/);
+  assert.match(indexHtml, /KEY='dhSave',VKEY='dhSaveVer'/);
+  assert.doesNotMatch(indexHtml, /dhSaveTest|dhSaveHarness|dhSaveFunctional/);
 });
 
 function raidConsts(html) {

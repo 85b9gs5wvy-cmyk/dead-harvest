@@ -1,10 +1,9 @@
 /**
  * Research Station H-9 perimeter gate.
  * The yard switch stays inside. A second switch on the road side uses the same toggle.
- * Reach, the 1.9 m cap, and the closed leaf stay in force. Main Play is unchanged.
+ * Reach, the 1.9 m cap, and the closed leaf stay in force. Main Play has the same road switch.
  */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdtempSync, readFileSync } from 'node:fs';
@@ -122,24 +121,21 @@ function loadSwitches(html) {
   return { calls, said, ctx };
 }
 
-test('the three test pages share the road-side gate switch and Main Play does not', () => {
+test('Main Play and the three test pages share the road-side gate switch', () => {
   for (const name of pages) assert.ok(htmls[name].includes(SNIP), name);
   assert.equal(htmls['test.html'].includes(SNIP), true);
-  assert.equal(indexHtml.includes('const gateWord='), false);
-  assert.equal(indexHtml.includes('N(0,40,gateWord'), false);
-  assert.match(indexHtml, /N\(0,33\.5,\(\)=>gate\.open\?'close the perimeter gate'/);
-  const sha = createHash('sha256').update(indexHtml).digest('hex');
-  assert.equal(sha, 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
-  for (const name of pages) {
-    assert.match(htmls[name], /Math\.min\(rad\|\|1\.7,1\.9\)/);
-    assert.match(htmls[name], /gate\.col\.hw=gate\.p>\.6\?0:2\.1/);
-    assert.match(htmls[name], /const gate=\{open:false,p:0,col:colW\(0,38,2\.1,\.5,0,3\)\}/);
+  assert.ok(indexHtml.includes(SNIP));
+  assert.equal(indexHtml.includes("N(0,33.5,()=>gate.open?'close the perimeter gate'"), false);
+  for (const html of [...pages.map((name) => htmls[name]), indexHtml]) {
+    assert.match(html, /Math\.min\(rad\|\|1\.7,1\.9\)/);
+    assert.match(html, /gate\.col\.hw=gate\.p>\.6\?0:2\.1/);
+    assert.match(html, /const gate=\{open:false,p:0,col:colW\(0,38,2\.1,\.5,0,3\)\}/);
   }
 });
 
 test('both switches run one toggle, and lockdown does not move the perimeter gate', () => {
-  for (const name of pages) {
-    const { calls, said, ctx } = loadSwitches(htmls[name]);
+  for (const src of [...pages.map((name) => htmls[name]), indexHtml]) {
+    const { calls, said, ctx } = loadSwitches(src);
     assert.equal(calls.length, 2);
     assert.deepEqual(calls.map((c) => [c.lx, c.lz, c.rad]), [[0, 33.5, 5], [0, 40, 1.9]]);
     assert.equal(calls[0].fn, calls[1].fn);

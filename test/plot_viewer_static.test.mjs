@@ -84,10 +84,14 @@ test('query bounds match the audit tool, not the functional-test page', () => {
   assert.equal(viewer.includes('dhSaveFunctional'), false);
 });
 
-test('index.html is unchanged and is not this viewer', () => {
-  assert.equal(createHash('sha256').update(indexHtml).digest('hex'), 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6');
+test('index.html is not this viewer, and the viewer keeps the pre-port lines', () => {
   assert.equal(indexHtml.includes('DHV_SCOPE_BRIDGE'), false);
   assert.equal(indexHtml.includes('__DHV'), false);
+  assert.match(viewer, /if\(!reached\(g\.reach,r\+50\)\)/);
+  assert.equal(viewer.includes('FORT_ACCESS_BEGIN'), false);
+  assert.equal(viewer.includes('SCENIC_STAIR_BEGIN'), false);
+  assert.equal(viewer.includes('const gateWord='), false);
+  assert.equal(viewer.includes('__vehRsp'), false);
 });
 
 test('a later strict script can see let/const only through the global bridge', () => {

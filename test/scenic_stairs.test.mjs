@@ -5,15 +5,13 @@
  * through the game and it is not a manual walk.
  */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
 
 const ROOT = new URL('..', import.meta.url);
 const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
-const pages = ['test.html', 'campaign-test.html', 'functional-test.html'];
-const INDEX_SHA = 'ec826263e621833f1dc39d581e3f7ac037095442764207e93017ef67bb13b3b6';
+const pages = ['test.html', 'campaign-test.html', 'functional-test.html', 'index.html'];
 
 function between(html, start, end) {
   const i = html.indexOf(start);
@@ -71,22 +69,13 @@ function climb(surfs, boxes, x0, z0, x1, z1) {
   return p;
 }
 
-test('index.html is unchanged and still has the old stair lines', () => {
-  const index = read('index.html');
-  assert.equal(createHash('sha256').update(index).digest('hex'), INDEX_SHA);
-  assert.equal(index.includes('SCENIC_STAIR_BEGIN'), false);
-  assert.equal(index.includes('Z+.7-i*0'), true);
-  assert.equal(index.includes('jS([.15,-.02],[2.55,2.54],z)'), true);
-});
-
-test('the three test pages share one stair spec, mesh emit, and floor hook', () => {
+test('Main Play and the test pages share one stair spec, mesh emit, and floor hook', () => {
   const scenic = pages.map((n) => between(read(n), '/* SCENIC_STAIR_BEGIN */', '/* SCENIC_STAIR_END */'));
   const emit = pages.map((n) => between(read(n), '/* SCENIC_STAIR_END */', '// === JIM FIX END: 5a-stairs ==='));
   const quarry = pages.map((n) => between(read(n), '{const S=window.DH_SCENIC,L=S.land;', 'qSign(X,Z+1.24'));
   const floor = pages.map((n) => between(read(n), 'function floorAt_o(px,pz,py){', 'function renderMenu(){'));
   for (const group of [scenic, emit, quarry, floor]) {
-    assert.equal(group[0], group[1]);
-    assert.equal(group[0], group[2]);
+    for (let i = 1; i < group.length; i++) assert.equal(group[i], group[0]);
   }
   for (const name of pages) {
     const html = read(name);
