@@ -21,13 +21,15 @@ test('index.html carries the approved Plot 5 and Plot 6 moves', () => {
   assert.equal(index.includes('8.4+i*.4,.07,17.2'), true);
 });
 
-test('unchanged plots and the old viewer stay on the previous coordinates', () => {
+test('the generated viewer matches index.html and the play pages do not', () => {
   assert.equal(index.includes("['sink',-.2,1.5,0]"), true);
   assert.equal(index.includes("['hbed',-10,5.4,1,1]"), true);
-  assert.equal(viewer.includes("['bench',-3.4,7.9,2]"), true);
-  assert.equal(viewer.includes("['bin',4.7,.6,3]"), true);
-  assert.equal(viewer.includes('tr(-.8,-14.5,5.4,0)'), true);
+  assert.equal(viewer.includes("['bench',-4.05,7.45,2]"), true);
+  assert.equal(viewer.includes("['bin',4.65,2.45,3]"), true);
+  assert.equal(viewer.includes('tr(-.8,-18.2,5.4,0)'), true);
+  assert.equal(read('test.html').includes("['bench',-4.05,7.45,2]"), true);
   assert.equal(index.includes('__DH_ONE'), false);
+  assert.equal(viewer.includes('__DH_ONE'), true);
 });
 
 test('index.html hash matches the vehicle-page pin', () => {

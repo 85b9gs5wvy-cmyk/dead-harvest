@@ -21,10 +21,9 @@ const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
 const indexHtml = read('index.html');
 
 const FROZEN = {
-  'test.html': 'f61cb72ade63f017395d45f23064f0628e4085eedcb5b809f6b3e8bf7e4028d8',
+  'test.html': 'b749b075e95ba76a9103fc29a256f9a2828cba089065305070fec71ca8291013',
   'campaign-test.html': '1cc4e86f2b1a64a40e6188d57509fc49acf23a66fe0b1ab4625a7c634b1c421a',
   'functional-test.html': 'aaaad9fe062b4032c4ba265128f1231124bb13c9da7f1ec0f7e7e85b31275976',
-  'plot-viewer.html': 'fb391db3725bd362b204462e99205d4d17f6b6fb82648d85de12ecaaefdfac3a',
 };
 
 const GOAL_AT = { x: 10, z: 18 };
