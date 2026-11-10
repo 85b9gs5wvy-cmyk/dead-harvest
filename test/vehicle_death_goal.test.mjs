@@ -25,7 +25,7 @@ const PAGES = ['test.html', 'campaign-test.html', 'functional-test.html'];
 const html = Object.fromEntries(PAGES.map((n) => [n, read(n)]));
 const indexHtml = read('index.html');
 const viewerHtml = read('plot-viewer.html');
-const INDEX_SHA = 'b2307d1e6289ce15e07547424f3b1dcc2b4d5f44677817419019151bc6db15c5';
+const INDEX_SHA = '5f97e8935f2ab76e40c0bd1ca14074ed703f5adf7d918f964b3872c7fbfe493d';
 
 const DEATH_SNAP = 'if(foot)farmSpawn();else{if(drv){drv.x=0;drv.z=18;drv.spd=0;drv.steer=0}spd=0;car.position.set(0,pitH(0,18),18);window.__vehRsp=1}';
 const DRIVE_SNAP = 'if(drv!==v){window.__vehRsp=0;return}if(window.__vehRsp){window.__vehRsp=0;v.x=0;v.z=18;v.spd=0;v.steer=0;spd=0}spd=v.spd;';
