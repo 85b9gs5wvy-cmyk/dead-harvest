@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.26.0-campaign-nov5 — 2x1 any-pair evaluator (ignore extra pads), day+50%, lossless FPS — Flashlight battery, breaker trips, 7-level Riverside Apartments | v0.25.2 — Sawmill security pass, power station pass, crash guard, phone memory fixes | v0.25.0 — Bug-fix merge (Will save+builds, Jessica B1/B2/B4/B5/U3/fog, Jim placement+upper floors, GFX interiors) | v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
+<html lang="en"><head><meta charset="utf-8"><title>Dead Harvest v0.26.0-campaign-nov5 — hymnal recovery test — Flashlight battery, breaker trips, 7-level Riverside Apartments | v0.25.2 — Sawmill security pass, power station pass, crash guard, phone memory fixes | v0.25.0 — Bug-fix merge (Will save+builds, Jessica B1/B2/B4/B5/U3/fog, Jim placement+upper floors, GFX interiors) | v0.24.1 — Live merge: Research Station H-9 + specimen breakout, power-wave fixes, sculpted cemetery angels, new Chapter 1 story, apocalypse world pass | v0.24.0 — Apocalypse world pass (dead-earth ground, cracked & blood-stained roads, dead trees, sickly sky, smoke, wrecks, checkpoints) | v0.23.7 — fixes the frozen power wave (grid restart now reaches the farm) | v0.23.6 — farm line no longer snaps in the surge (fuses still pop; grid restart revives the poles + barn unless its breaker is tripped) | v0.23.5 — Specimen H-9 breakout (coolant to 0% for 60s: tank cracks, shatters, it hunts you) | v0.23.4 — Research Station H-9 overhaul (detailed ops building, badge levels, auto doors, tank + specimen, full B1 lab) | v0.23.3 — Research Base (back-left corner of the city: ops building, elevator, underground lab) | v0.23.2 — Plot 15 basement house + keycard side mission | v0.23.1 — Story mode + Fire Station detail pass | v0.22.3 — Blackpine High School ported (Plot 14: Classrooms, Gymnasium, Cafeteria, Science Lab, Library, Band Hall, Shop Class & Driveable School Bus) | v0.22.2 — Quarry overhaul: grid power required, operations console, perimeter fence + gate | v0.22.1 — PC default (Esc / ☰) with graphics, sound, mouse sensitivity + shortcuts | v0.21.9 — new POTATO graphics tier; starts on LOW graphics (GFX button / F4 to raise) | v0.21.6 — fixes "anyModal is not defined" + lossless FPS pass (light culling, no HUD blur) | v0.21.5 — FPS counter + lossless optimizations | v0.21.4 — PC controls fix (mouse lock, sticky keys) | v0.21.3 — Fort Gate Code Hunt (locked roll-up door, no rotor spin) | v0.21.2 — Fort Harvest Military Base (Plot 22) + Black-Start Generator | v0.20.13 — Interactive Interior Doors + Full 13-Building Layout Alignment + Lossless Mobile Optimization</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--fg:#e8e4d8;--bg:rgba(10,12,10,.55);box-sizing:border-box}
@@ -49794,21 +49794,22 @@ const R=[
 [1.0,6.5,-5.2,1.1,'tile'],[4.0,6.5,-7.7,-5.2,'tile'],[6.5,12.7,-7.7,-2.2,'tile'],
 [6.5,12.7,-2.2,3.2,'tile|carp'],[6.5,10.5,3.2,7.7,'tile|carp'],[10.5,12.7,3.2,7.7,'tile']];
 // ---------- furniture ----------
+// Plot 1 clearance: sofas sit off the bedroom and community doors, arcade cabinets stay inside the east and north walls, and the studio bath, sink, and wardrobe leave a walkable door.
 const mz=e=>{const o=e.slice();o[2]=-e[2];if(e.length>3){const r=e[3]|0;o[3]=e[0]==='bed'?(r===1?3:r===3?1:r):(r===0?2:r===2?0:r)}return o};
 const BWbath=[['wc',-12.1,-7.35,0],['sink',-9.8,-7.45,0],['bath',-12.3,-5.6,1],['curtain',-11.85,-5.6,1,1.7]];
 const BW=[
 ['bed',-7.3,-6.6,1],['table',-8.45,-7.3,0,.5,.45],['table',-6.15,-7.3,0,.5,.45],['wardrobe',-10.2,-1.65,2],['desk',-12.3,-2.1,1],['dresser',-5.4,-6.0,3],['rug',-7.6,-4.0,0,2.6,2.0],['plant',-5.55,-1.7],
 ...BWbath,
 ['fridge',-4.5,-7.33,0],['counter',-3.0,-7.4,0,2.0],['stove',-1.55,-7.38,0],['counter',-.15,-7.4,0,1.6],['dining',-1.0,-4.7,0,2.6],
-['sofa',-4.05,-3.0,1],['table',-3.0,-3.0,1,1.0,.6],['tv',.7,-3.0,3],['rug',-3.4,-3.0,1,2.4,2.0],['shelf',-4.1,-1.5,2,1.2],['plant',.55,-1.8]];
+['sofa',-2.5,-2.95,1],['table',-1.45,-2.95,1,1.0,.6],['tv',.7,-3.0,3],['rug',-2.05,-2.95,1,2.4,2.0],['shelf',-4.1,-1.5,2,1.2],['plant',.55,-1.8]];
 const FC=[
-['wc',2.45,1.7,0],['sink',1.55,1.55,0],['bath',1.55,3.0,1],
+['wc',2.55,1.55,0],['sink',2.58,2.15,0],['bath',1.525,2.05,1],
 ['stove',4.65,1.52,0],['counter',5.6,1.5,0,1.2],['fridge',6.05,2.4,3],
-['bed',5.25,4.9,2],['table',5.95,3.6,0,.5,.45],['wardrobe',1.4,4.75,1],['tv',1.35,6.4,1],['sofa',3.6,6.4,3],['rug',2.6,6.0,1,2.4,2.0],['plant',6.0,7.3]];
+['bed',5.25,4.9,2],['table',5.95,3.6,0,.5,.45],['wardrobe',5.85,6.45,1],['tv',1.35,6.4,1],['sofa',3.6,6.4,3],['rug',2.6,6.0,1,2.4,2.0],['plant',6.0,7.3]];
 const EU=[
 ['fridge',12.0,-1.7,0],['counter',10.4,-1.75,0,2.0],['stove',8.5,-1.78,0],['counter',7.3,-1.75,0,1.4],
 ['table',7.7,1.9,0,1.4,.9],['chair',7.2,1.1,0],['chair',8.2,1.1,0],['chair',7.2,2.7,2],['chair',8.2,2.7,2],
-['sofa',9.6,-.2,1],['table',10.9,-.2,1,1.0,.6],['tv',12.4,-.2,3],['rug',10.4,-.2,1,2.4,2.0],['plant',12.2,2.5],
+['sofa',9.6,-.2,1],['table',10.9,-.2,1,1.0,.6],['tv',12.4,-.2,3],['rug',10.4,-.2,1,2.4,2.0],['plant',12.2,0.85],
 ['bed',9.35,5.5,2],['table',10.1,4.4,0,.5,.45],['table',10.1,6.65,0,.5,.45],['wardrobe',6.9,6.5,1],['dresser',7.7,3.65,0,1.5],['rug',8.2,5.6,0,2.4,1.8],['plant',7.0,7.3],
 ['wc',11.2,7.35,2],['sink',10.85,4.6,1],['bath',12.3,5.6,1]];
 const HALL=[['plant',5.9,.7],['ext',4.15,-6.5,1]];
@@ -49823,7 +49824,7 @@ const CLOSET=[['shelf',-10.6,-.78,0,2.4],['drum',-12.2,.6],['bin',-6.2,.2,0]];
 const COMM=[
 ['counter',8.5,-1.75,0,2.2],['fridge',10.3,-1.7,0],['stove',11.2,-1.78,0],
 ['table',9.5,1.0,0,2.4,1.0],['chair',8.6,.2,0],['chair',10.4,.2,0],['chair',8.6,1.8,2],['chair',10.4,1.8,2],
-['pool',9.0,5.6,0],['arcade',11.6,7.3,2],['arcade',12.4,7.3,2],['jukebox',12.2,4.2,3],['sofa',7.2,3.4,1],['tv',12.4,-.2,3],['plant',7.0,7.3]];
+['pool',9.0,5.6,0],['arcade',10.55,6.9,2],['arcade',11.5,6.9,2],['jukebox',12.2,4.2,3],['sofa',8.4,2.7,1],['tv',12.4,-.2,3],['plant',7.0,7.3]];
 const typ=[...BW,...BW.map(mz),...FC,...EU,...HALL];
 const gnd=[...BW,...LOBBY,...LAUNDRY,...CLOSET,...COMM,...HALL];
 // ---------- elevator shaft (static shell) ----------
@@ -50172,7 +50173,7 @@ const FB=(()=>{const X=[],XC=[],a=(...e)=>X.push(e),c=(...e)=>XC.push(e),q=(k,x,
   for(const s of[-1,1]){q('dark',x+s*1.6,z1-.7,.3,.05,1.9,.4);q('metal',x+s*1.34,z1-.9,.02,.15,1.8,.05);q('dark',x+s*1.5,z1-.7,.2,.7,.5,.05)}
   for(const s of[-.6,.4])q('dark',x+s,z1+.03,.7,.02,1.9,.03);q('white',x,z1+.29,.5,.02,.55,.25);q('metal',x,cz-.9,.15,.15,2.92,.3);q('metal',x,cz-.55,.1,.6,3.2,.1)}
  q('white',12,1.5,.25,.25,.06,.9);q('green',12,1.5,.18,.18,.96,.1);q('red',11.2,.5,.5,.35,.06,.3);q('white',11.2,.5,.2,.02,.2,.1);q('metal',9.5,2.2,.4,.5,.06,.25);
- tr(-.8,-14.5,5.4,0);
+ tr(-.8,-18.2,5.4,0);
  const sg=(x0,z0,x1,z1)=>a('yel',Math.min(x0,x1)-.07,Math.max(x0,x1)+.07,.06,.15,Math.min(z0,z1)-.07,Math.max(z0,z1)+.07);
  {const pts=[[-10.9,1.2],[-12.1,1.2],[-12.1,6.5],[-11.3,6.5],[-11.3,9.4]];for(let i=1;i<pts.length;i++)sg(...pts[i-1],...pts[i]);a('brass',-11.45,-11.15,.06,.22,9.4,9.75)}
  for(const z of[1,4,7])for(const[x0,x1]of[[-14.7,-5.3],[5.3,14.7]]){a('metal',x0,x1,3.38,3.7,z-.09,z+.09);a('metal',x0,x1,3.3,3.38,z-.2,z+.2)}
@@ -50232,14 +50233,14 @@ const FIRE=makeModel2({w:30,d:20,fl:2,lv:2,dw:3.4,dh:3,mat:wt2('#8a4a3a',0),sign
  X:FB.X,XC:FB.XC,
  F:[[['pole',-6.5,8.6],['ext',-14.55,8.6,1],['wbench',-14.35,1,1,3],['comp',-13.9,-1.7,0],['tires',-7.3,-1.7,0],['drum',-5.9,8.7],['cone',-11.5,9.3],['cone',-7.5,9.3],['vic',-11.7,6.8,1,'cov'],['bin',-14.1,4.3,1],
    ['medcart',13.9,2,3],['gurney',9.5,1,1],['bodybag',12.5,.8,0],['vic',11.8,7.2,1],['vic',7.3,1.5,0,'cov'],['ext',14.55,8.6,3],['hdrum',13.9,5.5],
-   ['regdesk',0,.6,0,4.4],['chair',-3.8,5.5,0],['chair',-3.8,6.5,0],['bench',-3.4,7.9,2],['plant',-4.5,9],['plant',4.5,9],['vend',4.7,6.5,3],['barr',-2.4,7.2,0],['vic',2.4,6.5,0],
+   ['regdesk',0,.6,0,4.4],['chair',-4.55,5.55,0],['chair',-4.55,6.55,0],['bench',-4.05,7.45,2],['plant',-4.5,9],['plant',4.5,9],['vend',4.7,6.5,3],['barr',-4.05,4.7,0],['vic',2.4,6.5,0],
    ['gear',-12.25,-9.45,0,4.4],['gear',-14.4,-5.5,1,3.6],['bench',-12,-6.5,0],['vic',-12.6,-4.5,1],
    ['scba',-8.8,-9.3,0],['scba',-6.6,-9.3,0],['comp',-9.2,-8,1],['wbench',-5.65,-8.3,3,2.4],
    ['disp',0,-8.9,0],['chair',-.6,-7.9,2],['desk',-3.8,-9,0],['tv',3.5,-9.4,0],['cool',4.5,-2.85,2],['safe',4.2,-9.1,0],['plant',-4.5,-3],['vic',2.2,-6,1,'cov'],
    ['shelf',11,-2.9,2,5],['shelf',14.5,-5.2,3,2.4],['medcart',6.4,-6.8,1],['sacks',13,-5.5,0],['sink',5.5,-8,1],['hdrum',6,-3.4],['trophy',-4.8,1.2,1],['washer',-13.6,-3.1,2],['washer',-12.5,-3.1,2]],
   [['polecap',-6.5,8.6],['bunk',-13.5,1.6,1],['bunk',-13.5,4.4,1],['bunk',-13.5,7.2,1],['bunk',-10.4,1.6,1],['bunk',-10.4,4.4,1],['bunk',-10.4,7.2,1],['wardrobe',-7.2,9.1,2],['chair',-8,5,0],['vic',-8,3,0],['vic',-11.9,3.2,1,'cov'],
    ['desk',-9,-8.2,0],['safe',-14.2,-9.2,0],['cab',-14.4,-6,1],['bed',-13,-3.6,0],['plant',-6,-1.8],['vic',-7.4,-3,0],
-   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],['bin',4.7,.6,3],
+   ['stove',-4.2,.5,0],['fridge',-2.9,.5,0],['counter',.2,.45,0,2.4],['sink',2.5,.5,0],['table',-.5,4.5,0,3.6,1.1],['chair',-1.6,3.7,0],['chair',.6,3.7,0],['chair',-1.6,5.3,2],['chair',.6,5.3,2],['chair',-2.7,4.5,1],['vic',2.5,7,0],['bin',4.65,2.45,3],
    ['wc',-4,-9.3,0],['wc',-2.6,-9.3,0],['wc',-1.2,-9.3,0],['sink',1,-9.35,0],['sink',2.4,-9.35,0],['bath',4,-8.2,0],['vic',-3,-5,1,'cov'],
    ['sofa',10.5,-5.7,0],['tv',10.5,1.55,2],['table',10.5,-1.4,0,1.4,.8],['chair',7.5,-3,3],['vic',12.8,-3.2,0],['vend',14.1,-1,3],['plant',6,-6],
    ['weights',9,4.5,0],['weights',12.5,4.5,0],['treadm',9.5,8.4,0],['treadm',11.3,8.4,0],['treadm',13.1,8.4,0],['ext',14.55,2.6,3],['vic',7,6,1],['pool',12.5,-.5,0],['bshelf',14.5,1,3,1.4],['hbag',8.2,3.2,0],['dumb',14.45,6.5,3]]]});
@@ -51546,11 +51547,7 @@ for(const[id,k]of[['bl','KeyA'],['br','KeyD'],['bg','KeyW'],['bb','KeyS']]){cons
 const down=(a,b)=>K[a]||K[b];
 
 // on-foot mode
-const ADM={spd:1,god:false,ammo:false,noclip:false,freeClock:false,_fcMode:null,_fcDay0:0,_fcUntil:0};
-function clearFreeClock(){ADM.freeClock=false;ADM._fcMode=null;ADM._fcUntil=0;ADM._fcDay0=0}
-function armFreeClock(mode,ms){ADM.freeClock=true;ADM._fcMode=mode||'untilStory';if(mode==='untilDay')ADM._fcDay0=day;if(mode==='untilMs')ADM._fcUntil=performance.now()+(ms||3500)}
-function tickFreeClock(){if(!ADM.freeClock)return;if(ADM._fcMode==='untilDay'&&day!==ADM._fcDay0){clearFreeClock();if(dayT>0.95)dayT=0.02;/* land after midnight — do not leave .999 under hold */}else if(ADM._fcMode==='untilMs'&&performance.now()>=ADM._fcUntil)clearFreeClock()}
-let _skipGate=0;function admOnce(fn,ms){const n=performance.now();if(n<_skipGate)return false;_skipGate=n+(ms||400);fn();return true}
+const ADM={spd:1,god:false,ammo:false,noclip:false};
 let foot=false,yaw=0,pit=0,drag=null;const pl=new T.Vector3(),FL=new T.SpotLight(0xfff4dd,0,45,.55,.6,1),helpEl=document.getElementById('help');scene.add(FL,FL.target);let flOn=true;
 addEventListener('keydown',e=>{if(e.code==='KeyE')toggleCar()});
 function toggleFL(){if(!foot)return;/*DH26-FLB*/if(!flOn&&flBat<FLB.minOn){try{blip(200,.08,'square')}catch(e){}toast('\u{1F526} Battery too low ('+Math.round(flBat*100)+'%) — wait for it to recharge',2);return}flOn=!flOn;const b=document.getElementById('gfl');if(b)b.classList.toggle('off',!flOn);try{blip(flOn?900:500,.04,'square')}catch(e){}toast(flOn?'Flashlight ON':'Flashlight OFF',1.2)}
@@ -51606,7 +51603,7 @@ const mf=new T.Mesh(new T.SphereGeometry(.07,8,6),new T.MeshBasicMaterial({color
 function setW(i){wi=i;rl=0;mf.position.set(0,.03,-WP[i].len-.06)}
 function reload(){const w=WP[wi];if(rl>0||w.mag>=w.g.mag||w.res<=0)return;rl=w.g.reload;blip(300,.08,'square')}
 // zombie model: skinned from boxes, arms out, swinging legs
-const zB=new T.BoxGeometry(1,1,1),zH=new T.SphereGeometry(.5,10,8),zM=c=>new T.MeshStandardMaterial({color:c,roughness:.9}),zSkin=[0x7d8c6a,0x6f7f66,0x8a8f72].map(zM),zShirt=[0x3a2f2a,0x2a3440,0x4a2a2a,0x35382c].map(zM),zPant=zM(0x1e2228),zBlood=zM(0x4a0808),zEye=new T.MeshBasicMaterial({color:0xff3322}),zs=[];let zAlive=0;
+const zB=new T.BoxGeometry(1,1,1),zH=new T.SphereGeometry(.5,10,8),zM=c=>new T.MeshStandardMaterial({color:c,roughness:.9}),zSkin=[0x7d8c6a,0x6f7f66,0x8a8f72].map(zM),zShirt=[0x3a2f2a,0x2a3440,0x4a2a2a,0x35382c].map(zM),zPant=zM(0x1e2228),zBlood=zM(0x4a0808),zEye=new T.MeshBasicMaterial({color:0xff3322}),zs=[];
 function addZ(x,zz,I,raid,spot){const r=Math.random(),ty=r<.1?2:r<.3?1:0,sc=ty==2?1.25:1,g=new T.Group(),sk=zSkin[Math.floor(R(0,3))],sh=zShirt[Math.floor(R(0,4))];
  const mk=(geo,m,sx,sy,sz,px,py,pz,par)=>{const q=new T.Mesh(geo,m);q.scale.set(sx,sy,sz);q.position.set(px,py,pz);(par||g).add(q)};
  mk(zB,sh,.5,.65,.28,0,1.22,0);mk(zH,sk,.27,.31,.27,0,1.74,0);mk(zB,zEye,.05,.03,.02,-.07,1.76,.13);mk(zB,zEye,.05,.03,.02,.07,1.76,.13);mk(zB,zBlood,.2,.25,.02,.1,1.25,.15);
@@ -51614,8 +51611,8 @@ function addZ(x,zz,I,raid,spot){const r=Math.random(),ty=r<.1?2:r<.3?1:0,sc=ty==
  const A1=pv(-.34,1.5,-1.3),A2=pv(.34,1.5,-1.4),L1=pv(-.13,.9,0),L2=pv(.13,.9,0);
  mk(zB,sk,.13,.62,.13,0,-.3,0,A1);mk(zB,sk,.13,.62,.13,0,-.3,0,A2);mk(zB,zPant,.21,.9,.23,0,-.45,0,L1);mk(zB,zPant,.21,.9,.23,0,-.45,0,L2);
  const y=I?.06:0;g.scale.setScalar(sc);g.rotation.order='YXZ';g.position.set(x,y,zz);scene.add(g);
- const z={g,x,z:zz,y,sc,hp:[80,50,220][ty],sp:[1.6,4.2,1.3][ty],dmg:[8,6,18][ty],raid,spot,I,ins:!!I,al:false,t:Math.random()*6,cd:0,wt:0,wa:null,A1,A2,L1,L2,dead:false,fall:0};if(spot)spot.zb=z;zs.push(z);zAlive++;return z}
-function rmZ(z){if(!z.dead)zAlive=Math.max(0,zAlive-1);scene.remove(z.g);const i=zs.indexOf(z);if(i>=0)zs.splice(i,1);if(z.spot)z.spot.zb=null}
+ const z={g,x,z:zz,y,sc,hp:[80,50,220][ty],sp:[1.6,4.2,1.3][ty],dmg:[8,6,18][ty],raid,spot,I,ins:!!I,al:false,t:Math.random()*6,cd:0,wt:0,wa:null,A1,A2,L1,L2,dead:false,fall:0};if(spot)spot.zb=z;zs.push(z);return z}
+function rmZ(z){scene.remove(z.g);const i=zs.indexOf(z);if(i>=0)zs.splice(i,1);if(z.spot)z.spot.zb=null}
 // spawn spots: inside buildings (ground floor) + streets + highway
 const spots=[];
 for(const I of insts){if(I.m===BASE)continue;const m=I.m,n=1+Math.floor(R(0,3));for(let i=0;i<n;i++){const lx=R(-m.hw+2,m.hw-2),lz=R(-m.hd+2,m.hd-4);if(m.lv>1&&lz<-m.hd+6&&lx>m.hw-7.5)continue;spots.push({x:I.x+lx*I.s,z:I.z+lz*I.s,I,zb:null,dead:0})}}
@@ -51646,59 +51643,31 @@ function blood(x,y,z,n){for(let i=0;i<n;i++){const m=new T.Mesh(bgm,bmt);m.scale
 const msgEl=$('msg'),hitEl=$('hit'),stEl=$('st'),xhEl=$('xh'),gbEl=$('gb');
 function toast(t,s){msgEl.textContent=t;msgEl.style.opacity=1;toastT=s||4}
 function hurt(a){if(ADM.god)return;if(navigator.vibrate)navigator.vibrate(40);pHP-=a;hitEl.style.opacity=1;hitT=.25;blip(120,.1,'sawtooth');if(pHP<=0){window.__willRsp=1;window.__willRspNote=0;toast('You died. Back at the farm.',4);pHP=100;if(foot)farmSpawn();else{if(drv){drv.x=0;drv.z=18;drv.spd=0;drv.steer=0}spd=0;car.position.set(0,pitH(0,18),18);window.__vehRsp=1}for(const z of zs)if(!z.dead&&Math.hypot(z.x-BX,z.z-BZ)<25)z.al=false}}
-function killZ(z){if(!z.dead)zAlive=Math.max(0,zAlive-1);z.dead=true;z.fall=0;if(z.spot){z.spot.dead=day;z.spot.zb=null}}
+function killZ(z){z.dead=true;z.fall=0;if(z.spot){z.spot.dead=day;z.spot.zb=null}}
 function hurtZ(z,dm,head,e){z.hp-=dm;z.al=true;blood(e.x,e.y,e.z,head?9:5);xhEl.style.background='#f33';setTimeout(()=>xhEl.style.background='rgba(255,255,255,.85)',120);if(z.hp<=0)killZ(z)}
 function trace(o,d,g,s){let bt=g.range,hit=null,head=false,legs=false;
  for(const z of zs){if(z.dead)continue;const t=(z.x-o.x)*d.x+(z.y+.9*z.sc-o.y)*d.y+(z.z-o.z)*d.z;if(t<0||t>bt)continue;const px=o.x+d.x*t,py=o.y+d.y*t,pz=o.z+d.z*t;if(Math.hypot(px-z.x,pz-z.z)<.42*z.sc&&py>z.y&&py<z.y+1.95*z.sc){bt=t;hit=z;head=py>z.y+1.52*z.sc;legs=!head&&py<z.y+.65*z.sc}}
  for(let t=.5;t<bt;t+=.5)if(blockedAt(o.x+d.x*t,o.y+d.y*t,o.z+d.z*t)){bt=t;hit=null;break}
  const e={x:o.x+d.x*bt,y:o.y+d.y*bt,z:o.z+d.z*bt};tracer(s,e);if(hit)hurtZ(hit,g.dmg*(head?1.75:legs?.8:1)*(1-.4*bt/g.range),head,e)}
-function fireGun(){if(!foot||fcd>0||rl>0)return;if(window.dhAnyModal&&window.dhAnyModal())return;if(window.dhPaused)return;const w=WP[wi],g=w.g;if(w.mag<=0){if(w.res>0)reload();else{blip(900,.02,'square');fcd=.3}return}
+function fireGun(){if(!foot||fcd>0||rl>0)return;const w=WP[wi],g=w.g;if(w.mag<=0){if(w.res>0)reload();else{blip(900,.02,'square');fcd=.3}return}
  if(!ADM.ammo)w.mag--;fcd=g.rate;{const A=ANIM[w.id]||ANIM.pistol;flash=A.fl+.02;kick=A.kb*.02;kickR=A.ku*.011;pit=Math.min(1.3,pit+A.cam*(.7+Math.random()*.6));yaw+=(Math.random()-.5)*A.ky*.006;bloom=Math.min(1.4,bloom+(g.auto?.16:.24));if(navigator.vibrate)navigator.vibrate(g.auto?6:14);blip(A.f,.055,'sawtooth');blip(A.f*.46,.095,'square');blip(78,.07,'triangle')}
  const sy=Math.sin(yaw),cy=Math.cos(yaw),sp=Math.sin(pit),cp=Math.cos(pit),o=cam.position,f=[-sy*cp,sp,-cy*cp],rt=[cy,0,-sy],up=[sy*sp,cp,cy*sp],s={x:o.x+f[0]*.6+rt[0]*.2,y:o.y+f[1]*.6-.15,z:o.z+f[2]*.6+rt[2]*.2};
  for(let p=0;p<g.pellets;p++){const a=R(-1,1)*g.spread*(1+bloom),b=R(-1,1)*g.spread*(1+bloom);let dx=f[0]+rt[0]*a+up[0]*b,dy=f[1]+up[1]*b,dz=f[2]+rt[2]*a+up[2]*b;const n=Math.hypot(dx,dy,dz);trace(o,{x:dx/n,y:dy/n,z:dz/n},g,s)}
  for(const z of zs)if(!z.dead&&Math.hypot(z.x-o.x,z.z-o.z)<45)z.al=true}
-function skipRaid(){admOnce(()=>{armFreeClock('untilMs',5000);if(raidDay===day)day+=5;else if(day%5)day=Math.ceil(day/5)*5;dayT=.56;toast('Skipping to raid night...',2)},600)}
+function skipRaid(){if(raidDay===day)day+=5;else if(day%5)day=Math.ceil(day/5)*5;dayT=.5;toast('Skipping to raid night...',2)}
 addEventListener('keydown',e=>{if(!foot||(window.FORT_GATE&&window.FORT_GATE.kp))return;if(e.code==='Space'&&!e.repeat)fireGun();else if(e.code==='KeyR')reload();else if(e.code.startsWith('Digit')){const i=+e.code[5]-1;if(i>=0&&i<WP.length)setW(i)}});
-let pd=null;cv.addEventListener('pointerdown',e=>{pd=[e.clientX,e.clientY,e.pointerType,document.pointerLockElement===cv]});cv.addEventListener('pointerup',e=>{if(pd&&pd[2]==='mouse'&&pd[3]&&foot&&!(window.dhAnyModal&&window.dhAnyModal())&&Math.hypot(e.clientX-pd[0],e.clientY-pd[1])<6)fireGun();pd=null});
+let pd=null;cv.addEventListener('pointerdown',e=>{pd=[e.clientX,e.clientY,e.pointerType]});cv.addEventListener('pointerup',e=>{if(pd&&pd[2]==='mouse'&&foot&&Math.hypot(e.clientX-pd[0],e.clientY-pd[1])<6)fireGun();pd=null});
 $('gf').addEventListener('pointerdown',e=>{btnFire=true;fireGun();e.target.setPointerCapture(e.pointerId)});['pointerup','pointercancel'].forEach(v=>$('gf').addEventListener(v,()=>btnFire=false));
 $('gr').addEventListener('pointerdown',reload);$('gs').addEventListener('pointerdown',()=>setW((wi+1)%WP.length));$('gn').addEventListener('pointerdown',skipRaid);
 // day / night
 const nightC=new T.Color(0x040608),dayC=new T.Color(0x7d8670),tmpC=new T.Color();
-const DAY_SECS=405;/* was 270; +50% full-day wall time; dayT remains 0..1 */
-function env(dt){dayT+=dt/DAY_SECS;if(dayT>=1){let rolled=0;while(dayT>=1){dayT-=1;day++;rolled++;for(const s of spots)s.dead=0}toast(rolled>1?'Day '+day+' begins (+'+rolled+' calendar days)':'Day '+day+' begins',3)}
+function env(dt){dayT+=dt/270;if(dayT>=1){dayT-=1;day++;for(const s of spots)s.dead=0;toast('Day '+day+' begins',3)}
  LV=Math.max(.06,Math.min(1,.5+.7*Math.sin(dayT*6.2832)));tmpC.lerpColors(nightC,dayC,LV);scene.background.copy(tmpC);
 // === JESSICA FIX START: FOG ===
 if(scene.fog){scene.fog.color.copy(tmpC);scene.fog.density=.0108+(1-LV)*.0045}
 // === JESSICA FIX END ===
 hemi.intensity=.18+.45*LV;sun.intensity=.9*LV;mSpill.opacity=Math.max(0,Math.min(.85,(.55-LV)*1.7))}
-function raidCount(d){return Math.min(45,10+d*2)}
-function raidWave(d){return Math.max(1,Math.round(d/5))}
-/* Caps keep late nights challenging without sub-2s TC melts when the wave stacks. */
-function raidScale(d){const w=raidWave(d);return{hp:1+Math.min(.36,.09*(w-1)),dmg:1+Math.min(.20,.05*(w-1)),sp:1+Math.min(.15,.04*(w-1))}}
-const RAID_ATK_SLOTS=4,RAID_BATCH=4,RAID_GAP=2.8,RAID_TC_LOYAL=16;
-let raidQueue=[],raidGapT=0,raidAtkN=0,farmOverrunCD=0;
-window.DH_RAID={DAY_SECS,raidCount,raidWave,raidScale,triggerAt:.55,every:5,cap:45,base:10,perDay:2,morningClear:[.02,.2],
- atkSlots:RAID_ATK_SLOTS,batch:RAID_BATCH,gap:RAID_GAP,loyal:RAID_TC_LOYAL,
- shouldStart:(d,rd,t)=>d%5===0&&rd!==d&&t>=.55,
- farmDps:(dmg)=>dmg*.35, tcDps:(dmg)=>dmg*.6,
- /* documented targets (EV dmg 8.6, 4 atk slots): day5 TC TTK≈200/(4*8.6*0.6)≈9.7s */
- targetTtkTc200:(d)=>{const sc=raidScale(d),ev=8.6*sc.dmg,slots=RAID_ATK_SLOTS;return 200/(slots*ev*.6)}};
-function spawnRaidZ(s,sc){if((zAlive|0)>=120)return null;const z=addZ(s.x,s.z,null,true,null);z.hp*=sc.hp;z.sp*=sc.sp;z.dmg*=sc.dmg;z.raidSc=sc;return z}
-function startRaid(){const n=raidCount(day),sc=raidScale(day);raidDay=day;raidQueue.length=0;raidGapT=0;
- const out=spots.filter(s=>!s.I),near=[];
- for(let i=0;i<Math.max(8,n>>1);i++)near.push({x:(Math.random()-.5)*18,z:-40-Math.random()*220,I:null});
- const pool=out.length?out.concat(near):near;
- for(let i=0;i<n;i++){const s=pool[Math.floor(Math.random()*pool.length)]||{x:(Math.random()-.5)*10,z:-60-Math.random()*80,I:null};raidQueue.push({s,sc})}
- // First batch immediately so the raid is visible right away
- for(let i=0;i<Math.min(RAID_BATCH,raidQueue.length);i++){const q=raidQueue.shift();spawnRaidZ(q.s,q.sc)}
- raidGapT=RAID_GAP;
- toast('⚠ Day '+day+': the horde is coming for your cupboard! ('+n+')',6)}
-function farmOverrun(){if(farmOverrunCD>0)return;farmOverrunCD=10;
- toast('The farm was overrun! You fall back and patch what you can.',7);
- for(const z of zs)if(z.raid&&!z.dead)killZ(z);raidQueue.length=0;
- farmHP=Math.max(280,Math.floor((farmMax||1000)*.4));pHP=100;
- try{if(!foot&&typeof exitV==='function')exitV();if(typeof farmSpawn==='function')farmSpawn()}catch(e){}
- try{blip(90,.45,'sawtooth')}catch(e){}}
+function startRaid(){const n=Math.min(45,10+day*2),ins=spots.filter(s=>s.I),out=spots.filter(s=>!s.I);for(let i=0;i<n;i++){const a=i%2?out:ins,s=a[Math.floor(Math.random()*a.length)];addZ(s.x,s.z,s.I,true,null)}toast('⚠ Day '+day+': the horde is coming for your cupboard!',6)}
 function zTick(dt){
  const pp=foot?pl:car.position,w=WP[wi];vm.visible=foot;vmS.forEach((g,i)=>g.visible=foot&&i===wi);gbEl.style.display='flex';xhEl.style.display=foot?'block':'none';
  fcd-=dt;if(rl>0){rl-=dt;if(rl<=0){rl=0;const t=Math.min(w.g.mag-w.mag,w.res);w.mag+=t;w.res-=t}}
@@ -51706,31 +51675,23 @@ function zTick(dt){
  kick*=Math.max(0,1-14*dt);vm.position.set(.2,-.2-(rl>0?.12:0),-.4+kick);vm.rotation.x=kick*1.5+kickR;kickR*=Math.max(0,1-12*dt);flash-=dt;mf.visible=flash>0;ml.intensity=flash>0?2.5:0;
  const now=performance.now();for(const s of TR)if(s.l.visible&&now-s.t>60)s.l.visible=false;
  if(hitT>0){hitT-=dt;if(hitT<=0)hitEl.style.opacity=0}if(toastT>0){toastT-=dt;if(toastT<=0)msgEl.style.opacity=0}
- sT-=dt;if(sT<0){sT=.5;for(const s of spots){const d=Math.hypot(s.x-pp.x,s.z-pp.z);if(!s.zb&&s.dead!==day&&d<80&&d>8&&(zAlive|0)<90)addZ(s.x,s.z,s.I,false,s);else if(s.zb&&d>150)rmZ(s.zb)}}
- if(window.DH_RAID.shouldStart(day,raidDay,dayT))startRaid()
- if(farmOverrunCD>0)farmOverrunCD-=dt;
- if(raidQueue.length){raidGapT-=dt;if(raidGapT<=0){let k=0;while(k<RAID_BATCH&&raidQueue.length){const q=raidQueue.shift();spawnRaidZ(q.s,q.sc);k++}raidGapT=RAID_GAP}}
- raidAtkN=0;
+ sT-=dt;if(sT<0){sT=.5;for(const s of spots){const d=Math.hypot(s.x-pp.x,s.z-pp.z);if(!s.zb&&s.dead!==day&&d<80&&d>8&&zs.length<90)addZ(s.x,s.z,s.I,false,s);else if(s.zb&&d>150)rmZ(s.zb)}}
+ if(day%5===0&&raidDay!==day&&dayT>=.55){raidDay=day;startRaid()}
  for(let i=zs.length-1;i>=0;i--){const z=zs[i];if(z.boss)continue;
   if(z.dead){z.fall+=dt;z.g.rotation.x=-Math.min(1,z.fall*2.2)*1.45;if(z.fall>12)rmZ(z);continue}
   const dx=pp.x-z.x,dz=pp.z-z.z,dp=Math.hypot(dx,dz);if(z.raid&&dayT>.02&&dayT<.2&&dp>60){rmZ(z);continue}if(!z.raid&&dp>220)continue;
   if(!foot&&Math.abs(spd)>5&&dp<2.3){z.hp-=Math.abs(spd)*10;blood(z.x,1,z.z,6);spd*=.94;if(drv)vDamage(drv,Math.abs(spd)*.4);z.al=true;if(z.hp<=0){killZ(z);continue}}
-  let tx=0,tz=0,go=true,sp=z.sp,atkBase=false;
-  const tcx=TCX(),tcz=TCZ(),dbTC=z.raid?Math.hypot(tcx-z.x,tcz-z.z):1e9;
-  /* Near the cupboard, raid zombies stay on the TC (loyalty) instead of peeling to the player. */
-  let chase=z.al||dp<(LV<.4?36:24)||(z.raid&&dp<40&&dbTC>RAID_TC_LOYAL);
-  if(z.raid&&dbTC<=RAID_TC_LOYAL)chase=false;
-  if(chase){tx=pp.x;tz=pp.z}else if(z.raid){tx=tcx;tz=tcz;if(dbTC<(myTC?2.4:9)){if(raidAtkN<RAID_ATK_SLOTS){go=false;atkBase=true;raidAtkN++}else{go=true;tx=tcx+(Math.random()-.5)*8;tz=tcz+(Math.random()-.5)*8}}else{sp=Math.max(sp,dbTC>120?7.5:dbTC>40?6:sp)}}else go=false;
+  let tx=0,tz=0,go=true,sp=z.sp,atkBase=false;const chase=z.al||dp<(LV<.4?36:24)||(z.raid&&dp<40);
+  if(chase){tx=pp.x;tz=pp.z}else if(z.raid){tx=TCX();tz=TCZ();if(Math.hypot(tx-z.x,tz-z.z)<(myTC?2.4:9)){go=false;atkBase=true}else if(dp>40)sp=6}else go=false;
   if(!chase&&!z.raid&&!go){z.wt-=dt;if(z.wt<=0){z.wt=R(2,6);z.wa=Math.random()<.4?null:R(0,6.28)}if(z.wa!==null){tx=z.x+Math.sin(z.wa)*5;tz=z.z+Math.cos(z.wa)*5;go=true;sp=.6}}
   if(go&&z.ins&&!(foot&&pl.y<1&&inside(z.I,pp.x,pp.z))){tx=z.I.x;tz=z.I.z+(z.I.m.hd+1.8)*z.I.s;if(Math.hypot(tx-z.x,tz-z.z)<1.6){z.ins=false;z.y=0;z.g.position.y=0}}
   let moved=false;if(go&&!(chase&&dp<1.4)){const d=Math.hypot(tx-z.x,tz-z.z)||1,vx=(tx-z.x)/d*sp,vz=(tz-z.z)/d*sp;z.x+=vx*dt;z.z+=vz*dt;z.g.rotation.y=Math.atan2(vx,vz);moved=true;
-   for(const b of (window.DH_NEAR_BOXES?window.DH_NEAR_BOXES(z.x,z.z,8):boxes))if(Math.abs(z.x-b.x)<b.hw+.4&&Math.abs(z.z-b.z)<b.hd+.4&&!b.c&&(b.y0===undefined||b.y0<1)&&pushO(z,b,.4)&&b.pc)hitPiece(b.pc,z.dmg*.6*dt);for(const I of insts)if(Math.abs(z.x-I.x)<30&&Math.abs(z.z-I.z)<30)for(const c of I.cols)if(c.lv===undefined||c.lv===0)pushO(z,c,.4)}
+   for(const b of boxes)if(Math.abs(z.x-b.x)<b.hw+.4&&Math.abs(z.z-b.z)<b.hd+.4&&!b.c&&(b.y0===undefined||b.y0<1)&&pushO(z,b,.4)&&b.pc)hitPiece(b.pc,z.dmg*.6*dt);for(const I of insts)if(Math.abs(z.x-I.x)<30&&Math.abs(z.z-I.z)<30)for(const c of I.cols)if(c.lv===undefined||c.lv===0)pushO(z,c,.4)}
   if(dp<1.7){z.g.rotation.y=Math.atan2(dx,dz);z.cd-=dt;if(z.cd<=0){z.cd=1.1;hurt(z.dmg*(foot?1:.4))}}
-  if(atkBase){if(myTC){z.g.rotation.y=Math.atan2(myTC.x-z.x,myTC.z-z.z);hitPiece(myTC,z.dmg*.6*dt)}
-   else{z.g.rotation.y=Math.atan2(tcx-z.x,tcz-z.z);const before=farmHP;farmHP=Math.max(0,farmHP-z.dmg*.35*dt);if(before>0&&farmHP<=0)farmOverrun()}}
+  if(atkBase){if(myTC){z.g.rotation.y=Math.atan2(myTC.x-z.x,myTC.z-z.z);hitPiece(myTC,z.dmg*.6*dt)}}
   if(moved)z.t+=dt*(2+sp*1.4);z.L1.rotation.x=Math.sin(z.t)*.7;z.L2.rotation.x=-Math.sin(z.t)*.7;z.A1.rotation.x=-1.3+Math.sin(z.t*.7)*.15;z.A2.rotation.x=-1.4-Math.sin(z.t*.7)*.15;z.g.position.set(z.x,z.y,z.z)}
  for(let i=fxs.length-1;i>=0;i--){const f=fxs[i];f.t-=dt;f.vy-=9*dt;f.m.position.x+=f.vx*dt;f.m.position.y=Math.max(.02,f.m.position.y+f.vy*dt);f.m.position.z+=f.vz*dt;if(f.t<=0){scene.remove(f.m);fxs.splice(i,1)}}
- hT-=dt;if(hT<0){hT=.25;const h=(6+dayT*24)%24,rt=day%5===0?'⚠ RAID NIGHT':'Raid in '+(5-day%5)+'d';stEl.innerHTML='Day '+day+' · '+String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor(h%1*60)).padStart(2,'0')+' · '+rt+(myTC?' · 🔒 '+Math.ceil(myTC.hp)+'/'+myTC.max:'')+' · 🧟 '+zAlive}}
+ hT-=dt;if(hT<0){hT=.25;const h=(6+dayT*24)%24,rt=day%5===0?'⚠ RAID NIGHT':'Raid in '+(5-day%5)+'d';stEl.innerHTML='Day '+day+' · '+String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor(h%1*60)).padStart(2,'0')+' · '+rt+(myTC?' · 🔒 '+Math.ceil(myTC.hp)+'/'+myTC.max:'')+' · 🧟 '+zs.filter(z=>!z.dead).length}}
 // ===== SAWMILL (wood) + QUARRY (stone & metal) + FARM STASH =====
 const SMX=50,SMZ=-505,QX=-55,QZ=-505,nodes=[],carry={w:0,s:0,m:0},stored={w:0,s:0,m:0},CAP=100,gM=(c,r,m)=>new T.MeshStandardMaterial({color:c,roughness:r==null?.9:r,metalness:m||0});
 const mBark=gM(0x5b3f27,1),mPlank=gM(0xb98a55,.9),mTin=gM(0x7a8086,.5,.6),mDark=gM(0x25282c,.5,.7),mYel=gM(0xd9a516,.6,.3),mStone=gM(0x7b7b78,1),mOre=gM(0x6b4a32,.8,.2),mFleck=gM(0xd08a4a,.3,.9);
@@ -52794,8 +52755,6 @@ function aimP(kind){const r=RCH[kind],qx=pl.x-Math.sin(yaw)*r,qz=pl.z-Math.cos(y
  const e=edgeAt(qx,qz),E=e.d==='E',k=e.ex+','+e.ez+','+e.d+','+L,nb=E?(e.ex+1)+','+e.ez:e.ex+','+(e.ez+1),sup=L===0||ROFm.has(e.ex+','+e.ez+','+L)||ROFm.has(nb+','+L);
  Object.assign(o,{x:E?(e.ex+.5)*BC:e.ex*BC,z:E?e.ez*BC:(e.ez+.5)*BC,rot:E?Math.PI/2:0,k,y:BY0+BFH*L,E,L});const w=WLm.get(k);
  if(kind==='door'){o.ok=!!w&&w.kind==='doorway'&&!w.door;o.why='Aim at an empty doorway.';return o}
- /* Shared edge between two foundations is interior — not part of the shelter perimeter (baseInfo skips it). */
- if(FDm.has(e.ex+','+e.ez)&&FDm.has(nb)){o.ok=false;o.why='Interior edge — place walls on the outer perimeter.';return o}
  o.ok=(FDm.has(e.ex+','+e.ez)||FDm.has(nb))&&!w&&sup;o.why=w?'That edge is taken.':'Needs a foundation next to it'+(L?' and a floor under it.':'.');return o}
 function addDoorBox(p){const d=p.d,b={x:p.x,z:p.z,hw:d.E?.1:.6,hd:d.E?.6:.1,y0:p.y,y1:p.y+2.3,pc:p};boxes.push(b);p.boxes.push(b)}
 function toggleDoor(p){p.open=!p.open;p.mesh.visible=!p.open;if(p.open){for(const b of p.boxes){const i=boxes.indexOf(b);if(i>=0)boxes.splice(i,1)}p.boxes.length=0}else addDoorBox(p)}
@@ -53616,7 +53575,7 @@ function invTick(dt){if(day!==cDay){cDay=day;for(const c of crates)scene.remove(
  icd-=dt;if(icd<0){icd=.2;const w=WP[wi];ac.innerHTML=foot?'<b>'+w.n+'</b> · '+(rl>0?'reloading…':w.mag+' / '+w.res)+(inv.medkit?' · 💊 '+inv.medkit:''):(drv?'<b>'+drv.S.n+'</b> · fuel '+Math.ceil(drv.fb/drv.fmax*100)+'% · HP '+Math.ceil(drv.hp):'')}
  if(foot&&!bsel){for(const c of crates)if(Math.hypot(c.x-pl.x,c.z-pl.z)<2.6&&Math.abs(c.y-pl.y)<2){prEl.style.display='block';prEl.textContent='F: open crate';break}}}
 const locEl=document.getElementById('loc'),spdEl=document.getElementById('spd');
-const _tg=new T.Vector3();let _inBCache=null;
+const _tg=new T.Vector3();
 /* ===== v0.25.1 CRASH GUARD: one throwing tick used to kill the whole requestAnimationFrame chain (player frozen, nothing moves). Every tick now runs in its own try/catch, the loop always reschedules itself, and the REAL error text is shown on screen (tap it to dismiss) because the browser only reports "Script error." ===== */
 window.DH_ERRORS=window.DH_ERRORS||[];
 function dhErr(where,e){try{const m=String(e&&e.message||e),k=where+': '+m,L=window.DH_ERRORS;let r=L.find(x=>x.k===k);if(r){r.n++;return}
@@ -53629,12 +53588,12 @@ function frame(){try{_frame()}catch(e){dhErr('frame',e);try{ren.render(scene,cam
 function _frame(){
  const dt=Math.min(clock.getDelta(),.05);if(window.dhPaused){ren.render(scene,cam);return}for(const[n,g]of _TK){try{g()(dt)}catch(e){dhErr(n,e)}}
  const fx=-Math.sin(h),fz=-Math.cos(h);
- let inB=false;if(!foot){if(!_inBCache){_inBCache={t:-1e9,x:1e9,z:1e9,v:false}}const _ib=_inBCache,cx=car.position.x,cz=car.position.z;if(performance.now()-_ib.t>120||Math.abs(cx-_ib.x)+Math.abs(cz-_ib.z)>1.2){_ib.v=insts.some(I=>inside(I,cx,cz));_ib.x=cx;_ib.z=cz;_ib.t=performance.now()}inB=_ib.v}
+ const inB=!foot&&insts.some(I=>inside(I,car.position.x,car.position.z));
  const CD=inB?4.1:(drv?drv.S.cam3+1.5:9), tgt=_tg.set(car.position.x-fx*CD,(inB?2.35:(drv?drv.S.cam3h+1.6:4.2)+Math.abs(spd)*.03),car.position.z-fz*CD);
  if(!foot){camPos.lerp(tgt,Math.min(1,5*dt));cam.position.copy(camPos)}
  if(!foot){look.set(car.position.x+fx*6,1.5,car.position.z+fz*6);cam.lookAt(look)}
  {const nf=cam.fov+((foot?72:62+Math.abs(spd)*.5)-cam.fov)*.1;if(Math.abs(nf-cam.fov)>5e-4){cam.fov=nf;cam.updateProjectionMatrix()}}
- const fp=foot?pl:car.position;if(ren.shadowMap.enabled){const tx=2*SHE/sun.shadow.mapSize.x,qa=fp.x*SR.x+fp.y*SR.y+fp.z*SR.z,qb=fp.x*SU.x+fp.y*SU.y+fp.z*SU.z,da=Math.round(qa/tx)*tx-qa,db=Math.round(qb/tx)*tx-qb;SX.set(fp.x+SR.x*da+SU.x*db,fp.y+SR.y*da+SU.y*db,fp.z+SR.z*da+SU.z*db);sun.position.set(SX.x-60,SX.y+70,SX.z+40);sun.target.position.copy(SX)}else{sun.position.set(fp.x-60,fp.y+70,fp.z+40);sun.target.position.set(fp.x,fp.y,fp.z)}
+ const fp=foot?pl:car.position;{const tx=2*SHE/sun.shadow.mapSize.x,qa=fp.x*SR.x+fp.y*SR.y+fp.z*SR.z,qb=fp.x*SU.x+fp.y*SU.y+fp.z*SU.z,da=Math.round(qa/tx)*tx-qa,db=Math.round(qb/tx)*tx-qb;SX.set(fp.x+SR.x*da+SU.x*db,fp.y+SR.y*da+SU.y*db,fp.z+SR.z*da+SU.z*db)}sun.position.set(SX.x-60,SX.y+70,SX.z+40);sun.target.position.copy(SX);
  ren.render(scene,cam)}
 
 // ===== MOBILE UI PASS (v0.10) =====
@@ -53801,7 +53760,7 @@ if(coarse)new MutationObserver(()=>{const t=prEl.textContent;if(/^(F|E): /.test(
  const heal=()=>{pHP=100},res=()=>{for(const k of['w','s','m'])stored[k]+=200;toast('+200 wood, stone, metal in your cupboard',2.5)};
  const door=I=>I.dd,tp=(x,z,yw)=>{if(!foot){toast('Get out of the vehicle first (E)',2);return}pl.set(x,0,z);yaw=yw;pit=0;tg()};
  const acts=[['Heal to full',heal],['Refill ammo + 5 medkits',()=>{for(const w of WP)w.res=Math.max(w.res,w.g.mag*8);inv.medkit=5;toast('Ammo and medkits refilled',2)}],['+200 wood / stone / metal (cupboard)',res],
-  ['Kill all zombies',()=>{let n=0;for(const z of zs)if(!z.dead){killZ(z);n++}toast('Killed '+n+' zombies',2)}],['Trigger a raid now',()=>{admOnce(()=>{armFreeClock('untilMs',8000);startRaid()},800)}],
+  ['Kill all zombies',()=>{let n=0;for(const z of zs)if(!z.dead){killZ(z);n++}toast('Killed '+n+' zombies',2)}],['Trigger a raid now',()=>startRaid()],
   ['Unlock Fort Harvest gate',()=>{if(window.FORT_GATE)window.FORT_GATE.unlock()}],['Open all building doors',()=>{for(const d of bdoors)if(!d.open)toggleBDoor(d)}],['Close all building doors',()=>{for(const d of bdoors)if(d.open)toggleBDoor(d)}]];
  const times=[['Dawn',.08],['Noon',.25],['Dusk',.45],['Night',.75]];
  function draw(){pan.textContent='';const H=(s)=>{const h=document.createElement('div');h.textContent=s;h.style.cssText='margin-top:12px;font-weight:700;opacity:.8;font-size:12px;letter-spacing:.06em;text-transform:uppercase';pan.appendChild(h)};
@@ -53812,7 +53771,7 @@ if(coarse)new MutationObserver(()=>{const t=prEl.textContent;if(/^(F|E): /.test(
   H('Move speed');row([1,2,4,8].map(v=>[v+'x',()=>{ADM.spd=v},ADM.spd===v]));
   H('Toggles');B('God mode (no damage): '+(ADM.god?'ON':'off'),()=>{ADM.god=!ADM.god},ADM.god);B('Infinite ammo: '+(ADM.ammo?'ON':'off'),()=>{ADM.ammo=!ADM.ammo},ADM.ammo);B('No-clip (walk through walls): '+(ADM.noclip?'ON':'off'),()=>{ADM.noclip=!ADM.noclip},ADM.noclip);B('Grid power: '+(POWER.on?'ON':'off'),()=>setGrid(!POWER.on),POWER.on);
   H('Quick actions');for(const[n,f]of acts)B(n,f);
-  H('Time of day');row(times.map(([n,v])=>[n,()=>{armFreeClock('untilStory');dayT=v}]));B('Skip to next day',()=>{admOnce(()=>{armFreeClock('untilDay');dayT=.999;toast('Skipping to next day…',1.5)},600)});
+  H('Time of day');row(times.map(([n,v])=>[n,()=>{dayT=v}]));B('Skip to next day',()=>{dayT=.999});
   H('Teleport');B('Farm',()=>tp(FS.x,FS.z,FS.yaw));B('Quarry entrance',()=>tp(QX+48,QZ,Math.PI/2));B('Quarry monument',()=>tp(QX+36,QZ+16,.64));B('Graveyard',()=>tp(GX+44,GZ,Math.PI/2));B('Quarry deep pit',()=>tp(QX-26,QZ,Math.PI/2));B('Quarry crusher plant',()=>tp(QX+22,QZ+6,Math.PI/2+.6));const seenB=new Set();for(const d of bdoors){const I=d.I,D=I.m.door;if(d.idoor||!D||seenB.has(I))continue;seenB.add(I);B(I.m.name,()=>tp(I.x,I.z+(D.po+3)*I.s,I.s>0?0:Math.PI))}}
 }
 // ===== POWER GRID (v0.19): Riverside Power Station -> HV feeder -> pole line along the city street -> service drop, meter box + main breaker on every building -> interior lights =====
@@ -53900,7 +53859,7 @@ M.box(mG,10.5,.08,FZ0+.5,16,.1,.16);M.box(mGd,-3.9,.9,FZ0+.5,.3,1.8,.3);M.box(mG
 const bcM=new T.MeshBasicMaterial({color:0xffa010}),bcG=new T.Group();bcG.position.set(-4.6,1.55,FZ0+1.1);PGp.add(bcG);pCy(bcG,mDm,.14,.18,.1,0,0,0,0,0,10);const bcL=new T.Mesh(new T.CylinderGeometry(.13,.13,.2,12),bcM);bcL.position.y=.15;bcG.add(bcL);pBx(bcG,bcM,0,.15,0,.02,.02,.22);
 PLX.gate={gmL,gmR,gpL,gsL,gsB,gsX:0,bcG,bcM};
 // boom barrier at the guard booth lane + gate gantry sign
-{const bm=new T.Group();bm.position.set(.4,1.05,18.4);PGp.add(bm);pBx(bm,mWht,-2.4,0,0,4.8,.12,.12);for(let i=0;i<8;i++)pBx(bm,i%2?mRed:mWht,-.3-i*.6,0,0,.3,.125,.125).scale.set(1,1,1);pBx(PGp,mRed,.4,.55,18.4,.5,1.1,.5);pBx(PGp,mCo,.4,.03,18.4,.9,.06,.9);PLX.boom=bm;
+{const bm=new T.Group();bm.position.set(-8.2,1.05,18.4);PGp.add(bm);pBx(bm,mWht,-2.4,0,0,4.8,.12,.12);for(let i=0;i<8;i++)pBx(bm,i%2?mRed:mWht,-.3-i*.6,0,0,.3,.125,.125).scale.set(1,1,1);pBx(PGp,mRed,-8.2,.55,18.4,.5,1.1,.5);pBx(PGp,mCo,-8.2,.03,18.4,.9,.06,.9);PLX.boom=bm;
  for(const x of[-6.4,6.4]){M.box(mGd,x,2.7,FZ1+.2,.3,5.4,.3);M.box(mCo,x,.2,FZ1+.2,.7,.4,.7)}M.box(mGd,0,5.3,FZ1+.2,13.1,.4,.3);M.box(mGd,0,4.95,FZ1+.2,13.1,.08,.1);
  pSign([['RIVERSIDE POWER STATION',40,70],['AUTHORISED PERSONNEL ONLY',22,118]],'#1f3b57','#f2f4f8',512,150,8,1.5,0,4.3,FZ1+.38,0);pSign([['NO UNAUTHORISED ENTRY',34,64],['CCTV · GUARDS · LIVE FIRE?',16,110]],'#b3201a','#f2f4f8',512,140,6,1.2,0,4.3,FZ1+.0,PI2)}
 // ---- guard towers with searchlights (beams run on grid power)
@@ -54000,8 +53959,8 @@ pSign([['HYDROGEN',40,56],['NO NAKED FLAME',16,98]],'#d9a516','#16161a',256,110,
 // ---- guard booth upgrade + sandbag nest + jersey barriers + cones + spike strip
 {for(let k=0;k<3;k++)for(let i=0;i<8;i++)M.box(mBag,3.2+i*.48+(k%2)*.24,.12+k*.21,18.6,.5,.2,.34,0,rr(-.1,.1),0);pW(5,18.6,2.1,.3,true);
  for(const x of[-9,-7.2,9.5,11.3])M.box(mCoD,x,.4,19.6,1.8,.8,.5);M.box(mYl,6.2,2.9,15.2,2.9,.12,.05);
- for(let i=0;i<8;i++)M.box(mWr,-3.3+i*.4,.07,19.8,.06,.14,.3);M.box(mGd,-2,.04,19.8,3.5,.06,.3);
- for(const[x,z]of[[-1,17.2],[2,19],[-5,19.4],[8,19.2]])M.add(mHz,new T.ConeGeometry(.2,.6,10),x,.3,z)}
+ for(let i=0;i<8;i++)M.box(mWr,8.4+i*.4,.07,17.2,.06,.14,.3);M.box(mGd,9.8,.04,17.2,3.5,.06,.3);
+ for(const[x,z]of[[-8.4,17.4],[8.6,17.2],[-8.2,19.8],[10.4,19.2]])M.add(mHz,new T.ConeGeometry(.2,.6,10),x,.3,z)}
 // ---- CCTV posts (heads pan) + perimeter floodlight masts
 PLX.cc=[];for(const[x,z,a0]of[[-20,20.6,PI2],[10,20.6,PI2],[18.4,-12,PI2/2],[18.4,8,PI2/2],[-33.6,-20,-PI2/2],[-10,-40.8,0],[-20,-40.8,0]]){M.cyl(mGd,.07,.09,3.6,x,1.8,z,0,0,0,8);const g=new T.Group();g.position.set(x,3.75,z);PGp.add(g);pBx(g,mWht,0,0,.2,.25,.22,.6);pBx(g,mDm,0,0,.52,.2,.18,.06);const l=new T.Mesh(new T.SphereGeometry(.03,6,4),pRed);l.position.set(.08,.1,.12);g.add(l);PLX.cc.push({g,a0,ph:rr(0,6),l})}
 for(const[x,z]of[[-12,20.3],[12.5,20.3],[18.7,-24],[-34,-24],[-34,6],[18.7,-4],[-14,-41.3],[0,-41.3],[10,-41.3]]){M.box(mG,x,3.2,z,.14,6.4,.14);M.box(mDm,x+(x<0?.5:-.5)*0,6.5,z,1.0,.1,.3);M.box(pLamp,x,6.4,z,.8,.06,.22);pSpill(x,z,8)}
@@ -54047,7 +54006,7 @@ if(plantI&&PLX.G){const P=PLX,sn=Math.sin,PI2=Math.PI,pS=plantI.s;let t=0,rn=POW
   gate.gmL.rotation.y=PI2/2+1.4+sn(t*.5)*.04+gust*.08;gate.gpL.rotation.y=-.9+sn(t*.9)*.2+sn(t*2.7)*.04;
   {const near=Math.hypot(cam.position.x-plantI.x,cam.position.z-(plantI.z+-42*pS))<22,d=((near&&on)?1:0)-gsX;if(on)gsX+=Math.sign(d)*Math.min(Math.abs(d),dt*1.3/7);gate.gsL.position.x=-3.5+gsX*7;gate.gsB.x=plantI.x+gsX*7*pS;
    gate.bcG.rotation.y+=dt*(Math.abs(d)>.001&&on?10:on?2:0);gate.bcM.color.setRGB(1,.6,.05).multiplyScalar(on?(sn(t*3)>.2?1:.3):.1)}
-  {const near=Math.hypot(cam.position.x-(plantI.x+.4*pS),cam.position.z-(plantI.z+18.4*pS))<11,tg=near?1.35:.02;boomA+=(tg-boomA)*Math.min(1,dt*1.6);P.boom.rotation.z=-boomA}
+  {const near=Math.hypot(cam.position.x-(plantI.x+-8.2*pS),cam.position.z-(plantI.z+18.4*pS))<11,tg=near?1.35:.02;boomA+=(tg-boomA)*Math.min(1,dt*1.6);P.boom.rotation.z=-boomA}
   // towers / searchlights
   const L=rn>.5?1:0;P.lensM.color.setRGB(1,.94,.75).multiplyScalar(.2+.8*n*L);P.mBeam.opacity=.2*n*L;P.mSpot.opacity=.85*n*L;P.bcRed.color.setRGB(1,.1,.05).multiplyScalar(sn(t*2.6)>.55?1:.12);
   for(const w of P.tw){const yaw=w.y0+sn(t*.4+w.ph)*1.15+sn(t*1.1+w.ph)*.1,pit=.42+sn(t*.8+w.ph)*.07;w.sl.rotation.set(pit,yaw,0);const hh=6.73,Lg=hh/Math.sin(pit),d=hh/Math.tan(pit),s=Lg/34;w.sl.children[w.sl.children.length-1].scale.set(s,s,s);w.spot.position.set(w.tx+sn(yaw)*d,.27,w.tz+Math.cos(yaw)*d);w.spot.rotation.y=yaw;const sw=3.4*s*3.5/7;w.spot.scale.set(sw,sw/Math.sin(pit),1)}
@@ -55037,7 +54996,7 @@ mkBtn('📍','Fast travel',()=>{if(hbar)hbar.classList.toggle('open')});mkBtn('�
 // ---- interaction prompt: keycaps
 new MutationObserver(()=>{if(!pcm())return;const t=prEl.textContent;if(!/(^|\s·\s)[FEB]: /.test(t))return;const re=/(?:^|\s·\s)([FEB]): /g;let last=0,m;const f=document.createDocumentFragment();while((m=re.exec(t))){const pre=t.slice(last,m.index);if(pre)f.appendChild(document.createTextNode(pre));if(m.index>0)f.appendChild(document.createTextNode(' '));const k=document.createElement('kbd');k.textContent=m[1];f.appendChild(k);last=re.lastIndex}f.appendChild(document.createTextNode(t.slice(last)));prEl.textContent='';prEl.appendChild(f)}).observe(prEl,{childList:true,characterData:true,subtree:true});
 // ---- modal helpers + input
-const modals=()=>[...document.body.children].filter(el=>{if(el.tagName!=='DIV'||el.id==='pcui'||el.id==='hbar')return false;const d=el.style.display||'';if(d==='none'||d==='')return false;/* flex/grid overlays (save menu) count too */if(!(d==='block'||d==='flex'||d==='grid'))return false;const z=+el.style.zIndex;return(z>=5||el.id==='willSaveMenu')&&el.offsetWidth>120});
+const modals=()=>[...document.body.children].filter(el=>el.tagName==='DIV'&&el.id!=='pcui'&&el.id!=='hbar'&&el.style.display==='block'&&+el.style.zIndex>=5&&el.offsetWidth>120);
 let _amT=-1e9,_amV=false;const anyModal=()=>{const n=performance.now();if(n-_amT>40){_amT=n;_amV=modals().length>0}return _amV};window.dhAnyModal=anyModal;window.dhModals=modals;  // v0.21.6: exposed for the Controls block (was a scope error) + cached for 40 ms
 let lastW=0;const _sw=setW;setW=function(i){if(i!==wi)lastW=wi;_sw(i)};
 addEventListener('keydown',e=>{if(!pcm())return;
@@ -55464,28 +55423,6 @@ const _e=env;env=function(dt){_e(dt);try{upd(dt)}catch(e){if(!window.RESBASE_UPD
 window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,DOORS};
 }catch(e){console.error('[research base]',e);window.RESBASE_ERROR=e}
 })();
-// ===== CAMPAIGN_NOV5 LOSSLESS FPS PASS (no graphics-metre / resolution / shadow / draw-distance change on High/Medium) =====
-// Freezes world-matrix updates on static InstancedMeshes (props/trees/debris). Instance matrices themselves are untouched.
-// Adds a coarse spatial bin for zombie↔box push so each moving zombie tests nearby colliders instead of the full boxes[] list.
-{try{
-  const freezeIM=()=>{let n=0;scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isInstancedMesh&&o.matrixAutoUpdate){o.updateMatrix();o.matrixAutoUpdate=false;n++}});return n};
-  // defer one frame so late scene additions (apocalypse/story props) are included
-  requestAnimationFrame(()=>{try{window.DH_FPS_IM=freezeIM()}catch(e){console.warn('[fps-im]',e)}});
-
-  // Spatial hash for boxes — rebuild occasionally; boxes grow when the player builds.
-  const CELL=12;let bins=new Map(),bGen=-1,bLen=-1;
-  const key=(x,z)=>((x/CELL)|0)+','+((z/CELL)|0);
-  const rebuild=()=>{bins=new Map();for(const b of boxes){const x0=((b.x-b.hw)/CELL)|0,x1=((b.x+b.hw)/CELL)|0,z0=((b.z-b.hd)/CELL)|0,z1=((b.z+b.hd)/CELL)|0;
-    for(let xi=x0;xi<=x1;xi++)for(let zi=z0;zi<=z1;zi++){const k=xi+','+zi;let a=bins.get(k);if(!a){a=[];bins.set(k,a)}a.push(b)}}bLen=boxes.length;bGen=(bGen+1)&1023};
-  rebuild();
-  const nearBoxes=(x,z,r)=>{if(boxes.length!==bLen)rebuild();const out=[],seen=new Set();const x0=((x-r)/CELL)|0,x1=((x+r)/CELL)|0,z0=((z-r)/CELL)|0,z1=((z+r)/CELL)|0;
-    for(let xi=x0;xi<=x1;xi++)for(let zi=z0;zi<=z1;zi++){const a=bins.get(xi+','+zi);if(!a)continue;for(const b of a){if(seen.has(b))continue;seen.add(b);out.push(b)}}return out};
-  window.DH_NEAR_BOXES=nearBoxes;
-
-  // Wrap the hot path inside zTick: replace full boxes scan for moving zombies.
-  // We patch by wrapping pushO-using loop via a monkey-patch of Array iteration? Safer: rewrite the known loop string already applied below.
-  window.DH_FPS={im:()=>window.DH_FPS_IM|0,bins:()=>bins.size,boxN:()=>boxes.length};
-}catch(e){console.warn('[fps-pass]',e)}}
 // ===== v0.21.6 LIGHT GOVERNOR (lossless): three.js runs EVERY light through EVERY lit pixel, even at intensity 0. In daylight ~12 of the ~18 point/spot lights (street-lamp pool, stage lights, graveyard/lamp lights) are switched off but still cost shader time. Lights that start the game dead are hidden while they are all dead and shown again (all together, so shaders are only ever built for two light-count variants) the moment any of them turns on. The muzzle flash + flashlight are never touched. Identical image, fewer GPU instructions. =====
 {const core=new Set([ml,FL]);let pool=[],seen=new Set(),mode=true,hold=0,fr=0;
  const rescan=()=>{const all=[];scene.traverse(o=>{if((o.isPointLight||o.isSpotLight)&&!core.has(o))all.push(o)});
@@ -55662,17 +55599,19 @@ window.STORY_CONFIG={
    objective:'Go to the lumber mill and turn it on',
    popup:{title:'QUARRY RUNNING',text:'Loud, but it works. Now the Blackpine Lumber sawmill — press F at its control to start it. It draws zombies, so don’t linger.',secs:8},
    goal:{on:'sawmill'}},
-  {id:'return',clock:'free',target:{x:10,z:18},
-   objective:'Take your haul back to the farm',
-   popup:{title:'BOTH MILLS RUNNING',text:'Collect the lumber and stone from each output bay (F), then head home. Time to build.',secs:7},
-   goal:{reach:{x:10,z:18},radius:30}},
-  {id:'build',clock:'free',
-   objective:'Build a 2×1 shelter',
-   popup:{title:'DIG IN',text:'Press B for the build menu. Place a Tool Cupboard first. You need <b>any two foundations that share an edge</b>, then wall <b>that pair&rsquo;s outer perimeter</b> (6 edges) with a <b>Doorway + Door</b> on one outer edge. Extra pads elsewhere are ignored — if two pads are not touching, place a <b>third</b> pad beside one of them and finish that pair (no demolish needed).<br><br>Exact kit ≈ <b>255 wood</b> for one 2×1. Haul more from the sawmill if short.',secs:12},
-   goal:{baseBuilt:true}},
+  // Index 7 was the haul back to the farm. Index 8 was the shelter checklist.
+  // Both are the hymnal recovery now, so older saves land on it and Fort Harvest stays at index 9.
+  {id:'hymnal',clock:'free',target:'eliza',
+   objective:'Recover Eliza Hollow’s hymnal from her angel in Hollow Creek Cemetery and lay it on the chapel lectern',
+   popup:{title:'A NAME ON THE SHORTWAVE',text:'The mills are running, and the radio isn’t sending you home to build. It keeps repeating one name: <b>Eliza Hollow</b>. Her reaching angel stands in the plaza of <b>Hollow Creek Cemetery</b>, west of the highway. Take her hymnal from the plinth (F), carry it through the chapel’s tower door, and lay it on the lectern in front of the altar (F).',secs:13},
+   goal:{hymnal:true}},
+  {id:'hymnalHold',clock:'free',target:'eliza',
+   objective:'Recover Eliza Hollow’s hymnal from her angel in Hollow Creek Cemetery and lay it on the chapel lectern',
+   popup:{title:'A NAME ON THE SHORTWAVE',text:'The shelter order is gone. The radio wants <b>Eliza Hollow’s hymnal</b> from the reaching angel in <b>Hollow Creek Cemetery</b>, laid on the chapel lectern (F at the plinth, then F at the lectern).',secs:12},
+   goal:{hymnal:true}},
   {id:'fort',clock:'free',target:'fort',
    objective:'Go to Fort Harvest and find out what happened in the city',
-   popup:{title:'SHELTER BUILT',text:'It’s not much, but it’s yours. The radio keeps repeating one thing: “Fort Harvest.” Somebody there knows what happened in the city.',secs:9},
+   popup:{title:'AFTER THE BELL',text:'Hollow Creek pointed you at Fort Harvest. Somebody there knows what happened in the city.',secs:9},
    goal:{reach:'fort'}},
   {id:'end',clock:'free',
    objective:'…',
@@ -55739,16 +55678,10 @@ barn.lamp=add(new T.SphereGeometry(.04,8,6),new T.MeshBasicMaterial({color:0x35f
 barn.glow=glow(bbx,1.5,bbz+.3,0x7fffa0,1.6);barn.glow.userData.t=9;boxes.push({x:bbx,z:bbz,hw:.35,hd:.2})}
 const bnode={x:bbx,z:bbz+.9,t:'ctl',amt:1,max:1,g:null,rad:2.4,pr:()=>barn.closed?'F: Trip the barn breaker':'F: Flip the barn breaker ON',act:()=>flipBarn()};nodes.push(bnode);
 const gridUp=()=>POWER.on&&POWER.wave>=POWER.len*.5;
-function flipBarn(){
- /* Campaign barn step: surge leaves breaker OPEN; closing it advances. If already closed (desync/goto),
-    F still completes the step — previously the first F only opened it and never advanced (softlock). */
- if(S.cur&&S.cur.id==='barn'){
-  barn.closed=true;barn.mode=gridUp()?'on':'temp';
-  try{blip(330,.1,'square')}catch(e){}
-  toast('Barn breaker reset',2);advance();return}
- barn.closed=!barn.closed;try{blip(barn.closed?330:200,.1,'square')}catch(e){}
- if(!barn.closed){barn.mode='off';toast('Barn breaker tripped',2);return}
- if(gridUp()){barn.mode='on';toast('Barn breaker closed — lights on',2)}else{barn.mode='off';toast('Breaker closed, but there is no power on the line.',3)}}
+function flipBarn(){barn.closed=!barn.closed;try{blip(barn.closed?330:200,.1,'square')}catch(e){}
+if(!barn.closed){barn.mode='off';toast('Barn breaker tripped',2);return}
+if(S.cur&&S.cur.id==='barn'){advance();return}
+if(gridUp()){barn.mode='on';toast('Barn breaker closed — lights on',2)}else{barn.mode='off';toast('Breaker closed, but there is no power on the line.',3)}}
 const burstBarn=()=>{if(!barnG)return;for(const z of[-8.2,-4.1,0,4.1]){const w=new T.Vector3(BARN.x,3.95,BARN.z+z);sparks(w.x,w.y,w.z,28,3.5);smoke(w.x,w.y,w.z,3)}
 for(const l of bLights)l.intensity=bBase[bLights.indexOf(l)]*5;flash(.35);barn.mode='off';barn.closed=true;try{blip(90,.5,'sawtooth');setTimeout(()=>blip(1500,.05,'square'),80);setTimeout(()=>blip(1100,.05,'square'),170)}catch(e){}};
 const healPole=p=>{p.dead=false;p.hq=0;p.sizzle=0;p.doorT=0;p.door.rotation.y=0;p.tubeV=0;p.tube.position.set(.34,1.62,-.05);p.tube.rotation.set(0,0,0);p.lamp.material.color.setHex(0x35ff6a);for(const i of p.ins)i.material=porc;p.can.material=metal;sparks(p.x+.4,1.8,p.z,10,1.5);try{blip(520,.08,'triangle')}catch(e){}};
@@ -55756,17 +55689,9 @@ const barnTarget=()=>barn.closed&&(barn.mode==='temp'||gridUp())?1:0;
 const gridOn=()=>{POWER.did=true;if(!POWER.on){POWER.on=true}POWER.wave=(POWER.len2||1)+40};
 const gridOff=()=>{if(POWER.on)setGrid(false)};
 const setState=st=>{if(!st)return;if(st.grid===true)gridOn();else if(st.grid===false)gridOff();if(st.barn==='on'){barn.closed=true;barn.mode='on'}else if(st.barn==='off'){barn.mode='off';barn.closed=false}};
-let hold=true,speed=1;window.__storyClock={release(){hold=false;speed=1;armFreeClock('untilStory')},clearFreeClock,get hold(){return hold},get speed(){return speed}};const _env=env;env=function(dt){
- /* HOLD FREEZE BUG (day→978): under hold, _env still ran with live dt; if dayT≈.999 (Skip to next day),
-    day++ then hold restored dayT to ~.999 → one calendar day PER FRAME. At ~1 FPS that is ~60 days/min.
-    Fix: while hold (and not freeClock), pass dt=0 into calendar/lighting advance so dayT cannot roll. */
- const d0=dayT;
- if(hold&&!(ADM&&ADM.freeClock)){_env(0);if(typeof tickFreeClock==='function')tickFreeClock();tick(dt);return}
- _env(dt);if(typeof tickFreeClock==='function')tickFreeClock();
- if(speed!==1&&!(ADM&&ADM.freeClock))dayT=d0+(dayT-d0)*speed;
- tick(dt)};
-const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else if(s.clock==='countdown'){hold=false;speed=dayT<NF?Math.max(.02,(NF-dayT)*DAY_SECS/(s.countdownSec||120)):1}else{hold=false;speed=1}};
-const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(typeof t==='object')return t;return null};
+let hold=true,speed=1;const _env=env;env=function(dt){const d0=dayT;_env(dt);if(hold)dayT=d0;else if(speed!==1)dayT=d0+(dayT-d0)*speed;tick(dt)};
+const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else if(s.clock==='countdown'){hold=false;speed=dayT<NF?Math.max(.02,(NF-dayT)*270/(s.countdownSec||120)):1}else{hold=false;speed=1}};
+const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(typeof t==='object')return t;return null};
 const mkr=new T.Group();mkr.visible=false;scene.add(mkr);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;mkr.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;mkr.add(b);mkr.userData.d=d}
 const timeline=[],after=(s,f)=>timeline.push({t:s,f});
 const FXN={
@@ -55775,36 +55700,47 @@ after(1.6,()=>{if(plantN)try{blip(180,.6,'sawtooth')}catch(e){}})},
 barnLightsOn(){barn.closed=true;barn.mode='temp';barn.temp=C.steps.find(s=>s.id==='barnLights').goal.wait;toast('💡 The barn lights flicker on…',3)},
 barnBurst(){burstBarn()},
 restoreBarn(){after(4,()=>{toast(barn.closed?'💡 Power is back at the barn.':'⚡ The grid is back, but the barn breaker is still tripped.',3.5)})}};
+/*HYMNAL_RULES_START*/
+const HYMNAL_LOCAL={eliza:{x:5.15,z:0.15},lectern:{x:-29.2,z:0.35},book:{x:6.22,y:0.92,z:0.12},stand:{x:-30.55,y:0,z:0.85}};
+function hymnalLoad(raw,storyIdx,hymnalIdx){
+ const carried=!!(raw&&(raw.carried===1||raw.carried===true));
+ const delivered=!!(raw&&(raw.delivered===1||raw.delivered===true));
+ if(typeof storyIdx==='number'&&typeof hymnalIdx==='number'&&hymnalIdx>=0&&storyIdx>hymnalIdx)return{carried:false,delivered:true,rewarded:true};
+ if(delivered)return{carried:false,delivered:true,rewarded:true};
+ if(carried)return{carried:true,delivered:false,rewarded:false};
+ return{carried:false,delivered:false,rewarded:false}}
+function hymnalReduce(h,ev){
+ const s={carried:!!h.carried,delivered:!!h.delivered,rewarded:!!h.rewarded,step:!!h.step};
+ if(ev==='pickup'){
+  if(s.delivered)return{h:s,ok:false,why:'resting',advance:false,reward:0};
+  if(s.carried)return{h:s,ok:false,why:'held',advance:false,reward:0};
+  return{h:{carried:true,delivered:false,rewarded:false,step:s.step},ok:true,why:'took',advance:false,reward:0}}
+ if(ev==='deliver'){
+  if(s.delivered)return{h:s,ok:false,why:'done',advance:false,reward:0};
+  if(!s.carried)return{h:s,ok:false,why:'empty',advance:false,reward:0};
+  if(!s.step)return{h:s,ok:false,why:'early',advance:false,reward:0};
+  return{h:{carried:false,delivered:true,rewarded:true,step:true},ok:true,why:'laid',advance:true,reward:1}}
+ if(ev==='death')return{h:s,ok:true,why:'retry',advance:false,reward:0,met:false};
+ if(ev==='goal')return{h:s,met:!!(s.step&&s.delivered),advance:false,reward:0};
+ return{h:s,ok:false,why:'unknown',advance:false,reward:0}}
+function hymnalMarker(h){if(!h||!h.step||h.delivered)return null;return h.carried?'lectern':'eliza'}
+function hymnalActive(id){return id==='hymnal'||id==='hymnalHold'}
+function hymnalSkip(id,state){return id==='hymnalHold'&&!!(state&&state.delivered)}
+/*HYMNAL_RULES_END*/
+function hymnalWorld(local){const g=window.GYG,ox=g?g.position.x:-100,oz=g?g.position.z:-260;return{x:ox+local.x,y:local.y||0,z:oz+local.z}}
 const S=window.STORY={cfg:C,cur:null,idx:-1,t:0,steps:()=>C.steps.map(s=>s.id),goto:id=>{const i=typeof id==='number'?id:C.steps.findIndex(s=>s.id===id);if(i<0)return'unknown step';enter(i);return'→ '+C.steps[i].id},skip:()=>advance()};
-function enter(i){if(typeof clearFreeClock==='function')clearFreeClock();if(S.cur&&S.cur.onExit&&FXN[S.cur.onExit])FXN[S.cur.onExit]();S.idx=i;S.cur=C.steps[i];S.t=0;setState(S.cur.state);clockFor(S.cur);if(S.cur.onEnter&&FXN[S.cur.onEnter])FXN[S.cur.onEnter]();popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z);S.tgt=t;
- /* Ensure barn step always sees post-surge open breaker so one F closes+advances */
- if(S.cur.id==='barn'&&typeof barn!=='undefined'){barn.closed=false;barn.mode='off'}
- /* Plant auto-complete only if grid already live AND this isn't a fresh enter from barnLights
-    (POWER.on right after surge path should be false). Keep for save-resume when plant already done. */
- if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
+function enter(i){const prev=S.cur;if(prev&&prev.onExit&&FXN[prev.onExit])FXN[prev.onExit]();S.idx=i;S.cur=C.steps[i];S.t=0;setState(S.cur.state);clockFor(S.cur);if(S.cur.onEnter&&FXN[S.cur.onEnter])FXN[S.cur.onEnter]();
+if(hymnalSkip(S.cur.id,window.HYMNAL)){advance();return}
+const keepPop=!!(prev&&hymnalActive(prev.id)&&popT>2);
+if(!keepPop)popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z);S.tgt=t;
+if(window.HYMNAL)hymnalSync();
+if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
 function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
 const actP=()=>!foot&&typeof car!=='undefined'&&car?car.position:pl;const reached=(t,r)=>{const p=place(t);const q=actP();return p&&Math.hypot(q.x-p.x,q.z-p.z)<r};
-const baseInfo=()=>{
- /* Campaign 2x1: ANY edge-adjacent foundation PAIR with full outer perimeter (6) + doorway/door counts.
-    Extra/misplaced pads are ignored for done — do not softlock early placement mistakes. No auto-demolish. */
- const set=new Set(FDm.keys()),F=[...set].map(k=>k.split(',').map(Number));
- const edges=(x,z)=>[[x+','+(z-1)+',S,0',x,z-1],[x+','+z+',S,0',x,z+1],[(x-1)+','+z+',E,0',x-1,z],[x+','+z+',E,0',x+1,z]];
- const scorePair=(a,b)=>{const pair=new Set([a[0]+','+a[1],b[0]+','+b[1]]);let need=0,have=0,door=false;
-  for(const[x,z]of[a,b])for(const[k,nx,nz]of edges(x,z)){if(pair.has(nx+','+nz))continue;need++;const w=WLm.get(k);if(w){have++;if(w.kind==='doorway'&&w.door)door=true}}
-  return{need,have,door,complete:need>0&&have>=need&&!!door,a,b,label:a[0]+','+a[1]+' + '+b[0]+','+b[1]}};
- const pairs=[];
- for(let i=0;i<F.length;i++)for(let j=i+1;j<F.length;j++){const dx=Math.abs(F[i][0]-F[j][0]),dz=Math.abs(F[i][1]-F[j][1]);
-  if((dx===1&&dz===0)||(dx===0&&dz===1))pairs.push(scorePair(F[i],F[j]))}
- const complete=pairs.find(p=>p.complete);
- /* HUD: prefer a complete pair; else the pair closest to finished; else prompt to place an adjacent pad */
- let best=complete||null;
- if(!best&&pairs.length){best=pairs.slice().sort((u,v)=>(v.have-u.have)||((v.have/v.need)-(u.have/u.need)))[0]}
- let need=6,have=0,door=false,hint='';
- if(best){need=best.need;have=best.have;door=best.door;hint=best.label}
- else if(F.length>=1){hint='place a pad sharing an edge with one foundation';need=6;have=0;door=false}
- return{tc:!!myTC,f:F.length,adj:pairs.length>0,pairs:pairs.length,need,have,door,target:hint,best:best||null,
-  done:!!myTC&&!!complete}};
-const goalMet=s=>{const g=s.goal||{};if(g.wait!=null)return S.t>=g.wait;if(g.on)return !!(MS[g.on==='quarry'?'qy':'sm']&&MS[g.on==='quarry'?'qy':'sm'].on);if(g.baseBuilt)return baseInfo().done;if(g.plantBreaker)return POWER.on;if(g.reach){const r=g.radius||(g.reach==='barn'?C.places.barn.radius:C.places.fort.radius);if(window.__willRsp){/* Death respawn counts as arriving only inside the real return circle. Farm foot-spawn is outside that circle, so clear there; empty-handed completion stays blocked while still inside, and any haul clears it. */if(!reached(g.reach,r))window.__willRsp=0;else if(S.cur&&S.cur.id==='return'&&!(carry.w+carry.s+carry.m>0)){if(!window.__willRspNote){window.__willRspNote=1;try{toast('Death put you on the farm empty-handed. Step outside this area and walk back in, or bring a haul.',5)}catch(e){}}return false}else window.__willRsp=0}return reached(g.reach,r)}if(g.gateOpen){const f=FG();return !!f&&(!f.locked||f.open)}return false};
+const baseInfo=()=>{const set=new Set(FDm.keys()),F=[...set].map(k=>k.split(',').map(Number));let need=0,have=0,door=false;
+for(const[x,z]of F)for(const[k,nx,nz]of[[x+','+(z-1)+',S,0',x,z-1],[x+','+z+',S,0',x,z+1],[(x-1)+','+z+',E,0',x-1,z],[x+','+z+',E,0',x+1,z]]){if(set.has(nx+','+nz))continue;need++;const w=WLm.get(k);if(w){have++;if(w.kind==='doorway'&&w.door)door=true}}
+return{tc:!!myTC,f:F.length,need:F.length<2?6:need,have,door,done:!!myTC&&F.length>=2&&need>0&&have>=need&&door}};
+const goalMet=s=>{const g=s.goal||{};if(g.wait!=null)return S.t>=g.wait;if(g.on)return !!(MS[g.on==='quarry'?'qy':'sm']&&MS[g.on==='quarry'?'qy':'sm'].on);if(g.baseBuilt)return baseInfo().done;if(g.plantBreaker)return POWER.on;if(g.reach){const r=g.radius||(g.reach==='barn'?C.places.barn.radius:C.places.fort.radius);if(window.__willRsp){/* Death respawn counts as arriving only inside the real goal circle. Farm foot-spawn is outside the return circle, so clear there; empty-handed completion stays blocked while still inside. */if(!reached(g.reach,r))window.__willRsp=0;else if(!(carry.w+carry.s+carry.m>0)){if(!window.__willRspNote){window.__willRspNote=1;try{toast('Death put you on the farm empty-handed. Step outside this area and walk back in, or bring a haul.',5)}catch(e){}}return false}}return reached(g.reach,r)}if(g.gateOpen){const f=FG();return !!f&&(!f.locked||f.open)}if(g.hymnal)return !!(window.HYMNAL&&window.HYMNAL.delivered&&S.cur&&(S.cur.id==='hymnal'||S.cur.id==='hymnalHold'));return false};
 // ===== v0.23.1 SIDE MISSION: restore power to the Fort Harvest gate keycard reader. The dedicated breaker is in the BASEMENT of the house on Plot 15. Pressing F at the dead keypad starts the mission. =====
 const SIDE=window.SIDE={started:false,done:false,t:0},H15=window.H15I;
 const sideMk=new T.Group();sideMk.visible=false;scene.add(sideMk);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0x4cd0ff,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;sideMk.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0x4cd0ff,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;sideMk.add(b);sideMk.userData.d=d}
@@ -55848,17 +55784,19 @@ for(const m of bBulbs)m.color.setHex(k>.5?0xffe2a8:0x2a2620);
 if(barn.lever)barn.lever.rotation.x=barn.closed?-.75:.75;if(barn.lamp)barn.lamp.material.color.setHex(!barn.closed?0xff3020:(barn.mode==='temp'||gridUp()?0x35ff6a:0xffc020));
 if(barn.glow){const u=barn.glow.userData;if(S.cur&&S.cur.id==='barn'){u.t=0;barn.glow.material.opacity=.35+.35*Math.sin(performance.now()/260);barn.glow.scale.setScalar(1.6)}else barn.glow.material.opacity=0}}
 if(!S.cur)return;S.t+=dt;
+if(window.HYMNAL)hymnalSync();
 if(popT>0){popT-=dt;if(popT<=0)pEl.style.opacity=0}
 if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
-const ri=C.steps.findIndex(s=>s.id==='return');
+const ri=C.steps.findIndex(s=>s.id==='hymnal');
 if(ri>=0&&S.idx>=ri&&!nightShown&&dayT>=NF&&dayT<.9){nightShown=true;speed=1;popup(C.text.nightfall)}
-if(S.cur.clock==='countdown'&&dayT>=NF)speed=1;/* refresh after nightfall hour even before return step */
+if(S.cur.clock==='countdown'&&nightShown)speed=1;
 {let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
-if(S.cur.id==='return'&&nightShown)o=C.text.nightfallObjective;
+if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)o=window.HYMNAL.carried?'Lay Eliza Hollow’s hymnal on the Hollow Creek chapel lectern':'Take Eliza Hollow’s hymnal from the reaching angel in Hollow Creek Cemetery';
 if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
-if(gl.baseBuilt){const q=baseInfo();const fLab=q.adj?'pair OK':'need adjacent pair';sub=(q.tc?'TC ✓':'TC ✗')+' · '+fLab+(q.target?' · focus '+q.target:'')+' · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
+if(gl.baseBuilt){const q=baseInfo();sub=(q.tc?'TC ✓':'TC ✗')+' · Foundations '+Math.min(q.f,2)+'/2 · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
 if(S.tgt)sub=(sub?sub+' · ':'')+Math.round(Math.hypot(S.tgt.x-actP().x,S.tgt.z-actP().z))+' m';
-/* nightfall countdown UI removed; nightfall popup + objective + day/night system kept */
+if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)sub=(window.HYMNAL.carried?'Carrying the hymnal':'Hymnal is at the angel')+(sub?' · '+sub:'');
+if(S.cur.clock==='countdown'&&!nightShown&&dayT<NF){const sec=Math.max(0,Math.round((NF-dayT)*270/speed));sub+=(sub?' · ':'')+'nightfall in '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
 if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(sub?'<br><span style="color:#ffd24c;font-weight:700">'+sub+'</span>':'')}else oEl.style.display='none'}
 {const se=sEl;
  if(brk15){brk15.lever.rotation.x+=((brk15.on?-.75:.75)-brk15.lever.rotation.x)*Math.min(1,dt*9);brk15.lampM.color.setHex(brk15.on?0x35ff6a:(Math.sin(performance.now()/300)>0?0xff3020:0x501008));const u=brk15.glw.userData;if(u.t<2){u.t+=dt;const k=Math.max(0,1-u.t/.7);brk15.glw.material.opacity=k;brk15.glw.scale.setScalar(u.size*(.4+u.t*1.2))}else brk15.glw.material.opacity=0}
@@ -55868,6 +55806,44 @@ if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(s
  else if(SIDE.done&&SIDE.t<6){SIDE.t+=dt;se.style.display='block';se.innerHTML='<b>SIDE MISSION COMPLETE</b>&#10003; Keycard reader powered'}
  else se.style.display='none'}
 if(goalMet(S.cur))advance()}
+function hymnalSync(){const H=window.HYMNAL;if(!H)return;H.step=!!(S.cur&&hymnalActive(S.cur.id));
+ if(H.book)H.book.visible=!H.carried&&!H.delivered;if(H.sign)H.sign.visible=!H.carried&&!H.delivered;if(H.onStand)H.onStand.visible=!!H.delivered;if(H.glow){H.glow.visible=!H.carried&&!H.delivered;if(H.glow.visible){H.glow.material.opacity=.75+.2*Math.sin(performance.now()/280);H.glow.scale.setScalar(2.2)}}
+ if(H.angel)H.angel.amt=(!H.carried&&!H.delivered)?1:0;if(H.lect)H.lect.amt=H.delivered?0:1;
+ if(H.step){const mk=hymnalMarker(H),t=mk?place(mk):null;S.tgt=t;mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z)}}
+function hymnalApply(ev){const H=window.HYMNAL;if(!H)return{ok:false,why:'missing'};const r=hymnalReduce(H,ev);
+ H.carried=r.h.carried;H.delivered=r.h.delivered;H.rewarded=r.h.rewarded;H.step=r.h.step;hymnalSync();return r}
+function hymnalToll(){try{blip(494,.45,'sine');setTimeout(()=>blip(392,.6,'sine'),680);setTimeout(()=>blip(330,.75,'sine'),1460)}catch(e){}
+ const L=window.GYG&&window.GYG.userData&&window.GYG.userData.pl1;if(L){L.intensity=1.6;setTimeout(()=>{L.intensity=.45},2400)}flash(.22)}
+function hymnalPickup(){const r=hymnalApply('pickup');
+ if(r.why==='took'){toast('Eliza Hollow’s hymnal. Carry it through the chapel tower door and lay it on the lectern.',4.5);try{blip(660,.09,'triangle')}catch(e){}}
+ else if(r.why==='held')toast('You already have Eliza Hollow’s hymnal.',2);
+ else if(r.why==='resting')toast('Eliza’s hymnal is already on the lectern.',2)}
+function hymnalDeliver(){const r=hymnalApply('deliver');
+ if(r.why==='empty')toast('The lectern is bare. Eliza Hollow’s hymnal is at the reaching angel in the cemetery plaza.',4);
+ else if(r.why==='early')toast('Keep the hymnal. The shortwave has not asked for it yet.',3.5);
+ else if(r.why==='done')toast('The hymnal is already on the lectern.',2);
+ else if(r.reward){hymnalToll();popup({title:'THE FLYLEAF',text:'The hymnal opens on the lectern. Under Eliza Hollow’s name, a later hand has written: “If the bell stays silent, Fort Harvest still has the list.” The chapel bell answers once.',secs:9})}}
+{const gy=window.GYG;if(gy){const parent=gy;
+ const leather=new T.MeshStandardMaterial({color:0x6e241c,roughness:.55,metalness:.05}),page=new T.MeshStandardMaterial({color:0xf0e2c0,roughness:.8}),gold=new T.MeshStandardMaterial({color:0xd4b15a,roughness:.35,metalness:.7,emissive:0x5a3e10,emissiveIntensity:.45}),woodM=new T.MeshStandardMaterial({color:0x5a3b24,roughness:.85});
+ const add=g=>{g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});parent.add(g);return g};
+ const bookMesh=()=>{const g=new T.Group();const cover=new T.Mesh(new T.BoxGeometry(.34,.07,.46),leather);cover.position.y=.05;g.add(cover);const pages=new T.Mesh(new T.BoxGeometry(.28,.045,.4),page);pages.position.y=.055;g.add(pages);const cross=new T.Mesh(new T.BoxGeometry(.06,.02,.2),gold);cross.position.y=.09;g.add(cross);const arm=new T.Mesh(new T.BoxGeometry(.16,.02,.05),gold);arm.position.set(0,.095,-.02);g.add(arm);return g};
+ const book=add(bookMesh());book.position.set(HYMNAL_LOCAL.book.x,HYMNAL_LOCAL.book.y,HYMNAL_LOCAL.book.z);book.rotation.y=.4;
+ const rest=add(new T.Mesh(new T.BoxGeometry(.5,.16,.62),new T.MeshStandardMaterial({color:0xcfc6b4,roughness:.9})));rest.position.set(HYMNAL_LOCAL.book.x,HYMNAL_LOCAL.book.y-.16,HYMNAL_LOCAL.book.z);
+ const lab=(()=>{const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#1a120c';x.fillRect(0,0,256,96);x.strokeStyle='#d4b15a';x.lineWidth=6;x.strokeRect(6,6,244,84);x.fillStyle='#f0e2c0';x.font='bold 28px Georgia,serif';x.textAlign='center';x.fillText('ELIZA HOLLOW',128,42);x.font='18px Georgia,serif';x.fillText('HYMNAL',128,72);return new T.Mesh(new T.PlaneGeometry(.7,.26),new T.MeshBasicMaterial({map:new T.CanvasTexture(c),side:T.DoubleSide}))})();
+ lab.position.set(HYMNAL_LOCAL.book.x,1.35,HYMNAL_LOCAL.book.z-.34);lab.rotation.y=-Math.PI/2;parent.add(lab);lab.name='hymnalSign';
+ const bookGlow=glow(hymnalWorld(HYMNAL_LOCAL.book).x,1.15,hymnalWorld(HYMNAL_LOCAL.book).z,0xffd27a,2.4);bookGlow.userData.t=9;bookGlow.material.opacity=.9;bookGlow.scale.set(2.4,2.4,1);
+ const stand=new T.Group();stand.position.set(HYMNAL_LOCAL.stand.x,0,HYMNAL_LOCAL.stand.z);parent.add(stand);
+ const post=new T.Mesh(new T.BoxGeometry(.16,1.15,.16),woodM);post.position.y=.58;stand.add(post);
+ const top=new T.Mesh(new T.BoxGeometry(.62,.06,.46),woodM);top.position.set(0,1.16,.02);top.rotation.x=-.35;stand.add(top);
+ const onStand=bookMesh();onStand.position.set(0,1.22,.02);onStand.rotation.x=-.35;onStand.visible=false;stand.add(onStand);
+ const slab=(()=>{const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#2a2118';x.fillRect(0,0,256,96);x.fillStyle='#f4ecd0';x.font='bold 26px Georgia,serif';x.textAlign='center';x.fillText('CHAPEL LECTERN',128,40);x.font='16px Georgia,serif';x.fillText('LAY THE HYMNAL HERE',128,70);return new T.Mesh(new T.PlaneGeometry(.72,.28),new T.MeshBasicMaterial({map:new T.CanvasTexture(c),side:T.DoubleSide}))})();
+ slab.position.set(0,1.55,.16);slab.rotation.y=Math.PI/2;stand.add(slab);
+ const eliza=hymnalWorld(HYMNAL_LOCAL.eliza),lectP=hymnalWorld(HYMNAL_LOCAL.lectern);
+ const angelN={x:eliza.x,z:eliza.z,t:'ctl',amt:1,max:1,g:null,rad:2.35,pr:()=>'F: Take Eliza Hollow’s hymnal',act:()=>hymnalPickup()};
+ const lectN={x:lectP.x,z:lectP.z,t:'ctl',amt:1,max:1,g:null,rad:2.45,pr:()=>window.HYMNAL&&window.HYMNAL.carried?'F: Lay Eliza Hollow’s hymnal on the lectern':'F: Chapel lectern — needs Eliza Hollow’s hymnal',act:()=>hymnalDeliver()};
+ nodes.push(angelN,lectN);
+ window.HYMNAL={carried:false,delivered:false,rewarded:false,step:false,spots:{eliza:{x:eliza.x,z:eliza.z},lectern:{x:lectP.x,z:lectP.z}},book,sign:lab,onStand,glow:bookGlow,angel:angelN,lect:lectN,load(raw,storyIdx){const ids=S.steps(),gate=ids.indexOf('hymnalHold'),n=hymnalLoad(raw,storyIdx,gate>=0?gate:ids.indexOf('hymnal'));this.carried=n.carried;this.delivered=n.delivered;this.rewarded=n.rewarded;hymnalSync()}};
+ hymnalSync()}}
 // ---------------- START ----------------
 POWER.did=true;POWER.on=true;POWER.wave=(POWER.len2||1)+40;
 dayT=nf(C.startHour);day=1;hold=true;
@@ -55890,8 +55866,9 @@ function snap(){
   pl:{x:p.x,y:foot?pl.y:0,z:p.z,yaw,pit,hp:pHP},
   willRsp:window.__willRsp?1:0,willRspNote:window.__willRspNote?1:0,
   inv:JSON.parse(JSON.stringify(inv)),carry:{...carry},stored:{...stored},wi,wp:WP.map(w=>({mag:w.mag,res:w.res})),
-  clock:{day,dayT,raidDay,farmHP,farmMax,farmLv},
+  clock:{day,dayT,raidDay,farmHP},
   story:{idx:ST?ST.idx:0,night:!!RT.night},
+  hymnal:window.HYMNAL?{carried:window.HYMNAL.carried?1:0,delivered:window.HYMNAL.delivered?1:0}:null,
   power:{on:!!POWER.on,wave:POWER.wave},
   barn:RT.barn?{closed:RT.barn.closed,mode:RT.barn.mode==='temp'?'on':RT.barn.mode}:null,
   mills:Object.fromEntries(Object.keys(MS).map(k=>[k,{on:MS[k].on,lv:MS[k].lv,fuel:MS[k].fuel,wear:MS[k].wear,jam:MS[k].jam,out:{...MS[k].out}}])),
@@ -55906,9 +55883,10 @@ function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2)retur
 function apply(d){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
  // clock first (story countdown speed reads dayT on enter)
- day=d.clock.day;dayT=d.clock.dayT;raidDay=d.clock.raidDay||0;farmHP=d.clock.farmHP??farmHP;if(d.clock.farmMax!=null)farmMax=+d.clock.farmMax||farmMax;if(d.clock.farmLv!=null)farmLv=+d.clock.farmLv||0;
+ day=d.clock.day;dayT=d.clock.dayT;raidDay=d.clock.raidDay||0;farmHP=d.clock.farmHP??farmHP;
  // power off before the story step so the plant step doesn't auto-complete
  if(!d.power.on&&POWER.on&&typeof setGrid==='function')setGrid(false);
+ if(window.HYMNAL&&d.story)window.HYMNAL.load(d.hymnal,d.story.idx|0);
  if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=ids.indexOf('plant');
   if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
   ST.goto(d.story.idx)}
@@ -55927,17 +55905,13 @@ function apply(d){
  if(d.flb!=null&&typeof flBat!=='undefined'){flBat=Math.max(0,Math.min(1,+d.flb||0));flLowWarned=flBat<=FLB.dim}/*DH26-FLB-LOAD*/
  if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates}
  if(Array.isArray(d.builds)&&typeof construct==='function'){
-  const saved=d.builds.slice();const hadTc=saved.some(b=>b.kind==='tc');
-  try{for(const p of pieces.slice())killPiece(p)}catch(e){console.warn('[save] clear builds',e)}
+  for(const p of pieces.slice())if(p.kind!=='tc')killPiece(p);for(const p of pieces.slice())killPiece(p);
   const ord={tc:0,foundation:1,wall:2,doorway:2,window:2,roof:3,stairs:4,door:5};let n=0,bad=0;
-  for(const b of saved.sort((a,c)=>(ord[a.kind]??9)-(ord[c.kind]??9))){try{
-   if(b.kind==='door'){const w=WLm.get(b.d&&b.d.k);if(!w||w.kind!=='doorway'||w.door){bad++;continue}}
+  for(const b of d.builds.slice().sort((a,c)=>(ord[a.kind]??9)-(ord[c.kind]??9))){try{
+   if(b.kind==='door'){const w=WLm.get(b.d.k);if(!w||w.kind!=='doorway'||w.door){bad++;continue}}
    if(b.kind==='tc'&&myTC){bad++;continue}
-   if(!b.d){bad++;continue}
-   const p=construct(Object.assign({},b.d),b.kind,b.t|0);if(!p){bad++;continue}
-   if(typeof b.hp==='number'&&b.hp>0)p.hp=Math.min(b.hp,p.max);if(b.kind==='door'&&b.open)toggleDoor(p);n++}catch(e){bad++;console.warn('[save] build restore failed',b,e)}}
-  if(hadTc&&!myTC){const tb=saved.find(b=>b.kind==='tc');if(tb&&tb.d){try{const p=construct(Object.assign({},tb.d),'tc',tb.t|0);if(p&&typeof tb.hp==='number'&&tb.hp>0)p.hp=Math.min(tb.hp,p.max);if(p)n++}catch(e){bad++;console.warn('[save] TC retry failed',e)}}}
-  window.__willBuildsLoaded={n,bad,hadTc,hasTc:!!myTC}}
+   const p=construct(Object.assign({},b.d),b.kind,b.t|0);if(typeof b.hp==='number'&&b.hp>0)p.hp=Math.min(b.hp,p.max);if(b.kind==='door'&&b.open)toggleDoor(p);n++}catch(e){bad++;console.warn('[save] build restore failed',b,e)}}
+  window.__willBuildsLoaded={n,bad}}
 }
 function load(){const d=read();if(!d)return false;try{apply(d);return true}catch(e){console.error('[save] load failed',e);return false}}
 function clear(){try{localStorage.removeItem(KEY);localStorage.removeItem(VKEY)}catch(e){}}
@@ -55949,25 +55923,15 @@ addEventListener('pagehide',()=>save('hide'));
 const d0=read();
 if(!d0){armed=true;return}
 const ov=document.createElement('div');ov.id='willSaveMenu';
-ov.style.cssText='position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);font:600 15px system-ui,sans-serif;color:#f4ecd0;pointer-events:auto';
-window.dhPaused=true;/* freeze sim while choose Continue/New */
+ov.style.cssText='position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);font:600 15px system-ui,sans-serif;color:#f4ecd0';
 const ago=Math.max(1,Math.round((Date.now()-d0.t)/60000)),when=ago<60?ago+' min ago':ago<2880?Math.round(ago/60)+' h ago':Math.round(ago/1440)+' days ago';
 const step=(window.STORY&&window.STORY.cfg.steps[d0.story.idx]||{}).objective||'';
-ov.innerHTML='<div style="background:rgba(20,18,14,.95);border:1px solid rgba(255,210,90,.6);border-radius:12px;padding:22px 26px;text-align:center;max-width:min(86vw,360px)"><div style="font-size:22px;letter-spacing:.12em;color:#ffd24c;margin-bottom:6px">DEAD HARVEST</div><div style="opacity:.8;margin-bottom:16px">Saved game: Day '+d0.clock.day+' · '+when+(step&&step!=='…'?'<br>'+step:'')+'</div><button id="willCont" type="button" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer">▶ Continue</button><button id="willNew" type="button" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer">New Game</button></div>';
+ov.innerHTML='<div style="background:rgba(20,18,14,.95);border:1px solid rgba(255,210,90,.6);border-radius:12px;padding:22px 26px;text-align:center;max-width:min(86vw,360px)"><div style="font-size:22px;letter-spacing:.12em;color:#ffd24c;margin-bottom:6px">DEAD HARVEST</div><div style="opacity:.8;margin-bottom:16px">Saved game: Day '+d0.clock.day+' · '+when+(step&&step!=='…'?'<br>'+step:'')+'</div><button id="willCont" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer">▶ Continue</button><button id="willNew" style="display:block;width:100%;margin:6px 0;padding:11px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer">New Game</button></div>';
 document.body.appendChild(ov);
-const dismiss=()=>{if(ov.parentNode)ov.parentNode.removeChild(ov);armed=true;window.dhPaused=false;pd=null;btnFire=false;if(document.pointerLockElement&&document.exitPointerLock)document.exitPointerLock();if(window.dhClearKeys)window.dhClearKeys();document.removeEventListener('keydown',onMenuKey,true)};
-const done=e=>{if(e){e.stopPropagation();e.preventDefault()}dismiss()};
-/* Bubble-phase only: button target handlers run first. Capture-phase stopPropagation on ov blocked Continue (ran before #willCont). */
-for(const ev of['pointerdown','mousedown','mouseup','pointerup','click','touchstart','wheel'])ov.addEventListener(ev,e=>{e.stopPropagation()});
-let menuDone=false;
-const doCont=e=>{if(menuDone)return;menuDone=true;if(e){e.stopPropagation();e.preventDefault()}done(e);let ok=false;try{ok=!!load()}catch(err){console.error(err)}try{toast(ok?'Save loaded — Day '+d0.clock.day:'Could not load the save, starting fresh.',3)}catch(err){}};
-const doNew=e=>{if(menuDone)return;menuDone=true;if(e){e.stopPropagation();e.preventDefault()}done(e);clear();if(typeof clearFreeClock==='function')clearFreeClock()};
-const contBtn=ov.querySelector('#willCont'),newBtn=ov.querySelector('#willNew');
-for(const ev of['pointerup','click']){contBtn.addEventListener(ev,doCont);newBtn.addEventListener(ev,doNew)}
-/* Keyboard: Enter/Space activates Continue (or focused New); Esc dismisses as Continue without load? → Esc = leave menu without loading is wrong; Esc closes overlay and leaves new session armed without clearing save — match New? Safer: Esc = Continue attempt. */
-const onMenuKey=e=>{if(!ov.parentNode)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();(document.activeElement===newBtn?doNew:doCont)(e)}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();doCont(e)}};
-document.addEventListener('keydown',onMenuKey,true);
-try{contBtn.focus()}catch(err){}
+const done=e=>{e.stopPropagation();e.preventDefault();ov.remove();armed=true};
+ov.addEventListener('pointerdown',e=>e.stopPropagation());
+ov.querySelector('#willCont').addEventListener('click',e=>{done(e);if(load())toast('Save loaded — Day '+d0.clock.day,3);else toast('Could not load the save, starting fresh.',3)});
+ov.querySelector('#willNew').addEventListener('click',e=>{done(e);clear()});
 }catch(e){console.error('[save] init failed',e)}})();
 
 </script>
