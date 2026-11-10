@@ -79,7 +79,7 @@ test('test pages keep their own save keys and startup defaults', () => {
   assert.doesNotMatch(html['functional-test.html'], /dhSaveTest|dhSaveHarness/);
 });
 
-test('production index keeps the ported death lines; the plot viewer keeps the pre-fix lines', () => {
+test('production index keeps the ported death lines; the plot viewer is generated from that file', () => {
   assert.equal(createHash('sha256').update(indexHtml).digest('hex'), INDEX_SHA);
   for (const piece of [DEATH_SNAP, DRIVE_SNAP, EXIT_CLEAR, REACHED, SAVE_FIELDS]) {
     assert.equal(indexHtml.includes(piece), true, piece.slice(0, 70));
@@ -90,11 +90,12 @@ test('production index keeps the ported death lines; the plot viewer keeps the p
   assert.doesNotMatch(indexHtml, /r\+50/);
   assert.doesNotMatch(indexHtml, /dhSaveTest|dhSaveHarness|dhSaveFunctional/);
 
-  assert.equal(viewerHtml.includes(OLD_DEATH), true);
-  assert.equal(viewerHtml.includes(OLD_REACHED), true);
-  assert.equal(viewerHtml.includes('__vehRsp'), false);
-  assert.equal(viewerHtml.includes('const actP='), false);
-  assert.equal(viewerHtml.includes(SAVE_FIELDS), false);
+  assert.equal(viewerHtml.includes(DEATH_SNAP), true);
+  assert.equal(viewerHtml.includes(OLD_DEATH), false);
+  assert.equal(viewerHtml.includes('__DH_ONE'), true);
+  assert.equal(viewerHtml.includes("KEY='dhSaveFunctional'"), false);
+  assert.equal(viewerHtml.includes("KEY='dhSaveTest'"), false);
+  assert.equal(viewerHtml.includes("KEY='dhSaveHarness'"), false);
 });
 
 test('inline scripts on the three test pages still parse', () => {

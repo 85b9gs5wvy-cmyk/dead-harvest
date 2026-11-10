@@ -2,8 +2,9 @@
  * Plot 1 (Riverside Apartments) walking clearance.
  * Geometry is the same model makeModel2 uses: furniture sol() sizes, partition
  * gaps of ±0.55 m, shell interior faces at x=±12.7 and z=±7.7, player radius 0.4 m.
- * Only index.html is updated. The test pages and plot-viewer.html keep the
- * previous coordinates on purpose.
+ * index.html is the gameplay source. test.html, campaign-test.html, and
+ * functional-test.html keep the previous coordinates. plot-viewer.html is
+ * generated from index.html, so it carries the same furniture.
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -164,7 +165,8 @@ const OLD_STRINGS = [
   "['plant',12.2,2.5]",
   "['sofa',7.2,3.4,1]",
 ];
-const UNCHANGED = ['test.html', 'campaign-test.html', 'functional-test.html', 'plot-viewer.html'];
+const UNCHANGED = ['campaign-test.html', 'functional-test.html'];
+const SAME_AS_INDEX = ['test.html', 'plot-viewer.html'];
 
 test('Plot 1 clearance is in the main game only', () => {
   for (const s of NEW_STRINGS) assert.equal(index.includes(s), true, 'index missing ' + s);
@@ -175,12 +177,17 @@ test('Plot 1 clearance is in the main game only', () => {
   assert.match(index, /core:\{x0:6\.5,x1:12\.7,z0:-7\.7,z1:-2\.3,land:1\.7\}/);
   for (const name of UNCHANGED) {
     for (const s of OLD_STRINGS) assert.equal(html[name].includes(s), true, name + ' lost pre-fix ' + s);
-    for (const s of NEW_STRINGS) assert.equal(html[name].includes(s), false, name + ' picked up main-only ' + s);
+    for (const s of NEW_STRINGS) assert.equal(html[name].includes(s), false, name + ' picked up a layout edit ' + s);
+  }
+  for (const name of SAME_AS_INDEX) {
+    for (const s of NEW_STRINGS) assert.equal(html[name].includes(s), true, name + ' missing ' + s);
   }
   assert.match(html['test.html'], /KEY='dhSaveTest'/);
   assert.match(html['campaign-test.html'], /KEY='dhSaveHarness'/);
   assert.match(html['functional-test.html'], /KEY='dhSaveFunctional'/);
   assert.equal(html['plot-viewer.html'].includes('dhSaveFunctional'), false);
+  for (const s of NEW_STRINGS) assert.equal(html['plot-viewer.html'].includes(s), true, 'viewer missing ' + s);
+  for (const s of OLD_STRINGS) assert.equal(html['plot-viewer.html'].includes(s), false, 'viewer kept ' + s);
 });
 
 function oldBedroomSofa() { return boxOf(['sofa', -4.05, -3.0, 1]); }

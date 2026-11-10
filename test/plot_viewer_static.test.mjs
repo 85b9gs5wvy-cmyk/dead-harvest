@@ -1,6 +1,6 @@
 /**
- * Static checks for the isolated plot viewer. No browser, pixels, or FPS.
- * The 58/58 figure is the attached jsdom sweep, not something this file re-runs.
+ * The plot viewer is generated from index.html. It is a low-graphics
+ * inspection page, not the playable low-graphics game (functional-test.html).
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -9,128 +9,56 @@ import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import vm from 'node:vm';
 
 const ROOT = new URL('..', import.meta.url);
 const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
 const viewer = read('plot-viewer.html');
 const indexHtml = read('index.html');
-const ATTACHED_SHA256 = '8eab8a4aa70229d8bfebd6310c451d0db705958299c2687d8579b4a67e5add19';
-/* Game, boot, manifest, and story bytes. dhv-runtime is the only viewer control surface this branch edits. */
-/* Game body includes the dead-tree instanceColor allocation fix. dhv-runtime is still excluded. */
-const FROZEN_WITHOUT_RUNTIME_SHA256 = '2b0d63f8c25c5ed8d6455336ef1cd49f94ef9220097e92e817d2476ac5d574c3';
+const INDEX_SHA = 'b2307d1e6289ce15e07547424f3b1dcc2b4d5f44677817419019151bc6db15c5';
+const TEST_SHA = 'b749b075e95ba76a9103fc29a256f9a2828cba089065305070fec71ca8291013';
+const FUNC_SHA = 'aaaad9fe062b4032c4ba265128f1231124bb13c9da7f1ec0f7e7e85b31275976';
 
-function withoutBridge(src) {
-  const marker = '/* DHV_SCOPE_BRIDGE:';
-  const end = '</script>\n<script id="story-config">';
-  const i = src.indexOf(marker);
-  const j = src.indexOf(end, i);
-  assert.ok(i > 0 && j > i);
-  return src.slice(0, i) + src.slice(j);
-}
-
-test('plot-viewer game body is the attached file; only dhv-runtime changed', () => {
-  const restored = withoutBridge(viewer);
-  const a = restored.indexOf('<script id="dhv-runtime">');
-  const b = restored.indexOf('</script>', a);
-  assert.ok(a > 0 && b > a);
-  const frozen = restored.slice(0, a) + '<script id="dhv-runtime"></script>' + restored.slice(b + '</script>'.length);
-  assert.equal(createHash('sha256').update(frozen).digest('hex'), FROZEN_WITHOUT_RUNTIME_SHA256);
-  assert.equal(viewer.includes('DHV_SCOPE_BRIDGE'), true);
-  assert.notEqual(createHash('sha256').update(restored).digest('hex'), ATTACHED_SHA256);
-  const runtime = restored.slice(a, b);
-  assert.match(runtime, /proto\.requestPointerLock=wrapped/);
-  assert.match(runtime, /function camPreset/);
-  assert.match(runtime, /function tpBasement/);
-  assert.match(runtime, /zIndex='9600'/);
-  assert.match(runtime, /data-dhv/);
-  assert.equal(runtime.includes("orbSet(nm);orbToggle(true)"), false);
+test('playable pages are the published files', () => {
+  assert.equal(createHash('sha256').update(indexHtml).digest('hex'), INDEX_SHA);
+  assert.equal(createHash('sha256').update(read('test.html')).digest('hex'), TEST_SHA);
+  assert.equal(createHash('sha256').update(read('functional-test.html')).digest('hex'), FUNC_SHA);
+  assert.equal(indexHtml.includes('__DH_ONE'), false);
+  assert.equal(read('functional-test.html').includes("KEY='dhSaveFunctional'"), true);
 });
 
-test('orbit mask does not sit above the pause Menu button', () => {
-  const a = viewer.indexOf('<script id="dhv-runtime">');
-  const b = viewer.indexOf('</script>', a);
-  const runtime = viewer.slice(a, b);
-  const overlay = runtime.match(/dhvOrbit[\s\S]{0,220}/);
-  assert.ok(overlay, 'orbit overlay missing');
-  assert.match(overlay[0], /z-index:9000/);
-  assert.match(runtime, /querySelector\('button\[title="Pause menu \(Esc\)"\]'\)/);
-  assert.match(runtime, /menuBtn\.style\.zIndex='9100'/);
-  const gameMenu = viewer.slice(0, a);
-  assert.match(gameMenu, /mb\.style\.cssText='position:fixed;right:152px;top:50px;z-index:40/);
+test('viewer is generated from this index and stays one file', () => {
+  assert.match(viewer, new RegExp('sha256 ' + INDEX_SHA));
+  assert.equal(viewer.includes("['sofa',-2.5,-2.95,1]"), true);
+  assert.equal(viewer.includes("['bench',-4.05,7.45,2]"), true);
+  assert.equal(viewer.includes('buildOf[plot]'), true);
+  assert.equal(viewer.includes('"7":9'), true);
+  assert.equal(viewer.includes('"15":16'), true);
+  assert.match(viewer, /comp!=='h9'/);
+  assert.match(viewer, /one\.toggleCut/);
+  assert.match(viewer, /shadowMap,'enabled'/);
+  assert.match(viewer, /STORY_CONFIG\.enabled=false/);
+  assert.match(viewer, /vm\.visible=window\.__DH_ONE\?false:foot/);
+  assert.equal(/<script\b[^>]*\bsrc\s*=/i.test(viewer), false);
+  assert.equal(/<link\b[^>]*\bhref\s*=/i.test(viewer), false);
 });
 
-test('inline scripts parse and the page does not load external files', () => {
+test('viewer scripts parse', () => {
   const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   let m, n = 0;
   while ((m = re.exec(viewer))) {
     assert.equal(/\bsrc\s*=/i.test(m[1]), false);
-    const file = join(tmpdir(), `plot-viewer-${n}.js`);
+    const file = join(tmpdir(), 'plot-viewer-' + n + '.js');
     writeFileSync(file, m[2]);
     execFileSync('node', ['--check', file], { stdio: 'pipe' });
     n++;
   }
-  assert.equal(n, 9);
-  assert.equal(/<link\b[^>]*\bhref\s*=/i.test(viewer), false);
-  assert.equal(/<img\b[^>]*\bsrc\s*=/i.test(viewer), false);
+  assert.equal(n, 7);
 });
 
-test('storage is in-memory and the save API returns before real saves', () => {
-  assert.match(viewer, /function MemStorage/);
+test('viewer storage is in memory and does not use the other pages keys', () => {
   assert.match(viewer, /Object\.defineProperty\(window,'localStorage'/);
   assert.match(viewer, /Object\.defineProperty\(window,'sessionStorage'/);
-  assert.match(viewer, /Storage\.prototype/);
-  assert.match(viewer, /V\.blockedWrites\+\+/);
-  assert.match(viewer, /disabledByViewer:true/);
-  assert.match(viewer, /if\(window\.__DHV\)\{window\.dhSave=/);
-  const boot = viewer.slice(viewer.indexOf('id="dhv-boot"'), viewer.indexOf('three.js r128'));
-  assert.equal(boot.includes('dhSave'), false);
-});
-
-test('query bounds match the audit tool, not the functional-test page', () => {
-  assert.match(viewer, /plot:comp\?0:num\('plot',1,1,24\)/);
-  assert.match(viewer, /ctx:num\('ctx',1,0,2\)/);
-  assert.match(viewer, /gfx:num\('gfx',0,0,3\)/);
-  for (const name of ['farm', 'sawmill', 'quarry', 'cemetery', 'h9']) {
-    assert.match(viewer, new RegExp(name + ':\\{label:'));
-  }
-  assert.equal(viewer.includes('id="dh-functional-boot"'), false);
-  assert.equal(viewer.includes('dhSaveFunctional'), false);
-});
-
-test('index.html is not this viewer, and the viewer keeps the pre-port lines', () => {
-  assert.equal(indexHtml.includes('DHV_SCOPE_BRIDGE'), false);
-  assert.equal(indexHtml.includes('__DHV'), false);
-  assert.match(viewer, /if\(!reached\(g\.reach,r\+50\)\)/);
-  assert.equal(viewer.includes('FORT_ACCESS_BEGIN'), false);
-  assert.equal(viewer.includes('SCENIC_STAIR_BEGIN'), false);
-  assert.equal(viewer.includes('const gateWord='), false);
-  assert.equal(viewer.includes('__vehRsp'), false);
-});
-
-test('a later strict script can see let/const only through the global bridge', () => {
-  const sandbox = { console };
-  sandbox.globalThis = sandbox;
-  vm.createContext(sandbox);
-  vm.runInContext(`
-    const scene = { id: 1 };
-    let yaw = 0;
-    let foot = false;
-    Object.defineProperties(globalThis, {
-      scene: { configurable: true, get() { return scene; } },
-      yaw: { configurable: true, get() { return yaw; }, set(v) { yaw = v; } },
-      foot: { configurable: true, get() { return foot; }, set(v) { foot = v; } }
-    });
-  `, sandbox);
-  let missing = '';
-  try { vm.runInContext(`'use strict'; hiddenConst`, sandbox); } catch (err) { missing = String(err && err.message || err); }
-  assert.match(missing, /not defined/);
-  vm.runInContext(`
-    'use strict';
-    if (scene.id !== 1) throw new Error('scene');
-    yaw = 1.25;
-    foot = true;
-  `, sandbox);
-  const got = vm.runInContext('yaw + (foot ? 1 : 0)', sandbox);
-  assert.equal(got, 2.25);
+  assert.equal(viewer.includes("KEY='dhSaveTest'"), false);
+  assert.equal(viewer.includes("KEY='dhSaveHarness'"), false);
+  assert.equal(viewer.includes("KEY='dhSaveFunctional'"), false);
 });
