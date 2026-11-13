@@ -15,7 +15,7 @@ const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
 const viewer = read('plot-viewer.html');
 const indexHtml = read('index.html');
 const INDEX_SHA = 'b2307d1e6289ce15e07547424f3b1dcc2b4d5f44677817419019151bc6db15c5';
-const TEST_SHA = '7b356b6fc43d508bf5d0ef5d5a5e755c433b82b98bb8af60c8f8d065fb8d0629';
+const TEST_SHA = '8c0a36ee19aa2aaf5f5100e1e71cc8fabefc78bd673f897cf0a7bce4fe701737';
 const FUNC_SHA = 'aaaad9fe062b4032c4ba265128f1231124bb13c9da7f1ec0f7e7e85b31275976';
 
 test('playable pages are the published files', () => {
