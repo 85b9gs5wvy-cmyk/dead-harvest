@@ -55046,8 +55046,144 @@ const _it=invTick;invTick=function(dt){_it(dt);try{pcUpdate(dt)}catch(err){if(!w
 }
 
 // ===== v0.23.4 RESEARCH STATION H-9 (back-left corner of the city, west of the plot-19 block). Walk-in operations building (lobby + security checkpoint, elevator room, offices, receiving), perimeter fence + sliding gate, and a full underground research level: lift lobby, PPE lockers, decon airlock, corridor, containment hall with the specimen tank, BSL-3 wet lab, cryo storage, data centre, containment cells. Badge levels 1-3, auto doors, lockdown + override panels, coolant/tank behaviour. Move it by changing OX/OZ. =====
+/* H9_LAB_BEGIN */
+window.H9_LAB=(function(){
+ const OX=-335,OZ=-824,L1=6.3,FY=-9.6;
+ const ORDER=['h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
+ const rise=0.2625,depth=0.30;
+ const floors=[],treads=[];
+ function rect(x0,x1,z0,z1,y){floors.push({x0,x1,z0,z1,y})}
+ // Switchback in the west shaft. Lower flight climbs north to a landing, upper flight climbs south onto L1.
+ for(let i=0;i<12;i++) treads.push({x0:-14.40,x1:-13.05,z0:2.05+i*depth,z1:2.05+(i+1)*depth,y:(i+1)*rise});
+ rect(-14.45,-11.40,5.30,6.02,3.15);
+ for(let i=0;i<12;i++){const z1=5.30-i*depth,z0=z1-depth;treads.push({x0:-12.55,x1:-11.40,z0,z1,y:3.15+(i+1)*rise})}
+ rect(-12.70,-11.15,1.65,3.90,L1); // top landing into the security office
+ rect(-11.20,14.35,3.40,6.05,L1); // upper corridor
+ rect(-11.30,-6.05,-6.10,3.70,L1); // security office
+ rect(-5.90,-0.20,-6.10,3.70,L1); // records / server
+ rect(0.20,6.85,-6.10,3.70,L1); // sample lab
+ rect(7.20,14.35,-6.10,3.70,L1); // director's office
+ const rooms=[
+  {id:'stairwell',name:'West stairwell',x:-13.0,z:5.65,y:3.15},
+  {id:'corridor',name:'Upper corridor',x:1.2,z:4.8,y:L1},
+  {id:'security',name:'Security office',x:-8.6,z:0.4,y:L1},
+  {id:'records',name:'Records and server room',x:-3.0,z:-1.2,y:L1},
+  {id:'lab',name:'Upper sample lab',x:3.4,z:-1.2,y:L1},
+  {id:'director',name:"Director Hale's office",x:10.8,z:-1.2,y:L1}
+ ];
+ function col(x,z,hw,hd,y0,y1,id){return {x,z,hw,hd,y0,y1,id:id||'wall'}}
+ function spanX(x,z0,z1,y0,y1,gaps){
+  const th=0.12, cuts=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);
+  const out=[]; let z=z0;
+  const seg=(a,b)=>{if(b-a>0.04) out.push(col(x,(a+b)/2,th/2,(b-a)/2,y0,y1))};
+  for(const [c,w] of cuts){seg(z,c-w/2);z=c+w/2}
+  seg(z,z1); return out;
+ }
+ function spanZ(z,x0,x1,y0,y1,gaps){
+  const th=0.12, cuts=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);
+  const out=[]; let x=x0;
+  const seg=(a,b)=>{if(b-a>0.04) out.push(col((a+b)/2,z,(b-a)/2,th/2,y0,y1))};
+  for(const [c,w] of cuts){seg(x,c-w/2);x=c+w/2}
+  seg(x,x1); return out;
+ }
+ const walls=[
+  // Shaft shell. The building's west wall already closes x=-14.7 up to 6.3.
+  ...spanZ(6.12,-14.55,-11.25,0,9.5),
+  ...spanX(-11.25,1.85,6.15,0,6.3),
+  ...spanX(-11.25,1.85,6.15,6.3,9.5,[[3.0,1.5]]),
+  ...spanZ(1.85,-14.55,-11.25,0,3.2,[[-13.60,1.30]]),
+  ...spanZ(1.85,-14.55,-11.25,3.2,9.5),
+  ...spanX(-14.55,1.85,6.15,6.3,9.5),
+  // L1 perimeter and room splits. Doors face the corridor.
+  ...spanZ(6.15,-14.50,14.40,6.3,9.5),
+  ...spanZ(-6.25,-14.50,14.40,6.3,9.5),
+  ...spanX(14.45,-6.25,6.15,6.3,9.5),
+  ...spanX(-14.55,-6.25,1.85,6.3,9.5),
+  ...spanZ(3.50,-11.20,14.35,6.3,9.5,[[-8.75,1.30],[-2.85,1.30],[3.65,1.30],[10.85,1.30]]),
+  ...spanX(-6.00,-6.10,3.50,6.3,9.5),
+  ...spanX(-0.15,-6.10,3.50,6.3,9.5),
+  ...spanX(7.10,-6.10,3.50,6.3,9.5),
+  col(-13.02,3.6,0.06,1.55,0.2,3.35,'rail'),
+  col(-12.58,3.4,0.06,1.55,3.2,6.5,'rail')
+ ];
+ function doorOpen(id,st){
+  st=st||{};
+  if(st.inspect) return true;
+  if(id==='front') return !!st.power;
+  if(id==='stair') return (st.badge|0)>=1;
+  if(id==='director') return !!st.office;
+  if(id==='seal') return !!st.seal;
+  if(id==='arena') return !!st.bossDead||!!st.freeRoam||!st.arena;
+  return false;
+ }
+ function leaves(st){
+  const out=[];
+  if(!doorOpen('front',st)) out.push(col(0,7.55,1.65,0.16,0,3.2,'front'));
+  if(!doorOpen('stair',st)) out.push(col(-13.60,1.85,0.65,0.14,0,3.15,'stair'));
+  if(!doorOpen('director',st)) out.push(col(10.85,3.50,0.65,0.14,6.3,9.4,'director'));
+  return out;
+ }
+ function colliders(st){return walls.concat(leaves(st))}
+ function floorLocal(lx,lz,py){
+  let b=null;
+  const take=s=>{if(lx<s.x0||lx>s.x1||lz<s.z0||lz>s.z1) return; if(s.y<=py+0.7&&(b==null||s.y>b)) b=s.y};
+  for(const s of treads) take(s);
+  for(const s of floors) take(s);
+  return b;
+ }
+ const at=(lx,lz)=>({x:OX+lx,z:OZ+lz});
+ const steps=[
+  {id:'h9-gate',clock:'free',target:at(0,40),
+   objective:'Open the Research Station H-9 perimeter gate',
+   popup:{title:'THE LAST STATION',text:'Fort Harvest was a dead end. The shortwave only has one name left: <b>Research Station H-9</b>, west of the city. The perimeter gate is shut. Press F at the road switch. This is the end of the road.',secs:12},
+   goal:{h9:'h9-gate'}},
+  {id:'h9-power',clock:'free',target:at(-27,-4.2),
+   objective:'Restore power at the H-9 generator hall',
+   popup:{title:'THE DOOR IS DEAD',text:'The operations entrance is on a breaker in the <b>generator hall</b>, west side of the yard. Press F at the power panel. The shutter stays down until the hall is live.',secs:10},
+   goal:{h9:'h9-power'}},
+  {id:'h9-card',clock:'free',target:at(-5.8,3.4),
+   objective:'Take the Level 1 keycard from reception',
+   popup:{title:'CHECK IN',text:'Power is back and the front shutter is up. A <b>Level 1 keycard</b> is still on the reception desk. Press F. It opens the west stair, not the basement.',secs:9},
+   goal:{h9:'h9-card'}},
+  {id:'h9-stairs',clock:'free',target:at(-13.6,1.2),
+   objective:'Use the Level 1 card on the stairwell and climb to the upper floor',
+   popup:{title:'UPSTAIRS',text:'The west stair is badged. Press F at the stair door, then climb to <b>Level 1</b>. Director Hale kept the lab clearance in the east office.',secs:9},
+   goal:{h9:'h9-stairs'}},
+  {id:'h9-director',clock:'free',target:at(11.2,-1.4),
+   objective:"Retrieve Director Hale's clearance from the upper office",
+   popup:{title:"HALE'S OFFICE",text:'The east office on Level 1 is Hale\'s. The <b>director clearance</b> is on the desk. Press F. Records says it is the only card that unseals B1.',secs:9},
+   goal:{h9:'h9-director'}},
+  {id:'h9-seal',clock:'free',target:at(4.1,-7.6),
+   objective:'Unseal the B1 containment lab with the director card',
+   popup:{title:'BREAK THE SEAL',text:'Take the clearance down to the <b>elevator</b>. Press F at the call panel. The basement stays sealed until the card is read.',secs:9},
+   goal:{h9:'h9-seal'}},
+  {id:'h9-boss',clock:'free',target:at(0,-19),
+   objective:'Enter the containment hall and destroy Specimen H-9',
+   popup:{title:'CONTAINMENT',text:'Ride the elevator down. Walk into the <b>containment hall</b>. The door locks behind you, and Specimen H-9 is the last thing in this story. Put it down.',secs:11},
+   goal:{h9:'h9-boss'}}
+ ];
+ function met(id,st){
+  st=st||{};
+  if(id==='h9-gate') return !!st.gate;
+  if(id==='h9-power') return !!st.power;
+  if(id==='h9-card') return (st.badge|0)>=1;
+  if(id==='h9-stairs') return !!st.upstairs && st.y>5;
+  if(id==='h9-director') return !!st.director;
+  if(id==='h9-seal') return !!st.seal;
+  return false;
+ }
+ const zombies=[
+  {x:4,z:47,y:0},{x:-6,z:44,y:0},
+  {x:-18,z:10,y:0},{x:10,z:22,y:0},
+  {x:5,z:2.4,y:0},{x:-1,z:0.2,y:0},
+  {x:-8.2,z:1.2,y:L1},{x:4,z:4.7,y:L1},
+  {x:0,z:-13,y:FY}
+ ];
+ return {OX,OZ,L1,FY,ORDER,rooms,floors,treads,walls,steps,zombies,doorOpen,colliders,floorLocal,met};
+})();
+/* H9_LAB_END */
 (function(){try{ const OX=-335,OZ=-824;  const MU=T.MathUtils||{},damp=MU.damp||((a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt))); const root=new T.Group();root.name='ResearchBase';root.position.set(OX,0,OZ);scene.add(root); const say=m=>toast(m,3.8);  {const xa=OX-7,xb=-250;road(12,xb-xa,(xa+xb)/2,-770,Math.PI/2,asphT.clone())} const st={lockdown:false,coolant:true,phase:0,badge:0};  const mk=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.78,metalness:.18},o||{})); const M={concrete:mk(0x646b70),dark:mk(0x3d4449),steel:mk(0x20282d,{metalness:.7,roughness:.4}),lsteel:mk(0x879197,{metalness:.65,roughness:.35}), hazard:mk(0xf0b52b),red:mk(0xa92525,{emissive:0xa92525,emissiveIntensity:.25}),green:mk(0x53c98a,{emissive:0x53c98a,emissiveIntensity:.35}), blue:mk(0x42a8c9,{emissive:0x42a8c9,emissiveIntensity:.25}),glass:mk(0x61a6b5,{transparent:true,opacity:.35,metalness:.2,roughness:.12,depthWrite:false}), floor:mk(0x343a3e),screen:mk(0x06303a,{emissive:0x42a8c9,emissiveIntensity:.5,roughness:.25}),white:mk(0xd5dedf,{emissive:0xd5dedf,emissiveIntensity:.5}),black:mk(0x111719),lamp:mk(0xffd67a,{emissive:0xffd67a,emissiveIntensity:.9}), tile:mk(0x9aa6a9,{roughness:.55,metalness:.05}),wall:mk(0xaab5b8,{roughness:.9,metalness:.02}),cab:mk(0xc9d0cc,{roughness:.6,metalness:.1}),wood:mk(0x7b5b3b,{roughness:.8,metalness:.02}), orange:mk(0xe0701f),yellow:mk(0xe8c928),bio:mk(0xd2401c,{emissive:0xd2401c,emissiveIntensity:.35}),purple:mk(0x7b4fb0,{emissive:0x7b4fb0,emissiveIntensity:.3}),copper:mk(0xa8693a,{metalness:.6,roughness:.4}), fabric:mk(0x3b5a7a,{roughness:.95,metalness:0}),rubber:mk(0x1b1e20,{roughness:.95,metalness:0}),carpet:mk(0x4a4f56,{roughness:1,metalness:0}), tank:mk(0x5fd6e8,{transparent:true,opacity:.38,emissive:0x2aa8c0,emissiveIntensity:.35,depthWrite:false,roughness:.1}),fluid:mk(0x62e07a,{transparent:true,opacity:.55,emissive:0x2fbf55,emissiveIntensity:.55,depthWrite:false,roughness:.2}), screenG:mk(0x042a14,{emissive:0x3dff7a,emissiveIntensity:.6,roughness:.25}),screenR:mk(0x330808,{emissive:0xff4030,emissiveIntensity:.6,roughness:.25}),specimen:mk(0x1e2a22,{roughness:.9,metalness:0}), skin:mk(0x7d8f74,{roughness:.9,metalness:0}),blood:mk(0x5a0f0f,{roughness:.6,metalness:0})};  const S={},CY={},UG=[],MYB=[];let ugOn=false; function box(m,x,y,z,sx,sy,sz,col){if(!sx||!sy||!sz)return;(S[m]=S[m]||[]).push([x-sx/2,x+sx/2,y-sy/2,y+sy/2,z-sz/2,z+sz/2]);if(col)colW(x,z,sx/2,sz/2,col[0],col[1])} function colW(x,z,hw,hd,y0,y1){const b={x:OX+x,z:OZ+z,hw,hd,y0,y1};MYB.push(b);if(y1<=0){UG.push(b)}else boxes.push(b);return b} function dyn(m,x,y,z,sx,sy,sz){const q=new T.Mesh(new T.BoxGeometry(sx,sy,sz),M[m]);q.position.set(x,y,z);q.castShadow=sx>2||sz>2;root.add(q);return q} function cyl(m,x,y,z,rt,rb,h,seg,rotX){const q=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg||10),M[m]);q.position.set(x,y,z);if(rotX)q.rotation.x=Math.PI/2;root.add(q);return q} function cylM(m,x,y,z,rt,rb,h,seg,ax){const g=new T.CylinderGeometry(rt,rb,h,seg||8);if(ax==='x')g.rotateZ(Math.PI/2);else if(ax==='z')g.rotateX(Math.PI/2);g.translate(x,y,z);(CY[m]=CY[m]||[]).push(g)} function mergeGeos(list){let nv=0,ni=0;for(const g of list){nv+=g.attributes.position.count;ni+=g.index.count}const P=new Float32Array(nv*3),N=new Float32Array(nv*3),U=new Float32Array(nv*2),I=new Uint32Array(ni);let vo=0,io=0; for(const g of list){P.set(g.attributes.position.array,vo*3);N.set(g.attributes.normal.array,vo*3);U.set(g.attributes.uv.array,vo*2);const ix=g.index.array;for(let i=0;i<ix.length;i++)I[io+i]=ix[i]+vo;vo+=g.attributes.position.count;io+=ix.length} const r=new T.BufferGeometry();r.setAttribute('position',new T.BufferAttribute(P,3));r.setAttribute('normal',new T.BufferAttribute(N,3));r.setAttribute('uv',new T.BufferAttribute(U,2));r.setIndex(new T.BufferAttribute(I,1));return r} const B=(m,x,y0,z,sx,h,sz,col)=>box(m,x,y0+h/2,z,sx,h,sz,col);  const FY=-9.6,RC=-6.1,SF=.05;  const UGc=[-10,-.2];  function label(txt,x,y,z,w,h,ry,bg,fg){try{const c=document.createElement('canvas');c.width=256;c.height=Math.max(32,Math.round(256*h/w));const g=c.getContext('2d');g.fillStyle=bg||'#14262c';g.fillRect(0,0,c.width,c.height);g.strokeStyle=fg||'#7fe3ff';g.lineWidth=3;g.strokeRect(3,3,c.width-6,c.height-6);g.fillStyle=fg||'#7fe3ff';g.textAlign='center';g.textBaseline='middle'; const lines=String(txt).split('\n');const fs=Math.min(30,Math.floor((c.height-10)/lines.length*.82),Math.floor(236/Math.max(...lines.map(s=>s.length))*1.75));g.font='bold '+fs+'px system-ui,sans-serif';lines.forEach((s,i)=>g.fillText(s,c.width/2,c.height/2+(i-(lines.length-1)/2)*fs*1.12)); const tx=new T.CanvasTexture(c);tx.encoding=T.sRGBEncoding;const q=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tx}));q.position.set(x,y,z);q.rotation.y=ry||0;root.add(q);return q}catch(e){return null}}  const DH=3.1; function ZW(z,x0,x1,gaps,y0,y1,m,col,th){th=th||.3;let xs=x0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,(a+b)/2,yc,z,b-a,y1-y0,th,col)}; for(const[c,w]of gaps){seg(xs,c-w/2);if(y1-y0>DH+.05)box(m,c,(y0+DH+y1)/2,z,w,y1-y0-DH,th);xs=c+w/2}seg(xs,x1)} function XW(x,z0,z1,gaps,y0,y1,m,col,th){th=th||.3;let zs=z0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,x,yc,(a+b)/2,th,y1-y0,b-a,col)}; for(const[c,w]of gaps){seg(zs,c-w/2);if(y1-y0>DH+.05)box(m,x,(y0+DH+y1)/2,c,th,y1-y0-DH,w);zs=c+w/2}seg(zs,z1)}  function slab(m,yc,t,x0,x1,z0,z1,h0,h1,k0,k1){const A=(a,b,c,d)=>{if(b-a>.02&&d-c>.02)box(m,(a+b)/2,yc,(c+d)/2,b-a,t,d-c)};if(h0===undefined){A(x0,x1,z0,z1);return}A(x0,x1,z0,k0);A(x0,x1,k1,z1);A(x0,h0,k0,k1);A(h1,x1,k0,k1)} 
-  box('dark',0,.015,0,100,.03,82);  box('floor',0,.03,34,14,.03,28);box('hazard',0,.05,34,.22,.02,26);  box('concrete',0,1.4,-38,92,2.8,.8,[0,2.8]);box('concrete',-46,1.4,0,.8,2.8,76,[0,2.8]);box('concrete',46,1.4,0,.8,2.8,76,[0,2.8]); box('concrete',-24,1.4,38,44,2.8,.8,[0,2.8]);box('concrete',24,1.4,38,44,2.8,.8,[0,2.8]); for(let x=-44;x<=44;x+=4){if(Math.abs(x)<8)continue;box('steel',x,2.1,37.4,.18,4.2,.18)} for(const y of[3.6,2.1]){box('lsteel',-27,y,37.4,38,.12,.12);box('lsteel',27,y,37.4,38,.12,.12)} for(let x=-44;x<=44;x+=11){box('hazard',x,3.0,38.45,1.1,.5,.04)}  for(const[x,z]of[[-42,-34],[42,-34],[-42,32],[42,32]]){box('steel',x,2.1,z,.35,4.2,.35);box('dark',x,4.6,z,3.2,2.1,3.2);box('glass',x,4.8,z+1.62,1.7,.9,.06);box('steel',x,5.75,z,3.6,.25,3.6);box('lamp',x,5.4,z+1.7,.5,.25,.25);colW(x,z,1.6,1.6,0,6)}  const gL=dyn('steel',-4,1.5,37.4,7.5,3,.35),gR=dyn('steel',4,1.5,37.4,7.5,3,.35); for(const sx of[-4,4])for(let k=0;k<4;k++)box(k%2?'black':'hazard',sx,.5+k*.7,37.18,6.8,.12,.04); const gate={open:false,p:0,col:colW(0,38,2.1,.5,0,3)};  B('concrete',-9.5,0,35,3.2,2.6,3.2,[0,2.6]);B('steel',-9.5,2.6,35,3.6,.2,3.6);B('glass',-9.5,.9,33.35,2.6,1.3,.08);B('lamp',-9.5,2.45,33.3,.8,.08,.08); B('steel',9.2,0,35.6,.4,3.6,.4);B('dark',9.2,3.6,35.6,.5,.35,.9);B('lamp',9.2,3.55,36.1,.3,.12,.12); for(const sx of[-1,1])B('steel',sx*8.1,0,37.4,.5,5.7,.5,[0,5.7]);box('steel',0,5.55,37.4,17,.4,.5);label('RESEARCH STATION H-9\nAUTHORISED PERSONNEL ONLY',0,4.65,37.68,7.6,1.5,0,'#14262c','#7fe3ff'); label('RESTRICTED\nBIOHAZARD AREA',-20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');label('RESTRICTED\nBIOHAZARD AREA',20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');  const EX=0,EZ=-9.5,HS=1.95;  slab('floor',.04,.04,-14.4,14.4,-14.4,6.4,EX-HS,EX+HS,EZ-HS,EZ+HS); box('tile',0,.062,1.7,28.8,.024,8.8);box('carpet',-9.7,.062,-8.8,9.4,.024,11.3);box('concrete',9.8,.062,-8.8,9.3,.024,11.3); for(const s of[-1,1]){box('hazard',EX,.07,EZ+s*2.1,4.3,.02,.24);box('hazard',EX+s*2.1,.07,EZ,.24,.02,4.2)}  box('steel',0,6.15,-4,31,.3,23);  box('steel',0,6.7,7.22,8,.7,.18);box('hazard',0,6.7,7.33,5.4,.12,.04); label('RESEARCH STATION H-9',0,6.7,7.36,7.4,.56,0,'#10181c','#ffd67a'); const z0=6.7;  for(const s of[-1,1]){box('concrete',s*8.4,.5,z0,13.2,1,.6,[0,6.3]);box('concrete',s*8.4,4.7,z0,13.2,3.2,.6);box('glass',s*8.4,2.7,z0,13.2,2.4,.1);colW(s*8.4,z0,6.6,.3,0,6.3)} box('concrete',0,4.7,z0,3.6,3.2,.6);  box('concrete',-7.5,3,-14.7,15,6,.6,[0,6.3]);  box('concrete',12,3,-14.7,6,6,.6,[0,6.3]);box('concrete',8,4.7,-14.7,2.2,3.2,.6);  box('concrete',-14.7,3,-4,.6,6,22,[0,6.3]);box('concrete',14.7,3,-4,.6,6,22,[0,6.3]); box('concrete',3.45,3,-14.7,6.9,6,.6,[0,6.3]);  const dL=dyn('lsteel',-.9,1.6,z0,1.7,3.2,.25),dR=dyn('lsteel',.9,1.6,z0,1.7,3.2,.25),mainD={open:false,p:0,col:colW(0,z0,1.8,.25,0,3.2)};  const labD={open:false,p:0},lDoor=dyn('lsteel',8,1.6,-14.7,2.2,3.2,.25);labD.col=colW(8,-14.7,1.1,.25,0,3.2);  ZW(-3,-14.4,14.4,[[0,4.4],[-10,2.2],[10,2.2]],0,6,'wall',[0,6.3]); XW(-5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]);XW(5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]); for(const[x,z,w,ax]of[[-10,-3,2.2,'x'],[10,-3,2.2,'x']])B('lsteel',x,3.1,z,w+.3,.25,.4); label('OFFICES',-10,3.6,-2.82,2.4,.5,0);label('RECEIVING',10,3.6,-2.82,2.4,.5,0);label('ELEVATOR >> LAB LEVEL',0,5.0,-2.82,4,.6,0,'#10181c','#ffd67a');  B('wood',-5.8,0,1.4,4.4,1.05,1.1,[0,1.2]);B('lsteel',-5.8,1.05,1.4,4.7,.06,1.3);B('black',-6.8,1.1,1.1,.5,.34,.05);B('screen',-6.8,1.12,1.07,.42,.24,.02);B('black',-4.6,1.1,1.1,.5,.34,.05);B('screen',-4.6,1.12,1.07,.42,.24,.02); B('fabric',-6.7,0,2.7,.5,.6,.5);B('fabric',-4.9,0,2.7,.5,.6,.5); label('RECEPTION',-5.8,1.75,1.0,2.2,.5,0); for(const sx of[-1,1]){const x=sx*11.4;B('fabric',x,.0,5.1,3.6,.45,.9,[0,.9]);B('fabric',x,.45,5.45,3.6,.5,.25);B('wood',x,0,3.2,1.4,.45,.7,[0,.5]);B('lsteel',x,.45,3.2,1.5,.04,.8); B('dark',sx*13.6,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*13.6,.7,5.6,.7,.9,.7);B('dark',sx*8.0,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*8.0,.7,5.6,.7,.9,.7)}  for(const x of[-9,9])label('WELCOME TO STATION H-9\nCHECK IN AT RECEPTION',x*1.0,2.6,6.38,3.2,1,Math.PI,'#10181c','#7fe3ff'); label('FACILITY DIRECTORY\nL0 OFFICES · RECEIVING\nL0 ELEVATOR ROOM\nB1 LABS · CELLS · DATA',-14.35,2.4,-0.4,3.2,1.5,Math.PI/2,'#10181c','#7fe3ff'); box('hazard',0,.068,-1.2,.2,.014,7.4);  for(const sx of[-1,1]){B('lsteel',sx*1.3,0,-3,.3,2.7,.7,[0,2.7]);B('glass',sx*1.8,0,-3,.7,1.2,.1,[0,1.2])} B('lsteel',0,2.7,-3,2.9,.3,.7);B('green',0,2.55,-3.38,1.2,.1,.05);B('red',0,2.55,-2.62,.4,.1,.05); B('rubber',3.9,0,-1.4,2.4,.8,.8,[0,.9]);B('lsteel',3.9,.8,-1.4,2.0,.9,1.0);B('black',3.9,1.0,-1.9,.1,.5,.02);label('X-RAY',3.9,1.95,-1.45,.9,.3,0,'#10181c','#ffd67a'); B('wood',-3.9,0,-1.5,1.6,.95,.7,[0,1.0]);B('black',-3.9,.95,-1.5,.4,.3,.05);B('screen',-3.9,.97,-1.52,.34,.2,.02);label('SECURITY',-3.9,1.7,-1.0,1.4,.3,0);  box('steel',-10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',-10,2,1.48,1.7,.9,.08);label('LOCKDOWN\nCONTROL',-10,1.5,1.0,1.7,.6,0,'#7a1010','#ffe9c0'); box('steel',10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',10,2,1.48,1.7,.9,.08);label('COOLANT\nCONTROL',10,1.5,1.0,1.7,.6,0,'#10181c','#7fe3ff'); for(const[x,z]of[[-8,1],[8,1],[-8,-8],[0,-8],[8,-8]])box('white',x,5.95,z,2.4,.08,.35); for(const x of[-11,-4,4,11])box('white',x,5.95,4.5,2.6,.08,.4);  for(const sx of[-1,1]){B('lsteel',sx*2.1,0,EZ-.4,.12,1.1,3.2,[0,1.1]);B('hazard',sx*2.1,.5,EZ-.4,.14,.1,3.2)} B('lsteel',0,0,EZ-2.1,4.3,1.1,.12,[0,1.1]);B('hazard',0,.5,EZ-2.1,4.3,.1,.14); for(const sx of[-1,1])B('hazard',sx*2.1,0,EZ+1.25,.14,1.2,.14); box('steel',0,4.1,-14.3,10,2,.15);for(let x=-4;x<=4;x+=2)box(x===0?'screenG':'screen',x,4.1,-14.2,1.55,1.25,.03); label('LIFT STATUS\nSURFACE <> B1 RESEARCH LEVEL',0,5.3,-14.2,6.2,.8,0,'#10181c','#ffd67a');  B('steel',-4.25,0,-6.2,.9,1.0,3.6,[0,1.2]);B('lsteel',-4.25,1.0,-6.2,1.0,.05,3.7);for(let z=-7.4;z<=-5.0;z+=1.2){B('black',-4.3,1.05,z,.08,.34,.5);B('screen',-4.26,1.07,z,.02,.26,.42)} B('fabric',-3.4,0,-7.0,.55,.5,.55);B('fabric',-3.4,0,-5.4,.55,.5,.55); for(const sx of[-1,1]){B('lsteel',sx*4.2,0,-13.7,1.1,2.3,.9,[0,2.4]);B('green',sx*4.2,1.4,-13.2,.8,.12,.04);B('red',sx*4.2,1.7,-13.2,.8,.12,.04)} B('red',4.45,0,-12.0,.5,1.3,.4,[0,1.3]);label('FIRE\nEXT.',4.18,1.6,-12.0,.4,.4,-Math.PI/2); B('steel',4.85,1.5,-7.6,.3,1,.2);B('green',4.7,1.65,-7.6,.06,.12,.12);label('CALL',4.69,1.2,-7.6,.4,.2,-Math.PI/2); label('ELEVATOR ROOM\nLEVEL 4 CLEARANCE BELOW',0,3.4,-3.18,4.6,.9,Math.PI,'#10181c','#ffd67a'); const hatchY=.065;  const desk=(x,z,rot)=>{const[sx,sz]=rot?[.8,1.5]:[1.5,.8];B('wood',x,0,z,sx,.74,sz,[0,.8]);B('lsteel',x,.74,z,sx+.04,.04,sz+.04);const mx=rot?x+.1:x,mz=rot?z:z-.1;B('black',mx,.78,mz,.5,.36,.05);B('screen',mx,.8,mz+.03,.42,.26,.02);B('black',x,.78,z+.22,.4,.03,.14); const cx=rot?x-.9:x,cz=rot?z:z+.85;B('fabric',cx,0,cz,.55,.5,.55);B('fabric',cx,.5,cz+(rot?0:.22),.5,.45,.12)}; desk(-12.6,-6.4,0);desk(-7.4,-6.4,0);desk(-12.6,-11.3,0);desk(-7.4,-11.3,0);desk(-10,-11.3,0); B('wood',-10,0,-13.3,3.4,.76,1.1,[0,.8]);B('lsteel',-10,.76,-13.3,3.5,.04,1.2);for(const x of[-11.4,-8.6])B('fabric',x,0,-12.3,.5,.5,.5);for(const x of[-11.4,-10,-8.6])B('fabric',x,0,-14.1,.5,.5,.5); for(let z=-8.2;z>=-9.8;z-=.8){B('cab',-14.0,0,z,.6,1.4,.7,[0,1.4]);B('dark',-13.69,.9,z,.02,.1,.3)} B('white',-14.3,1.2,-5.9,.05,1.3,2.6);B('blue',-14.27,1.9,-5.9,.02,.04,2.0);B('red',-14.27,1.55,-5.9,.02,.04,1.4);B('blue',-14.27,1.25,-5.9,.02,.04,1.7); label('PROJECT H-9\nQUARTERLY REVIEW',-14.22,2.4,-5.9,2.0,.6,Math.PI/2,'#f4f4f0','#203060'); B('steel',-6.0,0,-14.0,1.0,.9,.6,[0,.95]);B('white',-6.0,.9,-14.0,.3,.35,.3);B('cab',-5.4,0,-14.0,.4,1.1,.4,[0,1.1]);B('blue',-5.4,1.1,-14.0,.3,.4,.3);  B('wood',-8.2,0,-4.2,1.0,.7,.5,[0,.8]);B('green',-8.2,.7,-4.2,.8,.6,.4);  for(let z=-13;z<=-5;z+=2){B('lsteel',13.9,0,z,.1,2.6,.1);}  for(const y of[.4,1.4,2.4])B('lsteel',13.6,y,-9.0,.9,.08,8.4,[0,2.5]); for(let i=0;i<7;i++){const z=-13+i*1.15;B(i%3?'wood':'orange',13.55,.48,z,.7,.7,.9);B(i%2?'wood':'dark',13.55,1.48,z+.1,.7,.7,.9);B(i%3==1?'yellow':'wood',13.55,2.48,z,.7,.6,.9)} for(let i=0;i<4;i++)B(i%2?'dark':'blue',10.2+(i%2)*1.1,0,-13.2+Math.floor(i/2)*1.1,1.0,1.0,1.0,i==0?[0,1.0]:null);B('wood',10.7,0,-13.7,2.4,1.0,1.0,[0,1.0]);  cylM('blue',12.2,.55,-12.3,.3,.3,1.1,8);cylM('yellow',12.9,.55,-12.4,.3,.3,1.1,8);cylM('bio',11.5,.55,-12.3,.3,.3,1.1,8);colW(12.2,-12.3,.9,.4,0,1.1); B('yellow',8.0,0,-11.4,1.6,.9,2.7,[0,1.0]);B('black',8.0,.9,-11.9,.1,1.4,.1);B('black',7.4,.9,-10.9,.08,1.5,.08);B('black',8.6,.9,-10.9,.08,1.5,.08);B('dark',8.0,1.6,-10.9,1.3,.08,1.0);  B('rubber',7.2,0,-12.4,.3,.5,.5);B('rubber',8.8,0,-12.4,.3,.5,.5);B('rubber',7.2,0,-10.4,.3,.5,.5);B('rubber',8.8,0,-10.4,.3,.5,.5); B('steel',6.3,0,-7.3,1.2,.9,.8,[0,1.0]);B('lsteel',6.3,.9,-7.3,1.3,.05,.9);B('dark',6.3,1.0,-7.3,.4,.3,.4);  B('orange',12.9,0,-4.2,.9,1.9,.5,[0,1.9]);B('white',12.9,1.2,-3.92,.7,.5,.04);label('PPE',12.9,1.4,-3.9,.6,.3,0,'#ffe9c0','#7a1010');  B('red',14.0,0,-3.9,.4,1.3,.35,[0,1.3]); label('RECEIVING & STORAGE\nCHECK SEALS BEFORE OPENING',10,3.6,-14.35,4.6,.9,0,'#10181c','#ffd67a'); for(const x of[6.6,10,13.3])box('white',x,5.95,-9,2.4,.08,.35);box('white',-10,5.95,-8.8,2.6,.08,.35);box('white',-10,5.95,-12.5,2.6,.08,.35);box('white',0,5.95,-12.5,2.4,.08,.35);  box('dark',-27,2.5,-12,13,5,14,[0,5.2]);box('steel',-27,5.1,-12,13.6,.25,14.6);box('lsteel',-27,4.2,-4.82,7,1.2,.16); for(let x=-31;x<=-23;x+=2)box('black',x,4.2,-4.7,.12,1.05,.12); for(let i=0;i<3;i++)cylM('steel',-30+i*3,6,-12,.45,.55,2,12); label('GENERATOR HALL\nHIGH VOLTAGE',-27,2.2,-4.65,5,1.2,0,'#7a1010','#ffe9c0'); cylM('lsteel',-37,1.4,-12,1.3,1.3,2.8,16);colW(-37,-12,1.4,1.4,0,2.8);cylM('lsteel',-37,2.9,-12,1.0,1.3,.4,16);label('FUEL',-37,1.6,-10.65,1.3,.5,0,'#7a1010','#ffe9c0'); B('lsteel',-27,5.35,-6,1,.9,.8);B('dark',-23,5.35,-17,3.2,1.1,2.4);B('lsteel',-31,5.35,-17,3.0,1.0,2.0);  box('concrete',27,2.5,-12,13,5,14,[0,5.2]);box('steel',27,5.1,-12,13.6,.25,14.6);box('lsteel',27,2,-4.8,8,4,.25); for(let y=.5;y<4;y+=.7)box('dark',27,y,-4.62,7.8,.08,.05); label('VEHICLE BAY',27,4.6,-4.55,5,.8,0,'#10181c','#ffd67a'); B('lsteel',23,5.35,-17,3.4,1.4,2.2);B('dark',31,5.35,-17,2.6,1.1,2.4);  box('lsteel',-7,8.1,-4,.16,3.8,.16);box('lsteel',-7,9,-4,2.1,.12,.12);cyl('lsteel',6,7.4,-4,1.2,.85,.25,20);box('steel',6,6.8,-4,.18,1.2,.18); B('lsteel',-10,6.3,-9,3.0,1.1,2.0);B('dark',10,6.3,-9,2.6,.9,2.0);B('lsteel',0,6.3,-12,6.0,.7,1.2);  for(const[x,z]of[[-13,9],[13,9],[-13,-17],[13,-17]]){box('steel',x,4.4,z,.18,8.8,.18);box('hazard',x,8.9,z,1,.2,.5);box('lamp',x,8.7,z,.8,.1,.35)}  for(let i=0;i<5;i++){const x=-34+i*3;box(i%2?'steel':'hazard',x,.65,18,2.2,1.3,1.8,[0,1.3]);box('black',x,.65,18.94,.12,1.35,.06)} for(const x of[-9,9])for(let z=15;z<=27;z+=3)cyl('hazard',x,.6,z,.22,.28,1.2,8); const van=(x,z)=>{B('lsteel',x,.5,z,2.2,1.9,4.6,[0,2.2]);B('steel',x,.5,z+2.7,2.1,1.1,1.2);B('glass',x,1.3,z+3.32,1.9,.7,.05);B('bio',x,1.4,z-2.32,.8,.8,.04);for(const sx of[-1,1])for(const dz of[-1.4,1.8])cylM('rubber',x+sx*1.1,.5,z+dz,.5,.5,.35,10,'x')}; van(-33,28);van(33,26); const beacon=dyn('red',14.3,5.1,6.3,.45,.45,.45); 
+  box('dark',0,.015,0,100,.03,82);  box('floor',0,.03,34,14,.03,28);box('hazard',0,.05,34,.22,.02,26);  box('concrete',0,1.4,-38,92,2.8,.8,[0,2.8]);box('concrete',-46,1.4,0,.8,2.8,76,[0,2.8]);box('concrete',46,1.4,0,.8,2.8,76,[0,2.8]); box('concrete',-24,1.4,38,44,2.8,.8,[0,2.8]);box('concrete',24,1.4,38,44,2.8,.8,[0,2.8]); for(let x=-44;x<=44;x+=4){if(Math.abs(x)<8)continue;box('steel',x,2.1,37.4,.18,4.2,.18)} for(const y of[3.6,2.1]){box('lsteel',-27,y,37.4,38,.12,.12);box('lsteel',27,y,37.4,38,.12,.12)} for(let x=-44;x<=44;x+=11){box('hazard',x,3.0,38.45,1.1,.5,.04)}  for(const[x,z]of[[-42,-34],[42,-34],[-42,32],[42,32]]){box('steel',x,2.1,z,.35,4.2,.35);box('dark',x,4.6,z,3.2,2.1,3.2);box('glass',x,4.8,z+1.62,1.7,.9,.06);box('steel',x,5.75,z,3.6,.25,3.6);box('lamp',x,5.4,z+1.7,.5,.25,.25);colW(x,z,1.6,1.6,0,6)}  const gL=dyn('steel',-4,1.5,37.4,7.5,3,.35),gR=dyn('steel',4,1.5,37.4,7.5,3,.35); for(const sx of[-4,4])for(let k=0;k<4;k++)box(k%2?'black':'hazard',sx,.5+k*.7,37.18,6.8,.12,.04); const gate={open:false,p:0,col:colW(0,38,2.1,.5,0,3)};  B('concrete',-9.5,0,35,3.2,2.6,3.2,[0,2.6]);B('steel',-9.5,2.6,35,3.6,.2,3.6);B('glass',-9.5,.9,33.35,2.6,1.3,.08);B('lamp',-9.5,2.45,33.3,.8,.08,.08); B('steel',9.2,0,35.6,.4,3.6,.4);B('dark',9.2,3.6,35.6,.5,.35,.9);B('lamp',9.2,3.55,36.1,.3,.12,.12); for(const sx of[-1,1])B('steel',sx*8.1,0,37.4,.5,5.7,.5,[0,5.7]);box('steel',0,5.55,37.4,17,.4,.5);label('RESEARCH STATION H-9\nAUTHORISED PERSONNEL ONLY',0,4.65,37.68,7.6,1.5,0,'#14262c','#7fe3ff'); label('RESTRICTED\nBIOHAZARD AREA',-20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');label('RESTRICTED\nBIOHAZARD AREA',20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');  const EX=0,EZ=-9.5,HS=1.95;  slab('floor',.04,.04,-14.4,14.4,-14.4,6.4,EX-HS,EX+HS,EZ-HS,EZ+HS); box('tile',0,.062,1.7,28.8,.024,8.8);box('carpet',-9.7,.062,-8.8,9.4,.024,11.3);box('concrete',9.8,.062,-8.8,9.3,.024,11.3); for(const s of[-1,1]){box('hazard',EX,.07,EZ+s*2.1,4.3,.02,.24);box('hazard',EX+s*2.1,.07,EZ,.24,.02,4.2)}  slab('steel',6.15,.3,-15.5,15.5,-15.5,7.5,-14.55,-11.25,1.85,6.15);  box('steel',0,6.7,7.22,8,.7,.18);box('hazard',0,6.7,7.33,5.4,.12,.04); label('RESEARCH STATION H-9',0,6.7,7.36,7.4,.56,0,'#10181c','#ffd67a'); const z0=6.7;  for(const s of[-1,1]){box('concrete',s*8.4,.5,z0,13.2,1,.6,[0,6.3]);box('concrete',s*8.4,4.7,z0,13.2,3.2,.6);box('glass',s*8.4,2.7,z0,13.2,2.4,.1);colW(s*8.4,z0,6.6,.3,0,6.3)} box('concrete',0,4.7,z0,3.6,3.2,.6);  box('concrete',-7.5,3,-14.7,15,6,.6,[0,6.3]);  box('concrete',12,3,-14.7,6,6,.6,[0,6.3]);box('concrete',8,4.7,-14.7,2.2,3.2,.6);  box('concrete',-14.7,3,-4,.6,6,22,[0,6.3]);box('concrete',14.7,3,-4,.6,6,22,[0,6.3]); box('concrete',3.45,3,-14.7,6.9,6,.6,[0,6.3]);  const dL=dyn('lsteel',-.9,1.6,z0,1.7,3.2,.25),dR=dyn('lsteel',.9,1.6,z0,1.7,3.2,.25),mainD={open:false,p:0,col:colW(0,z0,1.8,.25,0,3.2)};  const labD={open:false,p:0},lDoor=dyn('lsteel',8,1.6,-14.7,2.2,3.2,.25);labD.col=colW(8,-14.7,1.1,.25,0,3.2);  ZW(-3,-14.4,14.4,[[0,4.4],[-10,2.2],[10,2.2]],0,6,'wall',[0,6.3]); XW(-5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]);XW(5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]); for(const[x,z,w,ax]of[[-10,-3,2.2,'x'],[10,-3,2.2,'x']])B('lsteel',x,3.1,z,w+.3,.25,.4); label('OFFICES',-10,3.6,-2.82,2.4,.5,0);label('RECEIVING',10,3.6,-2.82,2.4,.5,0);label('ELEVATOR >> LAB LEVEL',0,5.0,-2.82,4,.6,0,'#10181c','#ffd67a');  B('wood',-5.8,0,1.4,4.4,1.05,1.1,[0,1.2]);B('lsteel',-5.8,1.05,1.4,4.7,.06,1.3);B('black',-6.8,1.1,1.1,.5,.34,.05);B('screen',-6.8,1.12,1.07,.42,.24,.02);B('black',-4.6,1.1,1.1,.5,.34,.05);B('screen',-4.6,1.12,1.07,.42,.24,.02); B('fabric',-6.7,0,2.7,.5,.6,.5);B('fabric',-4.9,0,2.7,.5,.6,.5); label('RECEPTION',-5.8,1.75,1.0,2.2,.5,0); for(const sx of[-1,1]){const x=sx*11.4;B('fabric',x,.0,5.1,3.6,.45,.9,[0,.9]);B('fabric',x,.45,5.45,3.6,.5,.25);B('wood',x,0,3.2,1.4,.45,.7,[0,.5]);B('lsteel',x,.45,3.2,1.5,.04,.8); B('dark',sx*13.6,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*13.6,.7,5.6,.7,.9,.7);B('dark',sx*8.0,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*8.0,.7,5.6,.7,.9,.7)}  for(const x of[-9,9])label('WELCOME TO STATION H-9\nCHECK IN AT RECEPTION',x*1.0,2.6,6.38,3.2,1,Math.PI,'#10181c','#7fe3ff'); label('FACILITY DIRECTORY\nL0 OFFICES · RECEIVING\nL1 SECURITY · RECORDS · LAB\nL1 DIRECTOR · B1 CONTAINMENT',-14.35,2.4,-0.4,3.2,1.5,Math.PI/2,'#10181c','#7fe3ff'); box('hazard',0,.068,-1.2,.2,.014,7.4);  for(const sx of[-1,1]){B('lsteel',sx*1.3,0,-3,.3,2.7,.7,[0,2.7]);B('glass',sx*1.8,0,-3,.7,1.2,.1,[0,1.2])} B('lsteel',0,2.7,-3,2.9,.3,.7);B('green',0,2.55,-3.38,1.2,.1,.05);B('red',0,2.55,-2.62,.4,.1,.05); B('rubber',3.9,0,-1.4,2.4,.8,.8,[0,.9]);B('lsteel',3.9,.8,-1.4,2.0,.9,1.0);B('black',3.9,1.0,-1.9,.1,.5,.02);label('X-RAY',3.9,1.95,-1.45,.9,.3,0,'#10181c','#ffd67a'); B('wood',-3.9,0,-1.5,1.6,.95,.7,[0,1.0]);B('black',-3.9,.95,-1.5,.4,.3,.05);B('screen',-3.9,.97,-1.52,.34,.2,.02);label('SECURITY',-3.9,1.7,-1.0,1.4,.3,0);  box('steel',-10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',-10,2,1.48,1.7,.9,.08);label('LOCKDOWN\nCONTROL',-10,1.5,1.0,1.7,.6,0,'#7a1010','#ffe9c0'); box('steel',10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',10,2,1.48,1.7,.9,.08);label('COOLANT\nCONTROL',10,1.5,1.0,1.7,.6,0,'#10181c','#7fe3ff'); for(const[x,z]of[[-8,1],[8,1],[-8,-8],[0,-8],[8,-8]])box('white',x,5.95,z,2.4,.08,.35); for(const x of[-11,-4,4,11])box('white',x,5.95,4.5,2.6,.08,.4);  for(const sx of[-1,1]){B('lsteel',sx*2.1,0,EZ-.4,.12,1.1,3.2,[0,1.1]);B('hazard',sx*2.1,.5,EZ-.4,.14,.1,3.2)} B('lsteel',0,0,EZ-2.1,4.3,1.1,.12,[0,1.1]);B('hazard',0,.5,EZ-2.1,4.3,.1,.14); for(const sx of[-1,1])B('hazard',sx*2.1,0,EZ+1.25,.14,1.2,.14); box('steel',0,4.1,-14.3,10,2,.15);for(let x=-4;x<=4;x+=2)box(x===0?'screenG':'screen',x,4.1,-14.2,1.55,1.25,.03); label('LIFT STATUS\nSURFACE <> B1 RESEARCH LEVEL',0,5.3,-14.2,6.2,.8,0,'#10181c','#ffd67a');  B('steel',-4.25,0,-6.2,.9,1.0,3.6,[0,1.2]);B('lsteel',-4.25,1.0,-6.2,1.0,.05,3.7);for(let z=-7.4;z<=-5.0;z+=1.2){B('black',-4.3,1.05,z,.08,.34,.5);B('screen',-4.26,1.07,z,.02,.26,.42)} B('fabric',-3.4,0,-7.0,.55,.5,.55);B('fabric',-3.4,0,-5.4,.55,.5,.55); for(const sx of[-1,1]){B('lsteel',sx*4.2,0,-13.7,1.1,2.3,.9,[0,2.4]);B('green',sx*4.2,1.4,-13.2,.8,.12,.04);B('red',sx*4.2,1.7,-13.2,.8,.12,.04)} B('red',4.45,0,-12.0,.5,1.3,.4,[0,1.3]);label('FIRE\nEXT.',4.18,1.6,-12.0,.4,.4,-Math.PI/2); B('steel',4.85,1.5,-7.6,.3,1,.2);B('green',4.7,1.65,-7.6,.06,.12,.12);label('CALL',4.69,1.2,-7.6,.4,.2,-Math.PI/2); label('ELEVATOR ROOM\nLEVEL 4 CLEARANCE BELOW',0,3.4,-3.18,4.6,.9,Math.PI,'#10181c','#ffd67a'); const hatchY=.065;  const desk=(x,z,rot)=>{const[sx,sz]=rot?[.8,1.5]:[1.5,.8];B('wood',x,0,z,sx,.74,sz,[0,.8]);B('lsteel',x,.74,z,sx+.04,.04,sz+.04);const mx=rot?x+.1:x,mz=rot?z:z-.1;B('black',mx,.78,mz,.5,.36,.05);B('screen',mx,.8,mz+.03,.42,.26,.02);B('black',x,.78,z+.22,.4,.03,.14); const cx=rot?x-.9:x,cz=rot?z:z+.85;B('fabric',cx,0,cz,.55,.5,.55);B('fabric',cx,.5,cz+(rot?0:.22),.5,.45,.12)}; desk(-12.6,-6.4,0);desk(-7.4,-6.4,0);desk(-12.6,-11.3,0);desk(-7.4,-11.3,0);desk(-10,-11.3,0); B('wood',-10,0,-13.3,3.4,.76,1.1,[0,.8]);B('lsteel',-10,.76,-13.3,3.5,.04,1.2);for(const x of[-11.4,-8.6])B('fabric',x,0,-12.3,.5,.5,.5);for(const x of[-11.4,-10,-8.6])B('fabric',x,0,-14.1,.5,.5,.5); for(let z=-8.2;z>=-9.8;z-=.8){B('cab',-14.0,0,z,.6,1.4,.7,[0,1.4]);B('dark',-13.69,.9,z,.02,.1,.3)} B('white',-14.3,1.2,-5.9,.05,1.3,2.6);B('blue',-14.27,1.9,-5.9,.02,.04,2.0);B('red',-14.27,1.55,-5.9,.02,.04,1.4);B('blue',-14.27,1.25,-5.9,.02,.04,1.7); label('PROJECT H-9\nQUARTERLY REVIEW',-14.22,2.4,-5.9,2.0,.6,Math.PI/2,'#f4f4f0','#203060'); B('steel',-6.0,0,-14.0,1.0,.9,.6,[0,.95]);B('white',-6.0,.9,-14.0,.3,.35,.3);B('cab',-5.4,0,-14.0,.4,1.1,.4,[0,1.1]);B('blue',-5.4,1.1,-14.0,.3,.4,.3);  B('wood',-8.2,0,-4.2,1.0,.7,.5,[0,.8]);B('green',-8.2,.7,-4.2,.8,.6,.4);  for(let z=-13;z<=-5;z+=2){B('lsteel',13.9,0,z,.1,2.6,.1);}  for(const y of[.4,1.4,2.4])B('lsteel',13.6,y,-9.0,.9,.08,8.4,[0,2.5]); for(let i=0;i<7;i++){const z=-13+i*1.15;B(i%3?'wood':'orange',13.55,.48,z,.7,.7,.9);B(i%2?'wood':'dark',13.55,1.48,z+.1,.7,.7,.9);B(i%3==1?'yellow':'wood',13.55,2.48,z,.7,.6,.9)} for(let i=0;i<4;i++)B(i%2?'dark':'blue',10.2+(i%2)*1.1,0,-13.2+Math.floor(i/2)*1.1,1.0,1.0,1.0,i==0?[0,1.0]:null);B('wood',10.7,0,-13.7,2.4,1.0,1.0,[0,1.0]);  cylM('blue',12.2,.55,-12.3,.3,.3,1.1,8);cylM('yellow',12.9,.55,-12.4,.3,.3,1.1,8);cylM('bio',11.5,.55,-12.3,.3,.3,1.1,8);colW(12.2,-12.3,.9,.4,0,1.1); B('yellow',8.0,0,-11.4,1.6,.9,2.7,[0,1.0]);B('black',8.0,.9,-11.9,.1,1.4,.1);B('black',7.4,.9,-10.9,.08,1.5,.08);B('black',8.6,.9,-10.9,.08,1.5,.08);B('dark',8.0,1.6,-10.9,1.3,.08,1.0);  B('rubber',7.2,0,-12.4,.3,.5,.5);B('rubber',8.8,0,-12.4,.3,.5,.5);B('rubber',7.2,0,-10.4,.3,.5,.5);B('rubber',8.8,0,-10.4,.3,.5,.5); B('steel',6.3,0,-7.3,1.2,.9,.8,[0,1.0]);B('lsteel',6.3,.9,-7.3,1.3,.05,.9);B('dark',6.3,1.0,-7.3,.4,.3,.4);  B('orange',12.9,0,-4.2,.9,1.9,.5,[0,1.9]);B('white',12.9,1.2,-3.92,.7,.5,.04);label('PPE',12.9,1.4,-3.9,.6,.3,0,'#ffe9c0','#7a1010');  B('red',14.0,0,-3.9,.4,1.3,.35,[0,1.3]); label('RECEIVING & STORAGE\nCHECK SEALS BEFORE OPENING',10,3.6,-14.35,4.6,.9,0,'#10181c','#ffd67a'); for(const x of[6.6,10,13.3])box('white',x,5.95,-9,2.4,.08,.35);box('white',-10,5.95,-8.8,2.6,.08,.35);box('white',-10,5.95,-12.5,2.6,.08,.35);box('white',0,5.95,-12.5,2.4,.08,.35);  box('dark',-27,2.5,-12,13,5,14,[0,5.2]);box('steel',-27,5.1,-12,13.6,.25,14.6);box('lsteel',-27,4.2,-4.82,7,1.2,.16); for(let x=-31;x<=-23;x+=2)box('black',x,4.2,-4.7,.12,1.05,.12); for(let i=0;i<3;i++)cylM('steel',-30+i*3,6,-12,.45,.55,2,12); label('GENERATOR HALL\nHIGH VOLTAGE',-27,2.2,-4.65,5,1.2,0,'#7a1010','#ffe9c0'); cylM('lsteel',-37,1.4,-12,1.3,1.3,2.8,16);colW(-37,-12,1.4,1.4,0,2.8);cylM('lsteel',-37,2.9,-12,1.0,1.3,.4,16);label('FUEL',-37,1.6,-10.65,1.3,.5,0,'#7a1010','#ffe9c0'); B('lsteel',-27,5.35,-6,1,.9,.8);B('dark',-23,5.35,-17,3.2,1.1,2.4);B('lsteel',-31,5.35,-17,3.0,1.0,2.0);  box('concrete',27,2.5,-12,13,5,14,[0,5.2]);box('steel',27,5.1,-12,13.6,.25,14.6);box('lsteel',27,2,-4.8,8,4,.25); for(let y=.5;y<4;y+=.7)box('dark',27,y,-4.62,7.8,.08,.05); label('VEHICLE BAY',27,4.6,-4.55,5,.8,0,'#10181c','#ffd67a'); B('lsteel',23,5.35,-17,3.4,1.4,2.2);B('dark',31,5.35,-17,2.6,1.1,2.4);  box('lsteel',-7,8.1,-4,.16,3.8,.16);box('lsteel',-7,9,-4,2.1,.12,.12);cyl('lsteel',6,7.4,-4,1.2,.85,.25,20);box('steel',6,6.8,-4,.18,1.2,.18); B('lsteel',-10,6.3,-9,3.0,1.1,2.0);B('dark',10,6.3,-9,2.6,.9,2.0);B('lsteel',0,6.3,-12,6.0,.7,1.2);  for(const[x,z]of[[-13,9],[13,9],[-13,-17],[13,-17]]){box('steel',x,4.4,z,.18,8.8,.18);box('hazard',x,8.9,z,1,.2,.5);box('lamp',x,8.7,z,.8,.1,.35)}  for(let i=0;i<5;i++){const x=-34+i*3;box(i%2?'steel':'hazard',x,.65,18,2.2,1.3,1.8,[0,1.3]);box('black',x,.65,18.94,.12,1.35,.06)} for(const x of[-9,9])for(let z=15;z<=27;z+=3)cyl('hazard',x,.6,z,.22,.28,1.2,8); const van=(x,z)=>{B('lsteel',x,.5,z,2.2,1.9,4.6,[0,2.2]);B('steel',x,.5,z+2.7,2.1,1.1,1.2);B('glass',x,1.3,z+3.32,1.9,.7,.05);B('bio',x,1.4,z-2.32,.8,.8,.04);for(const sx of[-1,1])for(const dz of[-1.4,1.8])cylM('rubber',x+sx*1.1,.5,z+dz,.5,.5,.35,10,'x')}; van(-33,28);van(33,26); const beacon=dyn('red',14.3,5.1,6.3,.45,.45,.45); 
   const TOP=-.09,BOT=-9.75,LF={y:TOP,tgt:TOP,moving:false}; const lift=dyn('lsteel',EX,TOP,EZ,3.6,.3,3.6),hatch=dyn('dark',EX,.035,EZ,4.0,.05,4.0);hatch.visible=false; for(const s of[-1,1])for(const[w,d,x,z]of[[3.6,.2,0,s*1.7],[.2,3.4,s*1.7,0]]){const q=new T.Mesh(new T.BoxGeometry(w,.03,d),M.hazard);q.position.set(x,.16,z);lift.add(q)}  box('lsteel',EX-1.92,-4.9,EZ,.18,9.6,.18);box('lsteel',EX+1.92,-4.9,EZ,.18,9.6,.18);box('lsteel',EX-1.92,-4.9,EZ-1.7,.18,9.6,.18);box('lsteel',EX+1.92,-4.9,EZ-1.7,.18,9.6,.18);  const ind=dyn('green',4.7,2.2,EZ+1.9,.22,.22,.08);  const WH=9.8,WY=-5.1; box('floor',0,-9.8,-20,36,.4,28);  slab('dark',-.35,.3,-18,18,-34,-6,EX-HS,EX+HS,EZ-HS,EZ+HS);  box('dark',0,WY,-34,36,WH,.5,UGc);box('dark',-18,WY,-20,.5,WH,28,UGc);box('dark',18,WY,-20,.5,WH,28,UGc);box('dark',0,WY,-6,36,WH,.5,UGc); const T2=(x0,x1,z0,z1,m)=>box(m||'tile',(x0+x1)/2,FY+.012,(z0+z1)/2,x1-x0,.024,z1-z0); const RW=[FY-.1,RC+.2],CEIL=(x0,x1,z0,z1)=>box('dark',(x0+x1)/2,RC+.1,(z0+z1)/2,x1-x0,.2,z1-z0); const LP=(x,z,sx,sz,y)=>box('white',x,(y===undefined?RC-.03:y),z,sx||1.8,.06,sz||.4);  ZW(-14.5,-18,18,[[0,3.4],[-12.5,2.4],[12.5,2.4]],FY,RC+.2,'wall',RW);  XW(-7,-14.5,-6.25,[],FY,RC+.2,'wall',RW);XW(7,-14.5,-6.25,[],FY,RC+.2,'wall',RW);  ZW(-10.2,7,17.75,[[12.5,2.4]],FY,RC+.2,'wall',RW);  ZW(-17.5,-18,-9,[[-13.5,2.4]],FY,RC+.2,'wall',RW);ZW(-17.5,9,18,[[13.5,2.4]],FY,RC+.2,'wall',RW);ZW(-17.5,-9,9,[[0,4.2]],FY,-.5,'dark',[FY-.1,-.5]); XW(-9,-33.75,-17.5,[[-28,2.4],[-20.7,2.4]],FY,-.5,'dark',[FY-.1,-.5]);XW(9,-33.75,-17.5,[[-28,2.4],[-20.7,2.4]],FY,-.5,'dark',[FY-.1,-.5]); ZW(-24,-17.75,-9,[],FY,RC+.2,'wall',RW);ZW(-24,9,17.75,[],FY,RC+.2,'wall',RW);  slab('dark',RC+.1,.2,-7,7,-14.5,-6.25,EX-HS,EX+HS,EZ-HS,EZ+HS);  for(const sx of[-1,1]){box('dark',EX+sx*(HS+.1),(RC+.2-.5)/2,EZ,.2,5.4,2*HS+.4);box('dark',EX,(RC+.2-.5)/2,EZ+sx*(HS+.1),2*HS+.4,5.4,.2)}  CEIL(-17.75,-7,-14.5,-6.25);CEIL(7,17.75,-14.5,-6.25);CEIL(-17.75,17.75,-17.5,-14.5);CEIL(-17.75,-9,-33.75,-17.5);CEIL(9,17.75,-33.75,-17.5);  T2(-17.75,17.75,-17.5,-6.25);T2(-9,9,-33.75,-17.5);T2(-17.75,-9,-33.75,-17.5);T2(9,17.75,-33.75,-24,'dark');T2(9,17.75,-24,-17.5); box('hazard',0,FY+.02,-16,34,.02,.14);box('hazard',0,FY+.02,-11.2,5.2,.02,.14);box('hazard',0,FY+.02,-7.8,5.2,.02,.14);box('hazard',-2.6,FY+.02,-9.5,.14,.02,3.5);box('hazard',2.6,FY+.02,-9.5,.14,.02,3.5);  for(const[x,z,tx,w]of[[0,-14.5,'LIFT LOBBY',2.4],[-12.5,-14.5,'PPE LOCKERS',2.2],[12.5,-14.5,'DECONTAMINATION',2.4],[0,-17.5,'CONTAINMENT HALL',3.2],[-13.5,-17.5,'CRYO STORAGE',2.2],[13.5,-17.5,'DATA CENTRE',2.2]]){const so=z>-16;label(tx,x,RC-.55,z+(so?-.17:.17),w,.42,so?Math.PI:0)}
 label('B1 CORRIDOR A',-15.5,RC-.6,-14.68,2.6,.45,Math.PI);label('B1 CORRIDOR A',15.5,RC-.6,-14.68,2.6,.45,Math.PI);
 cylM('copper',0,RC-.28,-15.3,.1,.1,34,8,'x');cylM('lsteel',0,RC-.28,-16.7,.14,.14,34,8,'x');cylM('blue',0,RC-.5,-16.3,.07,.07,34,8,'x');box('steel',0,RC-.1,-16,34,.05,.5); for(let x=-16;x<=16;x+=8)cylM('lsteel',x,RC-.28,-16,.06,.06,1.6,6,'z'); cylM('copper',0,RC-.3,-7.0,.1,.1,13,8,'x');cylM('lsteel',-5,RC-.3,-12,.09,.09,10,8,'z'); for(const x of[-17.4,17.4]){B('red',x,FY,-15.2,.4,.6,.2);B('yellow',x,FY+.6,-15.2,.4,.12,.2)}  const solid=(x,z,sx,sz,fy,h)=>colW(x,z,sx/2,sz/2,fy,fy+h); const cab=(x,z,sx,sz,fy,h)=>B('cab',x,fy,z,sx,h||.88,sz); function bench(x,z,len,rot,fy,kind){const sx=rot?.9:len,sz=rot?len:.9;cab(x,z,sx,sz,fy,.88);B('lsteel',x,fy+.88,z,sx+.04,.05,sz+.04);solid(x,z,sx,sz,fy,.95);const n=Math.max(2,Math.floor(len/.9)); for(let i=0;i<n;i++){const t=-len/2+(i+.5)*len/n,px=rot?x:x+t,pz=rot?z+t:z,y=fy+.93,k=(i+kind)%5; if(k===0){B('white',px,y,pz,.2,.32,.2);B('black',px,y+.3,pz,.06,.14,.06);B('lamp',px,y+.05,pz+.1,.05,.05,.05)} else if(k===1){B('lsteel',px,y,pz,.42,.22,.42);B('dark',px,y+.22,pz,.44,.04,.44)} else if(k===2){B('steel',px,y,pz,.05,.3,.05);B('blue',px+.12,y,pz,.14,.1,.14);B('glass',px-.12,y,pz,.12,.24,.12)} else if(k===3){B('blue',px-.14,y,pz,.1,.18,.3);B('orange',px,y,pz,.1,.18,.3);B('green',px+.14,y,pz,.1,.18,.3)} else{B('black',px,y+.1,pz-.1,.4,.3,.04);B('screen',px,y+.12,pz-.07,.34,.22,.02);B('lsteel',px,y,pz,.3,.1,.2)}}} function hood(x,z,rot,fy){const sx=rot?.9:1.5,sz=rot?1.5:.9;cab(x,z,sx,sz,fy,.88);B('lsteel',x,fy+.88,z,sx,.05,sz);B('glass',x,fy+.93,z,sx-.06,1.1,sz-.06);B('lsteel',x,fy+2.03,z,sx,.35,sz);B('lamp',x,fy+1.97,z,sx*.6,.04,sz*.6);solid(x,z,sx,sz,fy,2.3)} function rackRow(x,z,n,rot,fy,f){for(let i=0;i<n;i++){const px=rot?x:x+i*.65,pz=rot?z+i*.65:z,sx=rot?1.0:.6,sz=rot?.6:1.0;B('black',px,fy,pz,sx,2.1,sz);for(let k=0;k<7;k++){const lm=((i*3+k)%5==0)?'red':((i+k)%3==0?'green':'blue');B(lm,px+(rot?f*.51:0),fy+.3+k*.24,pz+(rot?0:f*.51),rot?.02:.46,.06,rot?.46:.02)}} const len=n*.65;solid(rot?x:x+(n-1)*.325,rot?z+(n-1)*.325:z,rot?1.0:len,rot?len:1.0,fy,2.2)} function lockers(x,z,n,rot,fy,f){for(let i=0;i<n;i++){const px=rot?x:x+i*.5,pz=rot?z+i*.5:z;B(i%3==2?'orange':'steel',px,fy,pz,rot?.5:.46,1.9,rot?.46:.5);B('dark',px+(rot?f*.26:0),fy+1.3,pz+(rot?0:f*.26),rot?.02:.3,.28,rot?.3:.02);B('dark',px+(rot?f*.26:0),fy+.25,pz+(rot?0:f*.26),rot?.02:.3,.28,rot?.3:.02)} solid(rot?x:x+(n-1)*.25,rot?z+(n-1)*.25:z,rot?.5:n*.5,rot?n*.5:.5,fy,1.95)} function freezer(x,z,fy,f,ax){B('lsteel',x,fy,z,ax?.8:.9,2.0,ax?.9:.8);B('screen',x+(ax?f*.41:0),fy+1.6,z+(ax?0:f*.41),ax?.02:.4,.22,ax?.4:.02);B('dark',x+(ax?f*.43:0),fy+1.0,z+(ax?0:f*.43),ax?.04:.5,.06,ax?.5:.04);B('white',x+(ax?f*.41:0),fy+1.35,z+(ax?0:f*.41),ax?.02:.5,.04,ax?.5:.02);solid(x,z,ax?.8:.9,ax?.9:.8,fy,2.0)} function dewar(x,z,fy){cylM('lsteel',x,fy+.65,z,.38,.38,1.3,10);cylM('blue',x,fy+1.33,z,.2,.3,.1,10);cylM('white',x,fy+.1,z,.4,.4,.2,10);solid(x,z,.8,.8,fy,1.4)} function barrel(x,z,fy,m){cylM(m||'blue',x,fy+.5,z,.3,.3,1.0,10);cylM('lsteel',x,fy+1.0,z,.31,.31,.05,10);solid(x,z,.62,.62,fy,1.0)} function gasRack(x,z,fy,n,rot){for(let i=0;i<n;i++){const px=rot?x:x+i*.4,pz=rot?z+i*.4:z;cylM(['yellow','green','blue','red'][i%4],px,fy+.8,pz,.15,.15,1.6,8);cylM('lsteel',px,fy+1.65,pz,.05,.05,.12,6)}B('lsteel',rot?x:x+(n-1)*.2,fy+.6,rot?z+(n-1)*.2:z,rot?.05:n*.4,.06,rot?n*.4:.05);solid(rot?x:x+(n-1)*.2,rot?z+(n-1)*.2:z,rot?.4:n*.4,rot?n*.4:.4,fy,1.7)} function shelf(x,z,len,rot,fy,mats){const sx=rot?.5:len,sz=rot?len:.5;for(const px of[-len/2,len/2])B('lsteel',rot?x:x+px,fy,rot?z+px:z,.06,2.0,.06);for(let i=0;i<4;i++){B('lsteel',x,fy+.3+i*.5,z,sx,.04,sz);const n=Math.floor(len/.4);for(let k=0;k<n;k++){const t=-len/2+.25+k*(len-.4)/Math.max(1,n-1);if((k+i)%4!=3)B(mats[(k+i)%mats.length],rot?x:x+t,fy+.34+i*.5,rot?z+t:z,.22,.22+((k*i)%3)*.06,.22)}}solid(x,z,sx,sz,fy,2.0)} function deskPC(x,z,rot,fy,f){const sx=rot?.8:1.5,sz=rot?1.5:.8;B('wood',x,fy,z,sx,.74,sz);B('lsteel',x,fy+.74,z,sx+.04,.04,sz+.04);solid(x,z,sx,sz,fy,.8);const mx=rot?x-f*.15:x,mz=rot?z:z-f*.15;B('black',mx,fy+.78,mz,rot?.05:.5,.36,rot?.5:.05);B('screen',mx+(rot?f*.03:0),fy+.8,mz+(rot?0:f*.03),rot?.02:.42,.26,rot?.42:.02); const cx=rot?x+f*.9:x,cz=rot?z:z+f*.9;B('fabric',cx,fy,cz,.55,.5,.55);B('fabric',cx+(rot?f*.22:0),fy+.5,cz+(rot?0:f*.22),rot?.12:.5,.45,rot?.5:.12)} function table(x,z,sx,sz,fy,m){B(m||'lsteel',x,fy+.72,z,sx,.06,sz);for(const a of[-1,1])for(const b of[-1,1])B('steel',x+a*(sx/2-.1),fy,z+b*(sz/2-.1),.07,.72,.07);solid(x,z,sx,sz,fy,.8)} function figure(x,z,fy,dx,dz,mode){const Q=(u,v,y0,w,h,d,m)=>{const px=dz?x+u:x+dx*v,pz=dz?z+dz*v:z+u;B(m,px,fy+y0,pz,dz?w:d,h,dz?d:w)}; if(mode==='slump'){Q(0,-.45,0,.5,.55,.35,'specimen');Q(0,-.35,.5,.45,.5,.25,'skin');Q(0,-.2,.95,.24,.26,.24,'skin');Q(-.3,0,.05,.12,.12,.55,'skin');Q(.3,-.1,.05,.12,.12,.5,'skin');Q(0,-.12,1.05,.16,.05,.04,'red');return} Q(-.12,0,0,.16,.82,.2,'specimen');Q(.12,0,0,.16,.82,.2,'specimen');Q(0,0,.82,.46,.62,.26,'skin');Q(0,.08,1.0,.3,.2,.04,'blood');Q(0,.04,1.44,.24,.26,.24,'skin');Q(-.1,.14,1.52,.05,.05,.02,'red');Q(.1,.14,1.52,.05,.05,.02,'red'); Q(-.31,.18,.8,.12,.62,.12,'skin');Q(.31,.18,.8,.12,.62,.12,'skin');Q(-.31,.26,.78,.1,.1,.2,'skin');Q(.31,.26,.78,.1,.1,.2,'skin')} function suitRack(x,z,n,rot,fy){B('lsteel',x,fy+2.1,z,rot?.06:n*.7,.06,rot?n*.7:.06);for(let i=0;i<n;i++){const px=rot?x:x-(n-1)*.35+i*.7,pz=rot?z-(n-1)*.35+i*.7:z,m=i%2?'yellow':'orange';B(m,px,fy+.55,pz,rot?.28:.5,1.35,rot?.5:.28);B('black',px,fy+1.7,pz,.3,.3,.3);B('glass',px+(rot?.15:0),fy+1.72,pz+(rot?0:.15),rot?.02:.22,.18,rot?.22:.02);B(m,px,fy+1.2,pz,rot?.1:.7,.14,rot?.7:.1)}} function cam(x,y,z,ry){const q=B('dark',x,y,z,.3,.18,.18);B('black',x+Math.sin(ry||0)*.18,y+.04,z+Math.cos(ry||0)*.1,.1,.1,.1);B('red',x,y+.18,z,.04,.04,.04)} function pipeV(x,z,fy,top,m,r){cylM(m||'copper',x,(fy+top)/2,z,r||.14,r||.14,top-fy,8)} 
@@ -55214,7 +55350,8 @@ door(0,-17.5,'x',4.2,2,-1);door(-13.5,-17.5,'x',2.4,2,-1);door(13.5,-17.5,'x',2.
 door(-9,-28,'z',2.4,2,-1,()=>st.ppe,'Sterile lab: put on a hazmat suit from the PPE room first.');    // BSL-3 wet lab (level 2 + suit)
 door(9,-28,'z',2.4,3,1);                                                                          // containment cells (level 3)
 // ======================= state, text =======================
-Object.assign(st,{ppe:false,clean:false,medCD:0,crates:false});
+Object.assign(st,{ppe:false,clean:false,medCD:0,crates:false,power:false,director:false,seal:false,office:false,upstairs:false,arena:false,bossDead:false,freeRoam:false,kills:0,inspect:!!(window.__DH_ONE)});
+if(st.inspect){st.power=true;st.badge=Math.max(st.badge|0,1);st.upstairs=true;st.office=true;st.director=true;st.seal=true}
 const tk={ag:0,warn:false,lvl:100,rg:0},br={on:false,mx:0,mz:0,wi:0,key:'',pa:[],cd:0,sl:0,s2:0,rt:2,t:0},cracks=[],shards=[];let bz=null,mon=null;
 const pop=(t,x,s)=>{try{popup({title:t,text:x,secs:s||10})}catch(e){say(String(x).replace(/<[^>]+>/g,''))}};
 const LOGS=[
@@ -55243,8 +55380,8 @@ const monUpd=dt=>{br.t+=dt;
  for(const q of shards){const u=q.userData;u.vy-=9*dt;q.position.x+=u.vx*dt;q.position.y=Math.max(FY+.03,q.position.y+u.vy*dt);q.position.z+=u.vz*dt;if(q.position.y<=FY+.03){u.vx*=.9;u.vz*=.9}}
  const dr=Math.min(1,br.t/3.5);fluid.scale.y=Math.max(.001,1-dr);fluid.position.y=FY+.95+2.95*fluid.scale.y;fluid.visible=dr<1;const ps=Math.min(1,br.t/4)*4.2;puddle.scale.set(ps,1,ps);
  const z=bz;if(!z)return;
- hb2.style.display=(pl.y<-3&&(z.hp<700||z.dead)&&!(z.dead&&z.fall>3))?'block':'none';h9f.style.width=Math.max(0,z.hp/7)+'%';if(z.hp<h9p){eyeM.emissiveIntensity=6;h9p=z.hp}
- if(z.dead){z.fall+=dt;mon.rotation.x=-Math.min(1,z.fall*1.5)*1.45;if(!br.dn){br.dn=1;say('Specimen H-9 is down.');eyeM.emissiveIntensity=0}return}
+ hb2.style.display=((st.arena&&!(z.dead&&z.fall>3))||(pl.y<-3&&(z.hp<700||z.dead)&&!(z.dead&&z.fall>3)))?'block':'none';h9f.style.width=Math.max(0,z.hp/7)+'%';if(z.hp<h9p){eyeM.emissiveIntensity=6;h9p=z.hp}
+ if(z.dead){z.fall+=dt;mon.rotation.x=-Math.min(1,z.fall*1.5)*1.45;if(!br.dn){br.dn=1;st.bossDead=true;if(!st._seen)st._seen=new WeakSet();if(z&&!st._seen.has(z)){st._seen.add(z);st.kills=(st.kills||0)+1}say('Specimen H-9 is down.');eyeM.emissiveIntensity=0;h9End()}return}
  const mx=z.x-OX,mz=z.z-OZ,px=pl.x-OX,pz=pl.z-OZ;br.mx=mx;br.mz=mz;eyeM.emissiveIntensity=3;
  if(pl.y>-3){mon.position.set(mx,FY,mz);return}                                    // you are upstairs: it waits below
  const a=zn(mx,mz),b=zn(px,pz);let tx=px,tz=pz;
@@ -55261,8 +55398,142 @@ const monUpd=dt=>{br.t+=dt;
  br.sl+=dt*(dp>1.9?9:14);const w=Math.sin(br.sl);legL.rotation.x=w*.7;legR.rotation.x=-w*.7;armL.rotation.x=-w*.5;armR.rotation.x=w*.5;spec.position.y=1.66+Math.abs(w)*.08;
  mon.position.set(z.x-OX,FY,z.z-OZ)};
 let sir=null;const siren=(on,ld)=>{try{if(on&&!sir){AC=AC||new AudioContext();const o=AC.createOscillator(),l=AC.createOscillator(),lg=AC.createGain(),g=AC.createGain();o.type='square';o.frequency.value=850;l.type='triangle';l.frequency.value=1.2;lg.gain.value=300;l.connect(lg);lg.connect(o.frequency);g.gain.value=.04;o.connect(g);g.connect(AC.destination);o.start();l.start();sir={o,l,g}}else if(!on&&sir){sir.o.stop();sir.l.stop();sir=null}if(sir)sir.g.gain.value=ld<60?.045:ld<150?.018:.006}catch(e){}};
+let h9Built=false,h9Door={};
+function h9End(){
+ if(st.endingShown||st.freeRoam||st.inspect) return;
+ st.endingShown=true; st.bossDead=true;
+ const days=typeof day==='number'?day:1, kills=st.kills|0;
+ const ov=document.createElement('div'); ov.id='h9End';
+ ov.style.cssText='position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(4,6,8,.84);font:600 16px/1.45 system-ui,sans-serif;color:#f4ecd0';
+ ov.innerHTML='<div style="width:min(520px,90vw);padding:26px 24px 20px;text-align:center;background:rgba(10,12,14,.96);border:1px solid rgba(255,210,90,.75);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.55)">'
+  +'<div style="letter-spacing:.2em;color:#ffd24c;font:800 12px system-ui">RESEARCH STATION H-9</div>'
+  +'<h2 style="margin:8px 0 8px;font:800 30px/1.15 system-ui;color:#fff">You survived Dead Harvest</h2>'
+  +'<p style="margin:0 0 12px;color:#e6e0d0">Specimen H-9 is dead. The containment hall is quiet, and the radio has nothing left to send. This is the end of the game.</p>'
+  +'<p style="margin:0 0 16px;font:700 18px system-ui;color:#fff">Days survived '+days+'<br>Kills '+kills+'</p>'
+  +'<button id="h9Roam" type="button" style="display:block;width:100%;margin:6px 0;padding:12px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.22);color:#fff;font:700 15px system-ui;cursor:pointer">Continue free-roam</button>'
+  +'<button id="h9Menu" type="button" style="display:block;width:100%;margin:6px 0;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer">Main menu</button>'
+  +'</div>';
+ document.body.appendChild(ov);
+ ov.addEventListener('pointerdown',e=>e.stopPropagation());
+ ov.querySelector('#h9Roam').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();st.freeRoam=true;st.arena=false;const S=window.STORY;if(S&&S.cur)S.cur.objective='Free roam — you survived Dead Harvest';ov.remove();try{toast('The station is open. Nothing else is coming.',4)}catch(err){}try{window.dhSave&&window.dhSave.save()}catch(err){}});
+ ov.querySelector('#h9Menu').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();try{window.dhSave&&window.dhSave.save()}catch(err){}location.reload()});
+}
+function h9Ensure(){
+ if(h9Built) return; h9Built=true;
+ const Lab=window.H9_LAB,P={};
+ const add=(m,x,y,z,sx,sy,sz)=>{if(!(sx>0.01&&sy>0.01&&sz>0.01))return;(P[m]=P[m]||[]).push([x-sx/2,x+sx/2,y-sy/2,y+sy/2,z-sz/2,z+sz/2])};
+ for(const s of Lab.treads){
+  add('concrete',(s.x0+s.x1)/2,s.y-0.14,(s.z0+s.z1)/2,s.x1-s.x0,0.28,s.z1-s.z0);
+  add('hazard',(s.x0+s.x1)/2,s.y+0.01,(s.z0*0.25+s.z1*0.75), (s.x1-s.x0)*0.92,0.02,0.06);
+ }
+ for(const s of Lab.floors) add(s.y>6?'floor':'concrete',(s.x0+s.x1)/2,s.y-0.04,(s.z0+s.z1)/2,s.x1-s.x0,0.08,s.z1-s.z0);
+ add('dark',-0.05,9.46,-0.05,28.9,0.1,12.4);
+ for(const c of Lab.walls){
+  const north=c.z>6.05&&c.y0>=6&&c.hw>4;
+  if(north){
+   add('concrete',c.x,6.7,c.z,c.hw*2,0.7,c.hd*2);
+   add('concrete',c.x,9.15,c.z,c.hw*2,0.6,c.hd*2);
+   add('glass',c.x,7.9,c.z-0.02,c.hw*2-0.8,1.9,0.04);
+   for(const x of [-8,-1,6,12]) add('concrete',x,7.9,c.z,0.16,2.2,c.hd*2);
+  }else add(c.id==='rail'?'lsteel':'wall',c.x,(c.y0+c.y1)/2,c.z,Math.max(0.08,c.hw*2),c.y1-c.y0,Math.max(0.08,c.hd*2));
+ }
+ for(const x of [-8.75,-2.85,3.65]) add('concrete',x,9.05,3.5,1.45,0.45,0.18);
+ for(const x of [-9,-2,4,11]) add('white',x,9.32,4.75,1.5,0.04,0.22);
+ // security office
+ add('wood',-10.1,6.68,-1.7,1.7,0.76,0.72); add('lsteel',-10.1,7.08,-1.7,1.78,0.04,0.8);
+ add('black',-10.1,7.28,-1.95,0.7,0.32,0.05); add('screen',-10.1,7.3,-1.91,0.6,0.24,0.02);
+ add('fabric',-10.1,6.55,-0.85,0.5,0.5,0.5);
+ add('dark',-8.4,7.35,-5.55,2.4,1.3,0.08); add('screen',-9.2,7.4,-5.5,0.7,0.45,0.03); add('screen',-8.2,7.4,-5.5,0.7,0.45,0.03); add('screen',-7.3,7.35,-5.5,0.55,0.4,0.03);
+ add('steel',-6.7,7.2,-4.6,0.55,1.7,0.7); add('dark',-6.7,7.55,-4.25,0.4,0.5,0.04);
+ add('cab',-7.4,6.85,1.8,0.9,1.1,0.45);
+ // records / servers
+ for(const x of [-5.2,-4.05,-2.9,-1.7]){add('dark',x,7.35,-4.6,0.72,2.05,0.85); add('screen',x,7.7,-4.15,0.5,0.28,0.03); add('green',x,6.55,-4.15,0.08,0.08,0.03)}
+ add('lsteel',-3.4,8.55,-4.6,4.6,0.08,0.9);
+ add('wood',-3.1,6.68,-0.4,1.5,0.74,0.7); add('black',-3.1,7.15,-0.15,0.6,0.28,0.04); add('screen',-3.1,7.16,-0.12,0.5,0.2,0.02);
+ add('cab',-5.45,7.0,1.4,0.55,1.4,1.6); add('wood',-5.45,7.72,1.4,0.58,0.06,1.64);
+ // sample lab
+ add('lsteel',2.3,7.15,-3.6,2.6,0.9,0.8); add('lsteel',5.3,7.15,-3.6,2.4,0.9,0.8);
+ add('cab',2.0,7.62,-3.6,0.35,0.16,0.25); add('blue',2.6,7.7,-3.55,0.16,0.28,0.16); add('yellow',3.0,7.68,-3.7,0.14,0.22,0.14); add('bio',5.0,7.7,-3.55,0.18,0.26,0.18);
+ add('white',6.35,7.15,-5.45,0.7,1.7,0.7); add('steel',0.85,7.05,-5.4,0.7,1.5,0.55);
+ for(const x of [1.6,3.2,4.6,6.0]) add('fabric',x,6.55,-2.55,0.38,0.48,0.38);
+ add('glass',3.8,7.5,-5.7,1.6,0.9,0.05);
+ // director
+ add('carpet',10.9,6.33,-0.6,4.2,0.03,3.4);
+ add('wood',11.3,6.7,-1.45,2.05,0.78,0.9); add('lsteel',11.3,7.11,-1.45,2.15,0.04,1.0);
+ add('black',11.3,7.28,-1.85,0.55,0.3,0.04); add('screen',11.3,7.3,-1.82,0.46,0.22,0.02);
+ add('fabric',11.3,6.55,-0.55,0.55,0.5,0.55);
+ add('wood',13.55,7.15,-4.3,0.45,1.7,2.2); add('wood',13.55,7.4,-4.3,0.5,0.06,2.24);
+ add('fabric',9.0,6.55,1.55,1.6,0.48,0.7); add('steel',13.45,6.7,-0.35,0.55,0.8,0.5);
+ add('dark',13.5,7.6,1.9,0.9,1.15,0.06); add('cab',13.5,7.55,1.86,0.55,0.7,0.02);
+ add('lamp',11.6,7.16,-1.15,0.22,0.03,0.16);
+ // corridor
+ add('fabric',-1.2,6.52,5.25,1.3,0.42,0.5); add('red',6.6,7.05,5.55,0.22,0.7,0.22); add('hazard',1.5,6.34,4.55,8,0.015,0.1);
+ // generator panel, outside the hall
+ add('steel',-27,1.15,-4.55,0.7,1.5,0.28); add('hazard',-27,1.55,-4.4,0.45,0.28,0.04); add('green',-27,0.85,-4.4,0.12,0.12,0.04);
+ const g=new T.Group(); g.name='H9Upper';
+ for(const k in P){const q=new T.Mesh(mergeBoxes(P[k]),M[k]); q.castShadow=false; q.receiveShadow=false; g.add(q)}
+ root.add(g);
+ for(const c of Lab.colliders(st)){
+  const b=colW(c.x,c.z,c.hw,c.hd,c.y0,c.y1);
+  if(c.id==='front'||c.id==='stair'||c.id==='director') h9Door[c.id]=b;
+ }
+ const shut=o=>{o.castShadow=false;o.receiveShadow=false;return o};
+ h9Door.frontM=shut(dyn('steel',0,1.55,7.55,3.3,3.0,0.14));
+ h9Door.stairM=shut(dyn('lsteel',-13.6,1.55,1.85,1.25,3.0,0.1));
+ h9Door.dirM=shut(dyn('wood',10.85,7.85,3.5,1.25,3.0,0.1));
+ label('L1  SECURITY',-8.8,8.35,3.28,2.3,.42,Math.PI);
+ label('L1  RECORDS',-3.1,8.35,3.28,2.2,.42,Math.PI);
+ label('L1  SAMPLE LAB',3.5,8.35,3.28,2.4,.42,Math.PI);
+ label("DIRECTOR HALE",10.9,8.35,3.28,2.4,.42,Math.PI);
+ label('WEST STAIR  ·  L1',-13.5,2.5,1.55,1.8,.4,0,'#10181c','#ffd67a');
+ label('POWER LOCK',0,2.55,7.72,2.2,.4,0,'#7a1010','#ffe9c0');
+ label('GEN HALL\nMAIN BREAKER',-27,2.15,-4.38,1.3,.55,0,'#10181c','#7fe3ff');
+ const hi=()=>pl.y<4.2;
+ N(-27,-4.15,()=>st.power?'generator hall (online)':'restore station power',()=>{if(st.power){say('The generator hall is already online.');return}st.power=true;say('Generator hall online. The operations shutter is rising.')},0,1.9);
+ N(-13.6,1.05,()=>st.upstairs?'west stairwell (open)':((st.badge|0)>=1?'open the west stairwell':'use the Level 1 keycard on the stairwell'),()=>{if((st.badge|0)<1){say('The stair door wants a Level 1 keycard from reception.');return}st.upstairs=true;say('Stairwell open. Level 1 is up the switchback.')},0,1.9);
+ N(10.85,2.55,()=>st.office?"Hale's door (open)":"open the director's office",()=>{if((st.badge|0)<1&&!st.upstairs){say('Level 1 clearance required.');return}st.office=true;say("Director Hale's office is open.")},Lab.L1,1.9,{hide:hi,mh:1.6});
+ N(11.3,-0.7,()=>st.director?'director desk (cleared)':"take Director Hale's clearance",()=>{if(st.director){say('The desk has nothing else.');return}st.director=true;st.badge=Math.max(st.badge|0,2);pop('DIRECTOR CLEARANCE',"Hale's card. Use it on the elevator call panel to unseal the <b>B1 containment lab</b>.",9)},Lab.L1,1.9,{kc:3,mh:1.4,hide:()=>st.director||pl.y<4.2});
+ colW(-10.1,-1.7,0.85,0.36,6.3,7.1); colW(-3.1,-0.4,0.75,0.35,6.3,7.05);
+ colW(2.3,-3.6,1.3,0.4,6.3,7.2); colW(5.3,-3.6,1.2,0.4,6.3,7.2);
+ colW(11.3,-1.45,1.0,0.45,6.3,7.15); colW(13.55,-4.3,0.28,1.05,6.3,8.05);
+ for(const x of [-5.2,-4.05,-2.9,-1.7]) colW(x,-4.6,0.36,0.42,6.3,8.3);
+ N(-9.4,0.6,'read the security log',()=>pop('SECURITY LOG','Gate cameras died with the power. Hale badged the west stair at 02:14 and did not come down. B1 is still sealed to the director.',8),Lab.L1,1.8,{hide:hi});
+ N(-3.4,-1.6,'read the clearance memo',()=>pop('RECORDS MEMO','Do not copy the director card. Hale keeps the only basement clearance in the east office. The racks up here are archives, not access.',8),Lab.L1,1.8,{hide:hi});
+ if(!st.inspect){
+  for(const spot of Lab.zombies){const q=addZ(OX+spot.x,OZ+spot.z,null,false,null); if(q){q.y=spot.y;q.g.position.y=spot.y;q.h9=1}}
+ }
+}
+function h9Tick(dt,ld,lx,lz,under){
+ if(ld<180){try{h9Ensure()}catch(e){if(!window.H9_UPPER_ERR){window.H9_UPPER_ERR=String(e&&e.stack||e);console.error('[h9 upper]',e)}}}
+ if(!st._seen) st._seen=new WeakSet();
+ if(st._killsSynced===false){for(const z of zs) if(z.dead) st._seen.add(z); st._killsSynced=true}
+ for(const z of zs) if(z.dead&&!st._seen.has(z)){st._seen.add(z); st.kills=(st.kills||0)+1}
+ if(st.endingShown&&!st.freeRoam&&pHP<100) pHP=100;
+ if(h9Built&&h9Door.frontM){
+  const o=!!(st.inspect||st.power), so=!!(st.inspect||(st.badge|0)>=1&&st.upstairs), od=!!(st.inspect||st.office);
+  h9Door.frontM.position.y=damp(h9Door.frontM.position.y,o?4.85:1.55,4,dt);
+  if(h9Door.front) h9Door.front.hw=o?0:1.65;
+  h9Door.stairM.position.x=damp(h9Door.stairM.position.x,so?-12.2:-13.6,6,dt);
+  if(h9Door.stair) h9Door.stair.hw=so?0:0.65;
+  h9Door.dirM.position.x=damp(h9Door.dirM.position.x,od?12.35:10.85,6,dt);
+  if(h9Door.dir) h9Door.dir.hw=od?0:0.65;
+ }
+ const S=window.STORY;
+ const onBoss=S&&S.cur&&S.cur.id==='h9-boss';
+ if(onBoss&&!st.inspect&&under&&lz<-18.2&&Math.abs(lx)<7.2&&!st.arena){
+  st.arena=true;
+  if(!br.on){tk.lvl=0;breakOut()} else say('The containment hall seals behind you.');
+ }
+ if(st.bossDead&&!st.freeRoam&&!st.endingShown) h9End();
+ if(!S||!S.cur||!window.H9_LAB) return;
+ const live={gate:gate.open,power:st.power,badge:st.badge,upstairs:st.upstairs,y:pl.y,director:st.director,seal:st.seal};
+ let guard=0;
+ while(S.cur&&window.H9_LAB.met(S.cur.id,live)&&guard++<8) S.skip();
+}
+window.H9_LAB.ensure=h9Ensure;
 const upd=dt=>{
  const ld=Math.hypot(pl.x-OX,pl.z-OZ),nearL=ld<150,under=pl.y<-3,lx=pl.x-OX,lz=pl.z-OZ;
+ h9Tick(dt,ld,lx,lz,under);
  st.phase+=dt*4;siren(st.lockdown&&ld<200,ld);
  const pulse=.5+.5*Math.sin(st.phase),flick=st.lockdown?.7+.3*pulse:1;
  // lamps: surface lamp above ground, room + tank lamps below
@@ -55280,7 +55551,7 @@ const upd=dt=>{
  if(ld>230&&!LF.moving)return;                  // far away: skip the rest
  // ---- surface doors + gate
  gate.p=damp(gate.p,gate.open?1:0,2.2,dt);gL.position.x=-4-gate.p*4.2;gR.position.x=4+gate.p*4.2;gate.col.hw=gate.p>.6?0:2.1;
- mainD.p=damp(mainD.p,mainD.open?1:0,4,dt);dL.position.x=-.9-mainD.p*.9;dR.position.x=.9+mainD.p*.9;mainD.col.hw=mainD.p>.5?0:1.8;
+ if(st.inspect)mainD.open=true;else if(!st.power)mainD.open=false;else if(!st._pwr){st._pwr=true;mainD.open=true} mainD.p=damp(mainD.p,mainD.open?1:0,4,dt);dL.position.x=-.9-mainD.p*.9;dR.position.x=.9+mainD.p*.9;mainD.col.hw=mainD.p>.5?0:1.8;
  labD.p=damp(labD.p,labD.open&&!st.lockdown?1:0,3.5,dt);lDoor.position.x=8+labD.p*2.2;labD.col.hw=labD.p>.5?0:1.1;
  // ---- elevator
  const dd=LF.tgt-LF.y,sp=2.4*dt;LF.moving=Math.abs(dd)>.001;if(LF.moving)LF.y+=Math.abs(dd)<=sp?dd:Math.sign(dd)*sp;
@@ -55297,7 +55568,7 @@ const upd=dt=>{
   else if(st.badge<d.lv){ok=false;why='Access denied: Level '+d.lv+' badge required.'}
   else if(d.req&&!d.req()){ok=false;why=d.msg}
   const near=under&&Math.hypot(dx,dz)<d.w/2+1.5;
-  const open=near&&(ok||side>.25)||(br.on&&bz&&!bz.dead&&Math.hypot(br.mx-d.x,br.mz-d.z)<d.w/2+1.8);                        // anyone inside can always leave
+  const trapped=st.arena&&!st.bossDead&&!st.freeRoam&&!st.inspect&&d.x===0&&d.z===-17.5; if(trapped){ok=false;why='The containment hall is sealed. Specimen H-9 is loose.'} const open=trapped?false:(near&&(ok||side>.25)||(br.on&&bz&&!bz.dead&&Math.hypot(br.mx-d.x,br.mz-d.z)<d.w/2+1.8));
   if(near&&!ok&&side<-.25&&d.t<=0){say(why);d.t=3.2}
   d.t-=dt;
   if(d.ok!==ok){d.ok=ok;for(const q of d.ind)q.material=ok?M.green:M.red}
@@ -55339,10 +55610,15 @@ if(tk.ag<1)tk.lk=false;else if(!tk.lk&&!br.on){tk.lk=true;if(!st.lockdown){st.lo
 // ---- floors: lift platform, hatch over the open shaft, underground slab
 const _fa=floorAt,inUG=(lx,lz)=>lx>-17.6&&lx<17.6&&lz>-33.6&&lz<-6.4;
 floorAt=function(px,pz,py){const lx=px-OX,lz=pz-OZ;
+ let base;
  if(lx>-20&&lx<20&&lz>-36&&lz<8){
-  if(Math.abs(lx-EX)<1.8&&Math.abs(lz-EZ)<1.8){const top=LF.y+.15;if(py>top+.9)return _fa(px,pz,py);if(py>=top-.9)return top;return FY}
-  if(py<-3&&inUG(lx,lz))return FY}
- return _fa(px,pz,py)};
+  if(Math.abs(lx-EX)<1.8&&Math.abs(lz-EZ)<1.8){const top=LF.y+.15;if(py>top+.9)base=_fa(px,pz,py);else if(py>=top-.9)return top;else return FY}
+  else if(py<-3&&inUG(lx,lz))return FY;
+  else base=_fa(px,pz,py);
+ }else base=_fa(px,pz,py);
+ const Lab=window.H9_LAB,up=Lab&&Lab.floorLocal(lx,lz,py);
+ if(typeof up==='number'&&up<=py+.7&&up>base)return up;
+ return base};
 // ======================= interactions (F) =======================
 // ---- interaction points: short reach, blocked by walls, and always marked in the world
 let TALL=null;
@@ -55361,7 +55637,7 @@ const N=(lx,lz,lb,fn,yl,rad,o)=>{o=o||{};
  const n={x:OX+lx,z:OZ+lz,t:'ctl',max:1,g:null,rad:r,yl:yl,pr:()=>'F: '+(typeof lb==='function'?lb():lb),act:fn};
  Object.defineProperty(n,'amt',{get:()=>reach(n)?1:0,set(){},enumerable:true});
  nodes.push(n);
- const base=yl===FY?FY:0,g=new T.Group();g.position.set(lx,base,lz);root.add(g);
+ const base=yl===FY?FY:(yl>1?yl:0),g=new T.Group();g.position.set(lx,base,lz);root.add(g);
  const ring=new T.Mesh(ringG,RGM[kind]);ring.position.y=.1;g.add(ring);
  const mh=o.mh||2.0,top=new T.Group();top.position.y=mh;g.add(top);
  if(o.kc){const c=new T.Mesh(cardG,MKM.gold);top.add(c);const sp=new T.Mesh(stripG,blackM);sp.position.set(0,.06,.03);top.add(sp);const bm=new T.Mesh(beamG,beamM);bm.position.y=1.4;g.add(bm);top.scale.setScalar(1.3)}
@@ -55375,6 +55651,7 @@ const press=playerTop=>{
  if(LF.moving){say('Elevator is already moving.');return}
  const here=playerTop?atTop():atBot();
  if(here){if(playerTop&&st.badge<1){say('Access denied: collect a visitor badge from reception first.');return}
+  if(playerTop&&!st.seal&&!st.inspect){if(!st.director){say('B1 is sealed. Director clearance is required.');return}st.seal=true;say('Director clearance accepted. The B1 containment lab is unsealed.')}
   board();LF.tgt=playerTop?BOT:TOP;say(playerTop?'Elevator descending to the B1 research level.':'Elevator ascending to the surface.')}
  else{LF.tgt=playerTop?TOP:BOT;say('Calling the elevator...')}};
 const lockToggle=()=>{if(st.lockdown){st.lockdown=false;say('Lockdown cleared. Access controls restored.')}else{st.lockdown=true;mainD.open=false;labD.open=false;say('LOCKDOWN ACTIVE: access doors are secured.')}};
@@ -55420,7 +55697,7 @@ if(hb){const mkb=(txt,fn)=>{const b=document.createElement('button');b.textConte
  mkb('🔬 Research Base',()=>{if(!foot)exitV();pl.set(OX,0,OZ+44);yaw=0;pit=0;toast('🔬 Research Base: outside the perimeter gate',3)});
  mkb('🧪 Lab B1',()=>{if(!foot)exitV();pl.set(OX-3,FY,OZ-8.4);yaw=0;pit=0;toast('🧪 B1 research level: lift lobby',3)})}
 const _e=env;env=function(dt){_e(dt);try{upd(dt)}catch(e){if(!window.RESBASE_UPD_ERR){window.RESBASE_UPD_ERR=e;console.error('[research base] update failed',e)}}};
-window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,DOORS};
+if(st.inspect){try{h9Ensure()}catch(e){console.error('[h9 upper]',e)}} window.RESBASE={root,OX,OZ,LF,L:LF,st,tk,press,floor:floorAt,gate,mainD,labD,UG,DOORS,lab:window.H9_LAB};
 }catch(e){console.error('[research base]',e);window.RESBASE_ERROR=e}
 })();
 // ===== v0.21.6 LIGHT GOVERNOR (lossless): three.js runs EVERY light through EVERY lit pixel, even at intensity 0. In daylight ~12 of the ~18 point/spot lights (street-lamp pool, stage lights, graveyard/lamp lights) are switched off but still cost shader time. Lights that start the game dead are hidden while they are all dead and shown again (all together, so shaders are only ever built for two light-count variants) the moment any of them turns on. The muzzle flash + flashlight are never touched. Identical image, fewer GPU instructions. =====
@@ -55613,9 +55890,8 @@ window.STORY_CONFIG={
    objective:'Go to Fort Harvest and find out what happened in the city',
    popup:{title:'AFTER THE BELL',text:'Hollow Creek pointed you at Fort Harvest. Somebody there knows what happened in the city.',secs:9},
    goal:{reach:'fort'}},
-  {id:'end',clock:'free',
-   objective:'…',
-   popup:{title:'FORT HARVEST',text:'The gate is sealed and the answers are inside.<br><br><i>End of Chapter 1 — more story coming.</i>',secs:10}}
+  /* H9_CHAIN_HOOK: insert earlier campaign steps above this line. The finale array stays in order and ends the game. */
+  ...(window.H9_LAB&&window.H9_LAB.steps||[{id:'end',clock:'free',objective:'…',popup:{title:'FORT HARVEST',text:'The gate is sealed and the answers are inside.<br><br><i>End of Chapter 1 — more story coming.</i>',secs:10}}])
  ]
 };
 </script>
@@ -55874,7 +56150,7 @@ function snap(){
   mills:Object.fromEntries(Object.keys(MS).map(k=>[k,{on:MS[k].on,lv:MS[k].lv,fuel:MS[k].fuel,wear:MS[k].wear,jam:MS[k].jam,out:{...MS[k].out}}])),
   fort:FG?{locked:FG.locked,open:FG.open,found:FG.found.slice()}:null,
   side:SD?{started:SD.started,done:SD.done}:null,
-  h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates}:null,
+  /* H9_SAVE_BEGIN */ h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates,power:RB.st.power?1:0,director:RB.st.director?1:0,seal:RB.st.seal?1:0,office:RB.st.office?1:0,upstairs:RB.st.upstairs?1:0,kills:RB.st.kills|0,bossDead:RB.st.bossDead?1:0,freeRoam:RB.st.freeRoam?1:0}:null, /* H9_SAVE_END */
   flb:typeof flBat!=='undefined'?Math.round(flBat*1000)/1000:null,/*DH26-FLB-SAVE*/
   brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
   builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
@@ -55903,7 +56179,7 @@ function apply(d){
  if(FG&&d.fort){FG.found=d.fort.found.slice();if(!d.fort.locked){FG.locked=false;if(d.fort.open&&FG.unlock){FG.unlock();FG.found=d.fort.found.slice()}}}
  if(SD&&d.side){SD.started=d.side.started;SD.done=d.side.done;SD.t=99;if(RT.brk15)RT.brk15.on=SD.done;if(RT.sideMk)RT.sideMk.visible=SD.started&&!SD.done}
  if(d.flb!=null&&typeof flBat!=='undefined'){flBat=Math.max(0,Math.min(1,+d.flb||0));flLowWarned=flBat<=FLB.dim}/*DH26-FLB-LOAD*/
- if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates}
+ /* H9_LOAD_BEGIN */ if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates; if(d.h9.power)RB.st.power=true;if(d.h9.director)RB.st.director=true;if(d.h9.seal)RB.st.seal=true;if(d.h9.office)RB.st.office=true;if(d.h9.upstairs)RB.st.upstairs=true; if(d.h9.kills!=null){RB.st.kills=d.h9.kills|0;RB.st._killsSynced=false} if(d.h9.bossDead)RB.st.bossDead=true;if(d.h9.freeRoam)RB.st.freeRoam=true} /* H9_LOAD_END */
  if(Array.isArray(d.builds)&&typeof construct==='function'){
   for(const p of pieces.slice())if(p.kind!=='tc')killPiece(p);for(const p of pieces.slice())killPiece(p);
   const ord={tc:0,foundation:1,wall:2,doorway:2,window:2,roof:3,stairs:4,door:5};let n=0,bad=0;
