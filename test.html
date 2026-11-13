@@ -72,6 +72,19 @@ body.noui.plat-mobile #tr>button:not(.keep){display:none!important}
 body.plat-mobile #hbar{display:none!important;left:auto!important;right:calc(env(safe-area-inset-right,0px) + var(--trw) + 20px)!important;top:calc(env(safe-area-inset-top,0px) + 10px)!important;transform:none!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;max-width:min(270px,50vw)!important;max-height:calc(100vh - 24px - env(safe-area-inset-top,0px));overflow-y:auto!important;overflow-x:hidden!important;z-index:45}
 body.plat-mobile #hbar.open{display:flex!important}
 body.plat-mobile #hbar button{min-height:42px;font-size:13px!important;text-align:left;white-space:normal!important}
+
+/* Phone story cards: title and dismiss stay on screen; only the body scrolls. 100vh is the fallback when 100dvh is unsupported. */
+.dhFit{display:flex;flex-direction:column;max-height:inherit;min-height:0;width:100%;box-sizing:border-box;overflow:hidden}
+.dhCardHead{flex:0 0 auto;display:flex;align-items:center;justify-content:center;position:relative;padding:14px 42px 8px;min-height:44px}
+.dhCardHead h3{margin:0;color:#ffd24c;font:800 18px system-ui,sans-serif;letter-spacing:.04em;text-align:center}
+.dhCardX{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,210,90,.55);background:transparent;color:#fff;font:700 18px/1 system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+.dhScroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:0 18px 8px}
+.dhCardFoot{flex:0 0 auto;padding:8px 14px 14px}
+#dhNote .dhNoteTitle{font-weight:bold;border-bottom:2px dashed #8a7440;padding-bottom:6px;width:100%;text-align:left}
+#dhNote .dhNoteNum{text-align:center;margin:0 0 8px;font:bold 22px monospace;color:#7a1d12}
+#dhNote #ntx{font:14px monospace;padding:10px 18px;border-radius:8px;border:1px solid #8a7440;background:#d8c690;color:#2b2118;width:100%;cursor:pointer;touch-action:manipulation}
+#h9End{box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 12px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 12px) calc(env(safe-area-inset-left, 0px) + 12px)}
+#h9End .dhFit{width:min(520px,100%);max-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));background:rgba(10,12,14,.96);border:1px solid rgba(255,210,90,.75);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center}
 </style></head><body>
 <div id="hud"><div id="loc">Farm</div><div id="spd">0 km/h</div></div>
 <div id="help">Drive: WASD · Space handbrake · E to get out</div>
@@ -51567,8 +51580,11 @@ function flTick(dt){
 }
 addEventListener('keydown',e=>{if(e.code==='KeyL'&&!e.repeat)toggleFL()});
 document.getElementById('be').addEventListener('pointerdown',toggleCar);
-const cv=ren.domElement;cv.style.touchAction='none';cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,e.pointerId]});['pointerup','pointercancel'].forEach(v=>addEventListener(v,e=>{if(drag&&e.pointerId===drag[2])drag=null}));
-cv.addEventListener('pointermove',e=>{if(drag&&foot&&e.pointerId===drag[2]){yaw-=(e.clientX-drag[0])*.005;pit=Math.max(-1.3,Math.min(1.3,pit-(e.clientY-drag[1])*.005));drag=[e.clientX,e.clientY,e.pointerId]}});
+function dhInCard(e){const t=e&&(e.target||e.srcElement);return !!(t&&t.closest&&t.closest('.dhScroll,.dhFit,.dhCard,#resTip,#h9End,#dhNote,#sPop'))}
+function dhBindCard(el){if(!el||el.dataset.dhBound)return el;el.dataset.dhBound='1';const stop=ev=>ev.stopPropagation();el.addEventListener('pointerdown',stop);el.addEventListener('pointermove',stop);el.addEventListener('wheel',stop,{passive:true});el.addEventListener('touchstart',stop,{passive:true});el.addEventListener('touchmove',stop,{passive:true});return el}
+window.dhInCard=dhInCard;window.dhBindCard=dhBindCard;
+const cv=ren.domElement;cv.style.touchAction='none';cv.addEventListener('pointerdown',e=>{if(dhInCard(e))return;drag=[e.clientX,e.clientY,e.pointerId]});['pointerup','pointercancel'].forEach(v=>addEventListener(v,e=>{if(drag&&e.pointerId===drag[2])drag=null}));
+cv.addEventListener('pointermove',e=>{if(dhInCard(e))return;if(drag&&foot&&e.pointerId===drag[2]){yaw-=(e.clientX-drag[0])*.005;pit=Math.max(-1.3,Math.min(1.3,pit-(e.clientY-drag[1])*.005));drag=[e.clientX,e.clientY,e.pointerId]}});
 function push(b,r){
 // === JESSICA FIX START: B4 ===
 if(!(b.hw>0&&b.hd>0))return;
@@ -54310,18 +54326,18 @@ try{const MI=insts.find(q=>q.m===MILB);if(MI){fortAccess(MI);
  const lbl=document.createElement('canvas');lbl.width=128;lbl.height=48;{const q=lbl.getContext('2d');q.fillStyle='#16181a';q.fillRect(0,0,128,48);q.fillStyle='#7dffa0';q.font='bold 30px sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText('EXIT',64,25)}
  const ltx=new T.CanvasTexture(lbl);const lpl=new T.Mesh(new T.PlaneGeometry(.3,.11),new T.MeshBasicMaterial({map:ltx}));lpl.position.set(4.8,1.12,GZ-.4);lpl.rotation.y=Math.PI;g.add(lpl);
  // ---- keypad + note overlays (body-level divs with z-index>=5 count as game modals: they release the mouse and block firing) ----
- const css0='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;display:none;border-radius:12px;text-align:center;box-shadow:0 8px 40px #000c;';
- const kp=document.createElement('div');kp.style.cssText=css0+'background:#141813;color:#cfe8c4;border:2px solid #d9b21c;padding:14px 16px;width:min(310px,92vw);font:14px/1.35 monospace';document.body.appendChild(kp);
- const nt=document.createElement('div');nt.style.cssText=css0+'background:#e9dfbf;color:#2b2118;border:2px solid #8a7440;padding:16px 18px;width:min(340px,92vw);max-height:80vh;overflow:auto;font:16px/1.4 "Courier New",monospace;text-align:left';document.body.appendChild(nt);
- for(const p of[kp,nt]){p.addEventListener('pointerdown',e=>e.stopPropagation());p.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true})}
+ const cardShell='position:fixed;left:50%;top:calc(env(safe-area-inset-top, 0px) + 12px);transform:translateX(-50%);z-index:30;display:none;flex-direction:column;overflow:hidden;box-sizing:border-box;padding:0;width:min(340px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));max-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));';
+ const kp=document.createElement('div');kp.className='dhCard';kp.style.cssText=cardShell+'border-radius:12px;text-align:center;background:#141813;color:#cfe8c4;border:0;box-shadow:0 0 0 2px #d9b21c, 0 8px 40px #000c;width:min(310px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));font:14px/1.35 monospace';document.body.appendChild(kp);
+ const nt=document.createElement('div');nt.id='dhNote';nt.className='dhCard';nt.style.cssText=cardShell+'border-radius:12px;text-align:left;background:#e9dfbf;color:#2b2118;border:0;box-shadow:0 0 0 2px #8a7440, 0 8px 40px #000c;font:16px/1.4 "Courier New",monospace';document.body.appendChild(nt);
+ dhBindCard(kp);dhBindCard(nt);
  const HINTS=["Sgt. Mercer was last seen drinking at the Rusty Anchor.","Mercer mentioned a dyno room, somewhere engines scream.","He said the cops lock up the good stuff: check their evidence room.","The last piece is with the old lord who locked his gold in the study.","You have all four numbers. Enter them in order: first to fourth."];
  const hintNow=()=>{const n=FG.found.filter(v=>v!=null).length;return HINTS[n]};
  const kpHTML=()=>{const f=FG.found.map(v=>v==null?'?':v).join(' · ');let b='';for(const k of['1','2','3','4','5','6','7','8','9','C','0','OK'])b+='<button data-k="'+k+'" style="font:bold 20px monospace;padding:11px 0;border-radius:8px;border:1px solid #4b5a48;background:'+(k==='OK'?'#1f6b34':k==='C'?'#6b2a1f':'#2a322a')+';color:#e6f3df">'+k+'</button>';
-  return '<div style="font-weight:bold;letter-spacing:2px;color:#d9b21c">FORT HARVEST · MAIN GATE</div><div id="fgd" style="margin:8px 0;padding:8px;background:#030803;color:'+(FG.disp==='DENIED'?'#ff3a22':'#39ff6a')+';font:bold 30px monospace;letter-spacing:6px;min-height:42px">'+(FG.disp||'____')+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">'+b+'</div><div style="margin-top:10px;font-size:12px;color:#9fb99a">Notes found: <b style="color:#e6dca8">'+f+'</b></div><div style="margin-top:4px;font-size:12px;color:#9fb99a">'+hintNow()+'</div><button data-k="X" style="margin-top:10px;font:13px monospace;padding:6px 14px;border-radius:8px;border:1px solid #4b5a48;background:#1d231c;color:#cfe8c4">Close</button>'};
+  return '<div class="dhCardHead" style="color:#d9b21c;font-weight:bold;letter-spacing:2px;font-size:13px">FORT HARVEST · MAIN GATE</div><div class="dhScroll"><div id="fgd" style="margin:0 0 8px;padding:8px;background:#030803;color:'+(FG.disp==='DENIED'?'#ff3a22':'#39ff6a')+';font:bold 30px monospace;letter-spacing:6px;min-height:42px">'+(FG.disp||'____')+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">'+b+'</div><div style="margin-top:10px;font-size:12px;color:#9fb99a">Notes found: <b style="color:#e6dca8">'+f+'</b></div><div style="margin-top:4px;font-size:12px;color:#9fb99a">'+hintNow()+'</div></div><div class="dhCardFoot"><button data-k="X" type="button" style="font:13px monospace;padding:8px 14px;border-radius:8px;border:1px solid #4b5a48;background:#1d231c;color:#cfe8c4;width:100%;touch-action:manipulation">Close</button></div>'};
  let ent='';
  const kpDraw=()=>{kp.innerHTML=kpHTML()};
  const closeKP=()=>{FG.kp=false;kp.style.display='none';ent='';FG.disp=''};
- const openKP=()=>{FG.kp=true;ent='';FG.disp='';kpDraw();kp.style.display='block';if(document.pointerLockElement)document.exitPointerLock();blip(520,.06,'square')};
+ const openKP=()=>{FG.kp=true;ent='';FG.disp='';kpDraw();kp.style.display='flex';if(document.pointerLockElement)document.exitPointerLock();blip(520,.06,'square')};
  const press=k=>{if(!FG.kp)return;if(k==='X'){closeKP();return}if(FG.disp==='DENIED'){FG.disp='';ent=''}
   if(k==='C'){ent='';FG.disp='';blip(300,.05,'square')}
   else if(k==='OK'){if(ent===FG.CODE){FG.locked=false;FG.disp='GRANTED';kpDraw();blip(660,.12,'triangle');setTimeout(()=>blip(880,.2,'triangle'),130);setTimeout(()=>{closeKP();gate.set(true);toast('Code accepted — the gate rolls open',4)},700);return}
@@ -54330,8 +54346,8 @@ try{const MI=insts.find(q=>q.m===MILB);if(MI){fortAccess(MI);
   kpDraw()};
  kp.addEventListener('click',e=>{const b=e.target.closest('button');if(b)press(b.dataset.k)});
  addEventListener('keydown',e=>{if(!FG.kp)return;const m=/^(?:Digit|Numpad)(\d)$/.exec(e.code);if(m){press(m[1]);e.preventDefault()}else if(e.code==='Backspace'){press('C');e.preventDefault()}else if(e.code==='Enter'||e.code==='NumpadEnter'){press('OK');e.preventDefault()}else if(e.code==='Escape'){closeKP()}});
- const noteOpen=c=>{nt.innerHTML='<div style="font-weight:bold;border-bottom:2px dashed #8a7440;padding-bottom:6px;margin-bottom:8px">'+c.title+'</div>'+c.body.map(t=>'<p style="margin:0 0 9px">'+t+'</p>').join('')+'<div style="text-align:center;margin:10px 0 4px;font:bold 22px monospace;color:#7a1d12">'+c.numLabel+' NUMBER: '+c.d+'</div><div style="text-align:center"><button id="ntx" style="margin-top:6px;font:14px monospace;padding:7px 18px;border-radius:8px;border:1px solid #8a7440;background:#d8c690;color:#2b2118">Put it away</button></div>';nt.style.display='block';if(document.pointerLockElement)document.exitPointerLock();nt.querySelector('#ntx').onclick=()=>{nt.style.display='none'}};
- addEventListener('keydown',e=>{if(e.code==='Escape')nt.style.display='none'});
+ const noteOpen=c=>{nt.innerHTML='<div class="dhCardHead"><div class="dhNoteTitle">'+c.title+'</div></div><div class="dhScroll" id="dhNoteBody">'+c.body.map(t=>'<p style="margin:0 0 9px">'+t+'</p>').join('')+'</div><div class="dhCardFoot"><div class="dhNoteNum">'+c.numLabel+' NUMBER: '+c.d+'</div><button id="ntx" type="button">Put it away</button></div>';nt.style.display='flex';if(document.pointerLockElement)document.exitPointerLock();nt.querySelector('#ntx').onclick=()=>{nt.style.display='none'}};
+ addEventListener('keydown',e=>{if(nt.style.display==='none')return;if(e.code==='Escape'){nt.style.display='none';return}if((e.code==='Enter'||e.code==='NumpadEnter')&&!FG.kp){e.preventDefault();nt.style.display='none'}});
  const CL=[
   {slot:0,d:'6',numLabel:'FIRST',pr:'Read the beer-stained tab slip',title:"RUSTY ANCHOR · MERCER'S TAB",body:["6x Blackpine Stout. Put it on my tab, Dale. Again.","If the brass finds me, they won't find the whole gate code. I split it into four pieces and hid them around town.","This one's the FIRST. The second is taped up where engines scream and the dyno spins: the REDLINE shop. Look at the dyno room wall.","— Sgt. M."]},
   {slot:1,d:'1',numLabel:'SECOND',pr:'Peel the greasy note off the wall',title:'REDLINE AUTO · DYNO ROOM',body:["Mercer here. Bay mechanic let me tape this up. He didn't ask why.","SECOND piece below. Cops always lock up the good stuff, so the THIRD one is in the Police Station evidence room. Check the table by the safe.","— M."]},
@@ -54806,9 +54822,9 @@ const MUSIC=(()=>{
  let lkT=0;const canLock=()=>plat()==='pc'&&C.lock&&foot&&pan.style.display==='none'&&!document.pointerLockElement&&!(window.dhAnyModal&&window.dhAnyModal());
  const tryLock=()=>{if(!cv.requestPointerLock)return;const plain=()=>{try{const q=cv.requestPointerLock();if(q&&q.catch)q.catch(()=>{})}catch(e){}};try{const q=cv.requestPointerLock({unadjustedMovement:true});if(q&&q.catch)q.catch(plain)}catch(e){plain()}};
  {let first=true;addEventListener('keydown',e=>{if(!first||e.code==='Escape'||e.repeat)return;if(canLock()){first=false;lkT=performance.now();tryLock()}},true);setTimeout(()=>{if(canLock()){lkT=performance.now();tryLock()}},600)}/*v0.22.1: try to capture the mouse on load (browsers only allow it after a click or key press, so the first one does it)*/
- addEventListener('mousedown',e=>{if(e.button!==0||!canLock())return;const t=e.target;if(t&&t.closest&&t.closest('button,input,select,textarea,a,#pcbar,#hbar,#pch,.slot,#invp,#bm2'))return;lkT=performance.now();tryLock()},true);
+ addEventListener('mousedown',e=>{if(dhInCard(e))return;if(e.button!==0||!canLock())return;const t=e.target;if(t&&t.closest&&t.closest('button,input,select,textarea,a,#pcbar,#hbar,#pch,.slot,#invp,#bm2'))return;lkT=performance.now();tryLock()},true);
  document.addEventListener('pointerlockerror',()=>{if(performance.now()-lkT<2500)setTimeout(()=>{if(canLock()&&performance.now()-lkT<4500)tryLock()},1300)});
- addEventListener('mousemove',e=>{if(document.pointerLockElement!==cv||!foot)return;const dx=e.movementX,dy=e.movementY;if(Math.abs(dx)>400||Math.abs(dy)>400)return;const sn=.0025*(window.dhSens||1);yaw-=dx*sn;pit=Math.max(-1.3,Math.min(1.3,pit-dy*sn))});
+ addEventListener('mousemove',e=>{if(dhInCard(e))return;if(document.pointerLockElement!==cv||!foot)return;const dx=e.movementX,dy=e.movementY;if(Math.abs(dx)>400||Math.abs(dy)>400)return;const sn=.0025*(window.dhSens||1);yaw-=dx*sn;pit=Math.max(-1.3,Math.min(1.3,pit-dy*sn))});
  apply()}
 // ===== LOSSLESS PERFORMANCE PASS (v0.19.6): same pixels, less work. (1) objects >395 m away are 100% fogged (FogExp2 .0085 => ~0.001% visible) so their draws are skipped; (2) unchanged HUD text no longer re-written every frame =====
 {const LIM=395,items=[],mkI=(o,x,z,r)=>({o,x,z,r,s:true}),fromBox=o=>{const sp=new T.Box3().setFromObject(o).getBoundingSphere(new T.Sphere());return mkI(o,sp.center.x,sp.center.z,sp.radius+12)};
@@ -54996,7 +55012,7 @@ mkBtn('📍','Fast travel',()=>{if(hbar)hbar.classList.toggle('open')});mkBtn('�
 // ---- interaction prompt: keycaps
 new MutationObserver(()=>{if(!pcm())return;const t=prEl.textContent;if(!/(^|\s·\s)[FEB]: /.test(t))return;const re=/(?:^|\s·\s)([FEB]): /g;let last=0,m;const f=document.createDocumentFragment();while((m=re.exec(t))){const pre=t.slice(last,m.index);if(pre)f.appendChild(document.createTextNode(pre));if(m.index>0)f.appendChild(document.createTextNode(' '));const k=document.createElement('kbd');k.textContent=m[1];f.appendChild(k);last=re.lastIndex}f.appendChild(document.createTextNode(t.slice(last)));prEl.textContent='';prEl.appendChild(f)}).observe(prEl,{childList:true,characterData:true,subtree:true});
 // ---- modal helpers + input
-const modals=()=>[...document.body.children].filter(el=>el.tagName==='DIV'&&el.id!=='pcui'&&el.id!=='hbar'&&el.style.display==='block'&&+el.style.zIndex>=5&&el.offsetWidth>120);
+const modals=()=>[...document.body.children].filter(el=>{if(el.tagName!=='DIV'||el.id==='pcui'||el.id==='hbar')return false;const d=el.style.display;const open=d==='block'||(el.classList.contains('dhCard')&&d!=='none'&&d!=='');return open&&+el.style.zIndex>=5&&el.offsetWidth>120});
 let _amT=-1e9,_amV=false;const anyModal=()=>{const n=performance.now();if(n-_amT>40){_amT=n;_amV=modals().length>0}return _amV};window.dhAnyModal=anyModal;window.dhModals=modals;  // v0.21.6: exposed for the Controls block (was a scope error) + cached for 40 ms
 let lastW=0;const _sw=setW;setW=function(i){if(i!==wi)lastW=wi;_sw(i)};
 addEventListener('keydown',e=>{if(!pcm())return;
@@ -55004,7 +55020,7 @@ addEventListener('keydown',e=>{if(!pcm())return;
  if(e.code==='F1'){e.preventDefault();toggleHelp();return}
  if(e.code==='Escape'){for(const el of modals())el.style.display='none';return}
  if(e.code==='KeyQ'&&foot&&!e.repeat&&!anyModal())setW(lastW)});
-let whT=0;cv.addEventListener('wheel',e=>{if(!pcm()||!foot||anyModal())return;e.preventDefault();const n=performance.now();if(n-whT<110)return;whT=n;setW((wi+(e.deltaY>0?1:-1)+WP.length)%WP.length)},{passive:false});
+let whT=0;cv.addEventListener('wheel',e=>{if(dhInCard(e))return;if(!pcm()||!foot||anyModal())return;e.preventDefault();const n=performance.now();if(n-whT<110)return;whT=n;setW((wi+(e.deltaY>0?1:-1)+WP.length)%WP.length)},{passive:false});
 let zoomT=0;
 cv.addEventListener('mousedown',e=>{if(!pcm()||!foot)return;if(e.button===2)zoomT=1;else if(e.button===0&&document.pointerLockElement===cv&&!anyModal()){btnFire=true;fireGun()}});
 addEventListener('mouseup',e=>{if(e.button===0)btnFire=false;if(e.button===2)zoomT=0});
@@ -55704,16 +55720,16 @@ function h9End(){
  const days=typeof day==='number'?day:1, kills=st.kills|0;
  const ov=document.createElement('div'); ov.id='h9End';
  ov.style.cssText='position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(4,6,8,.84);font:600 16px/1.45 system-ui,sans-serif;color:#f4ecd0';
- ov.innerHTML='<div style="width:min(520px,90vw);padding:26px 24px 20px;text-align:center;background:rgba(10,12,14,.96);border:1px solid rgba(255,210,90,.75);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.55)">'
-  +'<div style="letter-spacing:.2em;color:#ffd24c;font:800 12px system-ui">RESEARCH STATION H-9</div>'
-  +'<h2 style="margin:8px 0 8px;font:800 30px/1.15 system-ui;color:#fff">You survived Dead Harvest</h2>'
-  +'<p style="margin:0 0 12px;color:#e6e0d0">Specimen H-9 is dead. The containment hall is quiet, and the radio has nothing left to send. This is the end of the game.</p>'
-  +'<p style="margin:0 0 16px;font:700 18px system-ui;color:#fff">Days survived '+days+'<br>Kills '+kills+'</p>'
-  +'<button id="h9Roam" type="button" style="display:block;width:100%;margin:6px 0;padding:12px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.22);color:#fff;font:700 15px system-ui;cursor:pointer">Continue free-roam</button>'
-  +'<button id="h9Menu" type="button" style="display:block;width:100%;margin:6px 0;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer">Main menu</button>'
+ ov.innerHTML='<div class="dhFit" id="h9EndCard">'
+  +'<div class="dhCardHead" style="flex-direction:column;padding-bottom:4px"><div style="letter-spacing:.2em;color:#ffd24c;font:800 12px system-ui">RESEARCH STATION H-9</div>'
+  +'<h2 style="margin:8px 0 0;font:800 30px/1.15 system-ui;color:#fff">You survived Dead Harvest</h2></div>'
+  +'<div class="dhScroll" id="h9EndBody"><p style="margin:0 0 12px;color:#e6e0d0">Specimen H-9 is dead. The containment hall is quiet, and the radio has nothing left to send. This is the end of the game.</p>'
+  +'<p style="margin:0;font:700 18px system-ui;color:#fff">Days survived '+days+'<br>Kills '+kills+'</p></div>'
+  +'<div class="dhCardFoot"><button id="h9Roam" type="button" style="display:block;width:100%;margin:0 0 6px;padding:12px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.22);color:#fff;font:700 15px system-ui;cursor:pointer;touch-action:manipulation">Continue free-roam</button>'
+  +'<button id="h9Menu" type="button" style="display:block;width:100%;margin:0;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#e8e4d8;font:600 15px system-ui;cursor:pointer;touch-action:manipulation">Main menu</button></div>'
   +'</div>';
  document.body.appendChild(ov);
- ov.addEventListener('pointerdown',e=>e.stopPropagation());
+ dhBindCard(ov);
  ov.querySelector('#h9Roam').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();st.freeRoam=true;st.arena=false;const S=window.STORY;if(S&&S.cur)S.cur.objective='Free roam — you survived Dead Harvest';ov.remove();try{toast('The station is open. Nothing else is coming.',4)}catch(err){}try{window.dhSave&&window.dhSave.save()}catch(err){}});
  ov.querySelector('#h9Menu').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();try{window.dhSave&&window.dhSave.save()}catch(err){}location.reload()});
 }
@@ -56240,9 +56256,10 @@ const FG=()=>window.FORT_GATE,fortB=()=>(window.ALLBK||[]).find(b=>b.m&&b.m.name
 const barnG=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x-BARN.x)<.01&&Math.abs(o.position.z-BARN.z)<.01);
 const bLights=barnG?barnG.children.filter(c=>c.isPointLight):[],bBase=bLights.map(l=>l.intensity),bBulbs=new Set();
 if(barnG)barnG.traverse(o=>{const m=o.material;if(m&&m.isMeshBasicMaterial&&m.color.getHex()===0xffe2a8)bBulbs.add(m)});
-const css=document.createElement('style');css.textContent='#sHud{position:fixed;left:14px;top:34vh;width:min(250px,38vw);display:flex;flex-direction:column;gap:8px;z-index:40;pointer-events:none}#sObj,#sSide{padding:7px 12px;border-radius:9px;background:rgba(0,0,0,.55);border:1px solid rgba(255,210,90,.55);color:#f4ecd0;font:600 13px/1.25 system-ui;text-align:left;pointer-events:none;display:none}#sSide{border-color:rgba(90,205,255,.65)}#sSide b{color:#6fd6ff!important}#sObj b{display:block;color:#ffd24c;font:700 10px system-ui;letter-spacing:1.5px;margin-bottom:2px}#sPop{position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(440px,84vw);padding:14px 18px;border-radius:12px;background:rgba(8,10,8,.86);border:1px solid rgba(255,210,90,.6);color:#ece6d0;font:15px/1.4 system-ui;text-align:center;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s}#sPop h3{margin:0 0 6px;color:#ffd24c;font:800 20px system-ui;letter-spacing:1px}#sFlash{position:fixed;inset:0;background:#fff;opacity:0;z-index:39;pointer-events:none;transition:opacity .35s}';document.head.appendChild(css);
+const css=document.createElement('style');css.textContent='#sHud{position:fixed;left:14px;top:34vh;width:min(250px,38vw);display:flex;flex-direction:column;gap:8px;z-index:40;pointer-events:none}#sObj,#sSide{padding:7px 12px;border-radius:9px;background:rgba(0,0,0,.55);border:1px solid rgba(255,210,90,.55);color:#f4ecd0;font:600 13px/1.25 system-ui;text-align:left;pointer-events:none;display:none}#sSide{border-color:rgba(90,205,255,.65)}#sSide b{color:#6fd6ff!important}#sObj b{display:block;color:#ffd24c;font:700 10px system-ui;letter-spacing:1.5px;margin-bottom:2px}#sPop{position:fixed;left:50%;top:calc(env(safe-area-inset-top, 0px) + 12px);transform:translateX(-50%);width:min(440px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));max-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;padding:0;border-radius:12px;background:rgba(8,10,8,.86);border:1px solid rgba(255,210,90,.6);color:#ece6d0;font:15px/1.4 system-ui;text-align:center;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s}#sPop h3{flex:0 0 auto;margin:0;padding:14px 18px 6px;color:#ffd24c;font:800 20px system-ui;letter-spacing:1px}#sPop .dhScroll{pointer-events:none}#sPop.on .dhScroll{pointer-events:auto}#sFlash{position:fixed;inset:0;background:#fff;opacity:0;z-index:39;pointer-events:none;transition:opacity .35s}';document.head.appendChild(css);
 const mk=(id)=>{const d=document.createElement('div');d.id=id;document.body.appendChild(d);return d},oEl=mk('sObj'),pEl=mk('sPop'),fEl=mk('sFlash'),hudEl=mk('sHud'),sEl=mk('sSide');hudEl.appendChild(oEl);hudEl.appendChild(sEl);
-let popT=0;const popup=p=>{if(!p)return;pEl.innerHTML='<h3>'+p.title+'</h3>'+p.text;pEl.style.opacity=1;popT=p.secs||C.popupSec;try{blip(520,.12,'triangle');setTimeout(()=>blip(700,.14,'triangle'),130)}catch(e){}};
+if(window.dhBindCard)window.dhBindCard(pEl);
+let popT=0;const popup=p=>{if(!p)return;pEl.innerHTML='<h3>'+p.title+'</h3><div class="dhScroll">'+p.text+'</div>';pEl.style.opacity=1;pEl.classList.add('on');popT=p.secs||C.popupSec;try{blip(520,.12,'triangle');setTimeout(()=>blip(700,.14,'triangle'),130)}catch(e){}};
 const flash=a=>{fEl.style.transition='none';fEl.style.opacity=a;requestAnimationFrame(()=>{fEl.style.transition='opacity .45s';fEl.style.opacity=0})};
 const gT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.35,'rgba(255,255,255,.55)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new T.CanvasTexture(c)})();
 const cloud=(n,size,color,add,op)=>{const geo=new T.BufferGeometry(),pos=new Float32Array(n*3).fill(-9999);geo.setAttribute('position',new T.BufferAttribute(pos,3));const p=new T.Points(geo,new T.PointsMaterial({map:gT,size,color,transparent:true,depthWrite:false,blending:add?T.AdditiveBlending:T.NormalBlending,opacity:op}));p.frustumCulled=false;scene.add(p);return{pos,geo,list:[],n}};
@@ -56394,17 +56411,24 @@ function showResTip(){
  window.__resTip=1;
  const prevEl=document.getElementById('resTip');if(prevEl)prevEl.remove();
  const el=document.createElement('div');
- el.id='resTip';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');
- el.style.cssText='position:fixed;left:50%;top:14%;transform:translateX(-50%);width:min(460px,90vw);max-height:72vh;overflow:auto;z-index:70;pointer-events:auto;background:rgba(8,10,8,.94);color:#ece6d0;border:1px solid rgba(255,210,90,.75);border-radius:12px;padding:16px 18px 14px;font:15px/1.45 system-ui,sans-serif;text-align:left';
- el.innerHTML='<h3 style="margin:0 0 8px;color:#ffd24c;font:800 18px system-ui;letter-spacing:.04em;text-align:center">RESOURCES</h3>'
+ el.id='resTip';el.className='dhCard';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');
+ el.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top, 0px) + 12px);transform:translateX(-50%);width:min(460px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));max-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column;overflow:hidden;z-index:70;pointer-events:auto;box-sizing:border-box;padding:0;border:1px solid rgba(255,210,90,.75);border-radius:12px;background:rgba(8,10,8,.94);color:#ece6d0;font:15px/1.45 system-ui,sans-serif;text-align:left';
+ el.innerHTML=''
+  +'<div class="dhCardHead"><h3>RESOURCES</h3><button type="button" id="resTipX" class="dhCardX" aria-label="Close">\u00d7</button></div>'
+  +'<div class="dhScroll" id="resTipBody">'
   +'<p style="margin:0 0 8px">These are not missions. Gather when you want. On foot, press F at the prompt.</p>'
   +'<p style="margin:0 0 8px"><b>Wood.</b> Press F at a log pile. The prompt says chop logs. The farm has piles, and they refill when the next day starts. The trees standing in the fields are not something you can chop. The sawmill also cuts wood: press F at its control to start it. It is loud and draws zombies. If the boiler is empty, press F there and feed it wood (1 wood adds 5 fuel). Press F at the output bay to take the wood.</p>'
   +'<p style="margin:0 0 8px"><b>Stone and metal.</b> Press F at a stone rock to mine stone, or at an ore rock to mine metal. The farm has both, and they refill the next day. Ridgeline Quarry makes more of both if you start it. The grid has to be on, and the quarry main breaker has to be closed at the meter box by the entrance road. Press F at the operations console, then Start the quarry. It is loud and draws zombies. Take stone and metal from the bay, or ship the bay to the farm stash (a tenth is lost on the road). The rocks around the pit are not a mine.</p>'
-  +'<p style="margin:0 0 12px"><b>Buildings.</b> Press F at a crate inside a city building. A crate can hold wood, stone, metal, ammo, or a medkit, and crates come back the next day. There is no separate scrap pile.</p>'
-  +'<button type="button" id="resTipOk" style="display:block;width:100%;margin:0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer">Got it</button>';
- const close=ev=>{if(ev){ev.preventDefault();ev.stopPropagation()}el.remove();try{if(window.dhSave)window.dhSave.save()}catch(e){}};
- el.addEventListener('pointerdown',ev=>{if(ev.target&&ev.target.id==='resTipOk')return;ev.stopPropagation()});
+  +'<p style="margin:0 0 8px"><b>Buildings.</b> Press F at a crate inside a city building. A crate can hold wood, stone, metal, ammo, or a medkit, and crates come back the next day. There is no separate scrap pile.</p>'
+  +'</div>'
+  +'<div class="dhCardFoot"><button type="button" id="resTipOk" style="display:block;width:100%;margin:0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer;touch-action:manipulation">Got it</button></div>';
+ let done=false;
+ function close(ev){if(done)return;done=true;if(ev){ev.preventDefault();ev.stopPropagation()}document.removeEventListener('keydown',onKey,true);el.remove();try{if(window.dhSave)window.dhSave.save()}catch(e){}}
+ function onKey(ev){if(!el.isConnected){document.removeEventListener('keydown',onKey,true);return}if(ev.key!=='Escape'&&ev.key!=='Enter')return;ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();close(ev)}
+ if(window.dhBindCard)window.dhBindCard(el);
  el.querySelector('#resTipOk').addEventListener('click',close);
+ el.querySelector('#resTipX').addEventListener('click',close);
+ document.addEventListener('keydown',onKey,true);
  document.body.appendChild(el);
 }
 window.showResTip=showResTip;
@@ -56467,7 +56491,7 @@ if(barn.lever)barn.lever.rotation.x=barn.closed?-.75:.75;if(barn.lamp)barn.lamp.
 if(barn.glow){const u=barn.glow.userData;if(S.cur&&S.cur.id==='barn'){u.t=0;barn.glow.material.opacity=.35+.35*Math.sin(performance.now()/260);barn.glow.scale.setScalar(1.6)}else barn.glow.material.opacity=0}}
 if(!S.cur)return;S.t+=dt;
 if(window.HYMNAL)hymnalSync();
-if(popT>0){popT-=dt;if(popT<=0)pEl.style.opacity=0}
+if(popT>0){popT-=dt;if(popT<=0){pEl.style.opacity=0;pEl.classList.remove('on')}}
 if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
 {let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
 if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)o=window.HYMNAL.carried?'Lay Eliza Hollow’s hymnal on the Hollow Creek chapel lectern':'Take Eliza Hollow’s hymnal from the reaching angel in Hollow Creek Cemetery';
