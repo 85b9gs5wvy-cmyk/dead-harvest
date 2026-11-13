@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { test } from 'node:test';
 import vm from 'node:vm';
@@ -150,6 +150,35 @@ async function waitForList(port) {
   }
   throw new Error('chrome debug port not ready ' + last);
 }
+
+test('the resource card caps its height and keeps Got it outside the scrolling body', () => {
+  const runtime = script(testHtml, 'story-runtime');
+  const tipAt = runtime.indexOf("el.id='resTip'");
+  assert.ok(tipAt >= 0);
+  const tip = runtime.slice(tipAt, runtime.indexOf('window.showResTip', tipAt));
+  assert.match(tip, /max-height:calc\(100vh - 24px/);
+  assert.match(tip, /max-height:calc\(100dvh - 24px/);
+  assert.match(tip, /env\(safe-area-inset-top/);
+  assert.match(tip, /env\(safe-area-inset-bottom/);
+  assert.equal(tip.includes('inset:0'), false);
+  const bodyAt = tip.indexOf('id="resTipBody"');
+  const footAt = tip.indexOf('dhCardFoot');
+  const btnAt = tip.indexOf('id="resTipOk"');
+  assert.ok(bodyAt > 0 && footAt > bodyAt && btnAt > footAt, 'Got it stays in the footer, after the scrolling body');
+  assert.match(tip, /ev\.key!=='Escape'&&ev\.key!=='Enter'/);
+  assert.match(testHtml, /\.dhScroll\{[^}]*overflow-y:auto/);
+  assert.match(testHtml, /\.dhScroll\{[^}]*-webkit-overflow-scrolling:touch/);
+  assert.match(testHtml, /\.dhScroll\{[^}]*touch-action:pan-y/);
+  assert.match(testHtml, /function dhBindCard/);
+  assert.match(testHtml, /touchmove',stop/);
+  assert.match(testHtml, /id="h9EndBody"/);
+  assert.match(testHtml, /id="dhNoteBody"/);
+  assert.match(testHtml, /id="h9Roam"/);
+  assert.match(testHtml, /Put it away/);
+  const pop = runtime.slice(runtime.indexOf("css.textContent="), runtime.indexOf('document.head.appendChild(css)'));
+  assert.match(pop, /#sPop\{[^}]*max-height:calc\(100vh - 24px/);
+  assert.match(pop, /#sPop\{[^}]*max-height:calc\(100dvh - 24px/);
+});
 
 test('headless test play boots, shows the resource note once, and migrates saves', { timeout: 180000 }, async () => {
   const server = createServer((req, res) => {
@@ -296,6 +325,195 @@ test('headless test play boots, shows the resource note once, and migrates saves
     assert.equal(play.boss, ORDER.indexOf('h9-boss'));
     assert.deepEqual(play.hold, { idx: ORDER.indexOf('hymnalHold'), tip: 0 });
     assert.deepEqual(play.seen, { idx: ORDER.indexOf('hymnal'), tip: 0 });
+  } finally {
+    if (ws) ws.close();
+    chrome.kill('SIGKILL');
+    server.close();
+  }
+});
+
+test('resource card keeps Got it on screen at phone sizes', { timeout: 180000 }, async () => {
+  const server = createServer((req, res) => {
+    if (req.url.split('?')[0] !== '/test.html') { res.writeHead(404); res.end(); return; }
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(testHtml);
+  });
+  const port = await listen(server);
+  const profile = mkdtempSync(`${tmpdir()}/dh-res-card-`);
+  const debug = 9394;
+  const chrome = spawn('google-chrome', [
+    '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+    `--user-data-dir=${profile}`,
+    `--remote-debugging-port=${debug}`, '--remote-allow-origins=*',
+    '--window-size=390,844', 'about:blank',
+  ], { stdio: 'ignore' });
+  let ws;
+  const logs = [];
+  try {
+    const list = await waitForList(debug);
+    const page = list.find((t) => t.type === 'page') || list[0];
+    ws = new WebSocket(page.webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+    let id = 0;
+    const pending = new Map();
+    ws.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.id && pending.has(msg.id)) pending.get(msg.id)(msg);
+      if (msg.method === 'Runtime.exceptionThrown') {
+        const d = msg.params && msg.params.exceptionDetails;
+        logs.push(String(d && (d.text || (d.exception && d.exception.description)) || 'exception'));
+      }
+    };
+    const send = (method, params) => new Promise((resolve) => {
+      const n = ++id;
+      pending.set(n, resolve);
+      ws.send(JSON.stringify({ id: n, method, params }));
+    });
+    await send('Runtime.enable', {});
+    await send('Page.enable', {});
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: 390, height: 844, deviceScaleFactor: 1, mobile: true,
+    });
+    await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await send('Page.navigate', { url: `http://127.0.0.1:${port}/test.html` });
+
+    const readyExpr = `(() => !!(window.showResTip && document.querySelector('canvas') && window.STORY && window.STORY.cur))()`;
+    const deadline = Date.now() + 90000;
+    let ready = false;
+    while (Date.now() < deadline) {
+      const res = await send('Runtime.evaluate', { expression: readyExpr, returnByValue: true });
+      ready = !!(res.result && res.result.result && res.result.result.value);
+      if (ready) break;
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    assert.equal(logs.length, 0, logs.join('\n').slice(0, 1200));
+    assert.equal(ready, true);
+
+    const measureExpr = `(() => {
+      window.__resTip = 0;
+      const old = document.getElementById('resTip');
+      if (old) old.remove();
+      POWER.on = true;
+      if (window.STORY) window.STORY.goto('plant');
+      if (!document.getElementById('resTip') && window.showResTip) window.showResTip();
+      const tip = document.getElementById('resTip');
+      const btn = document.getElementById('resTipOk');
+      const body = document.getElementById('resTipBody');
+      const foot = tip && tip.querySelector('.dhCardFoot');
+      if (!tip || !btn || !body || !foot) return { missing: true, hasTip: !!tip, hasBtn: !!btn, hasBody: !!body };
+      const cs = getComputedStyle(body);
+      const tipCs = getComputedStyle(tip);
+      const fit = (r) => ({
+        top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height,
+        inView: r.width > 8 && r.height > 8 && r.top >= -1 && r.left >= -1 && r.bottom <= innerHeight + 1 && r.right <= innerWidth + 1
+      });
+      const before = fit(btn.getBoundingClientRect());
+      body.scrollTop = body.scrollHeight;
+      const after = fit(btn.getBoundingClientRect());
+      const cx = (after.left + after.right) / 2, cy = (after.top + after.bottom) / 2;
+      const hit = document.elementFromPoint(cx, cy);
+      let reached = 0;
+      const fn = () => { reached++; };
+      document.addEventListener('touchmove', fn);
+      const ev = new Event('touchmove', { bubbles: true, cancelable: true });
+      body.dispatchEvent(ev);
+      document.removeEventListener('touchmove', fn);
+      const wheel = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 40 });
+      body.dispatchEvent(wheel);
+      return {
+        missing: false,
+        vw: innerWidth, vh: innerHeight,
+        overflowY: cs.overflowY,
+        touchAction: cs.touchAction,
+        webkitScroll: cs.webkitOverflowScrolling || '',
+        maxHeight: tipCs.maxHeight,
+        buttonInBody: body.contains(btn),
+        buttonInFoot: foot.contains(btn),
+        card: fit(tip.getBoundingClientRect()),
+        button: after,
+        buttonMoved: Math.abs(after.top - before.top) > 1,
+        bodyScrolls: body.scrollHeight > body.clientHeight + 2,
+        hit: hit ? (hit.id || hit.className || hit.tagName) : '',
+        hitButton: !!(hit && (hit.id === 'resTipOk' || (hit.closest && hit.closest('#resTipOk')))),
+        touchReachedDocument: reached,
+        touchDefaultPrevented: ev.defaultPrevented,
+        wheelDefaultPrevented: wheel.defaultPrevented
+      };
+    })()`;
+
+    async function measure(w, h) {
+      await send('Emulation.setDeviceMetricsOverride', {
+        width: w, height: h, deviceScaleFactor: 1, mobile: true,
+      });
+      await new Promise((r) => setTimeout(r, 80));
+      const res = await send('Runtime.evaluate', { expression: measureExpr, returnByValue: true });
+      const value = res.result && res.result.result && res.result.result.value;
+      assert.ok(value && !value.missing, JSON.stringify(value || res.result));
+      assert.equal(value.vw, w);
+      assert.equal(value.vh, h);
+      assert.equal(value.overflowY, 'auto');
+      assert.match(value.touchAction, /pan-y/);
+      assert.equal(value.buttonInBody, false);
+      assert.equal(value.buttonInFoot, true);
+      assert.equal(value.button.inView, true, JSON.stringify(value.button));
+      assert.equal(value.card.inView, true, JSON.stringify(value.card));
+      assert.equal(value.buttonMoved, false);
+      assert.equal(value.hitButton, true, value.hit);
+      assert.equal(value.touchReachedDocument, 0);
+      assert.equal(value.touchDefaultPrevented, false);
+      assert.equal(value.wheelDefaultPrevented, false);
+      assert.match(value.maxHeight, /px$/);
+      const maxPx = parseFloat(value.maxHeight);
+      assert.ok(maxPx <= h - 20, value.maxHeight);
+      return value;
+    }
+
+    const phone = await measure(390, 844);
+    const shot = await send('Page.captureScreenshot', { format: 'png' });
+    const b64 = shot.result && shot.result.data;
+    assert.ok(b64 && b64.length > 1000, 'screenshot missing');
+    mkdirSync('/opt/cursor/artifacts', { recursive: true });
+    writeFileSync('/opt/cursor/artifacts/resources-card-390x844.png', Buffer.from(b64, 'base64'));
+
+    const click = await send('Runtime.evaluate', {
+      expression: `(() => {
+        const btn = document.getElementById('resTipOk');
+        if (btn) btn.click();
+        return { gone: !document.getElementById('resTip') };
+      })()`,
+      returnByValue: true,
+    });
+    const clicked = click.result && click.result.result && click.result.result.value;
+    assert.equal(clicked && clicked.gone, true);
+
+    async function keyCloses(key) {
+      await send('Runtime.evaluate', {
+        expression: `(() => { window.__resTip = 0; const old = document.getElementById('resTip'); if (old) old.remove(); window.showResTip(); return !!document.getElementById('resTip'); })()`,
+        returnByValue: true,
+      });
+      await send('Runtime.evaluate', {
+        expression: `document.dispatchEvent(new KeyboardEvent('keydown', {key:${JSON.stringify(key)}, code:${JSON.stringify(key === 'Enter' ? 'Enter' : 'Escape')}, bubbles:true, cancelable:true}))`,
+        returnByValue: true,
+      });
+      const res = await send('Runtime.evaluate', {
+        expression: `(() => ({ gone: !document.getElementById('resTip'), paused: !!window.dhPaused }))()`,
+        returnByValue: true,
+      });
+      return res.result && res.result.result && res.result.result.value;
+    }
+    const esc = await keyCloses('Escape');
+    assert.equal(esc && esc.gone, true, JSON.stringify(esc));
+    assert.equal(esc.paused, false);
+    const enter = await keyCloses('Enter');
+    assert.equal(enter && enter.gone, true, JSON.stringify(enter));
+
+    const narrow = await measure(360, 640);
+    const wide = await measure(844, 390);
+    assert.equal(narrow.button.inView, true);
+    assert.equal(wide.button.inView, true);
+    assert.equal(wide.bodyScrolls || wide.button.inView, true);
+    assert.equal(phone.button.inView, true);
+    assert.equal(logs.length, 0, logs.join('\n').slice(0, 1200));
   } finally {
     if (ws) ws.close();
     chrome.kill('SIGKILL');
