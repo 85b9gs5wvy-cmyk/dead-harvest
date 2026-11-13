@@ -55182,7 +55182,303 @@ window.H9_LAB=(function(){
  return {OX,OZ,L1,FY,ORDER,rooms,floors,treads,walls,steps,zombies,doorOpen,colliders,floorLocal,met};
 })();
 /* H9_LAB_END */
-(function(){try{ const OX=-335,OZ=-824;  const MU=T.MathUtils||{},damp=MU.damp||((a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt))); const root=new T.Group();root.name='ResearchBase';root.position.set(OX,0,OZ);scene.add(root); const say=m=>toast(m,3.8);  {const xa=OX-7,xb=-250;road(12,xb-xa,(xa+xb)/2,-770,Math.PI/2,asphT.clone())} const st={lockdown:false,coolant:true,phase:0,badge:0};  const mk=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.78,metalness:.18},o||{})); const M={concrete:mk(0x646b70),dark:mk(0x3d4449),steel:mk(0x20282d,{metalness:.7,roughness:.4}),lsteel:mk(0x879197,{metalness:.65,roughness:.35}), hazard:mk(0xf0b52b),red:mk(0xa92525,{emissive:0xa92525,emissiveIntensity:.25}),green:mk(0x53c98a,{emissive:0x53c98a,emissiveIntensity:.35}), blue:mk(0x42a8c9,{emissive:0x42a8c9,emissiveIntensity:.25}),glass:mk(0x61a6b5,{transparent:true,opacity:.35,metalness:.2,roughness:.12,depthWrite:false}), floor:mk(0x343a3e),screen:mk(0x06303a,{emissive:0x42a8c9,emissiveIntensity:.5,roughness:.25}),white:mk(0xd5dedf,{emissive:0xd5dedf,emissiveIntensity:.5}),black:mk(0x111719),lamp:mk(0xffd67a,{emissive:0xffd67a,emissiveIntensity:.9}), tile:mk(0x9aa6a9,{roughness:.55,metalness:.05}),wall:mk(0xaab5b8,{roughness:.9,metalness:.02}),cab:mk(0xc9d0cc,{roughness:.6,metalness:.1}),wood:mk(0x7b5b3b,{roughness:.8,metalness:.02}), orange:mk(0xe0701f),yellow:mk(0xe8c928),bio:mk(0xd2401c,{emissive:0xd2401c,emissiveIntensity:.35}),purple:mk(0x7b4fb0,{emissive:0x7b4fb0,emissiveIntensity:.3}),copper:mk(0xa8693a,{metalness:.6,roughness:.4}), fabric:mk(0x3b5a7a,{roughness:.95,metalness:0}),rubber:mk(0x1b1e20,{roughness:.95,metalness:0}),carpet:mk(0x4a4f56,{roughness:1,metalness:0}), tank:mk(0x5fd6e8,{transparent:true,opacity:.38,emissive:0x2aa8c0,emissiveIntensity:.35,depthWrite:false,roughness:.1}),fluid:mk(0x62e07a,{transparent:true,opacity:.55,emissive:0x2fbf55,emissiveIntensity:.55,depthWrite:false,roughness:.2}), screenG:mk(0x042a14,{emissive:0x3dff7a,emissiveIntensity:.6,roughness:.25}),screenR:mk(0x330808,{emissive:0xff4030,emissiveIntensity:.6,roughness:.25}),specimen:mk(0x1e2a22,{roughness:.9,metalness:0}), skin:mk(0x7d8f74,{roughness:.9,metalness:0}),blood:mk(0x5a0f0f,{roughness:.6,metalness:0})};  const S={},CY={},UG=[],MYB=[];let ugOn=false; function box(m,x,y,z,sx,sy,sz,col){if(!sx||!sy||!sz)return;(S[m]=S[m]||[]).push([x-sx/2,x+sx/2,y-sy/2,y+sy/2,z-sz/2,z+sz/2]);if(col)colW(x,z,sx/2,sz/2,col[0],col[1])} function colW(x,z,hw,hd,y0,y1){const b={x:OX+x,z:OZ+z,hw,hd,y0,y1};MYB.push(b);if(y1<=0){UG.push(b)}else boxes.push(b);return b} function dyn(m,x,y,z,sx,sy,sz){const q=new T.Mesh(new T.BoxGeometry(sx,sy,sz),M[m]);q.position.set(x,y,z);q.castShadow=sx>2||sz>2;root.add(q);return q} function cyl(m,x,y,z,rt,rb,h,seg,rotX){const q=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg||10),M[m]);q.position.set(x,y,z);if(rotX)q.rotation.x=Math.PI/2;root.add(q);return q} function cylM(m,x,y,z,rt,rb,h,seg,ax){const g=new T.CylinderGeometry(rt,rb,h,seg||8);if(ax==='x')g.rotateZ(Math.PI/2);else if(ax==='z')g.rotateX(Math.PI/2);g.translate(x,y,z);(CY[m]=CY[m]||[]).push(g)} function mergeGeos(list){let nv=0,ni=0;for(const g of list){nv+=g.attributes.position.count;ni+=g.index.count}const P=new Float32Array(nv*3),N=new Float32Array(nv*3),U=new Float32Array(nv*2),I=new Uint32Array(ni);let vo=0,io=0; for(const g of list){P.set(g.attributes.position.array,vo*3);N.set(g.attributes.normal.array,vo*3);U.set(g.attributes.uv.array,vo*2);const ix=g.index.array;for(let i=0;i<ix.length;i++)I[io+i]=ix[i]+vo;vo+=g.attributes.position.count;io+=ix.length} const r=new T.BufferGeometry();r.setAttribute('position',new T.BufferAttribute(P,3));r.setAttribute('normal',new T.BufferAttribute(N,3));r.setAttribute('uv',new T.BufferAttribute(U,2));r.setIndex(new T.BufferAttribute(I,1));return r} const B=(m,x,y0,z,sx,h,sz,col)=>box(m,x,y0+h/2,z,sx,h,sz,col);  const FY=-9.6,RC=-6.1,SF=.05;  const UGc=[-10,-.2];  function label(txt,x,y,z,w,h,ry,bg,fg){try{const c=document.createElement('canvas');c.width=256;c.height=Math.max(32,Math.round(256*h/w));const g=c.getContext('2d');g.fillStyle=bg||'#14262c';g.fillRect(0,0,c.width,c.height);g.strokeStyle=fg||'#7fe3ff';g.lineWidth=3;g.strokeRect(3,3,c.width-6,c.height-6);g.fillStyle=fg||'#7fe3ff';g.textAlign='center';g.textBaseline='middle'; const lines=String(txt).split('\n');const fs=Math.min(30,Math.floor((c.height-10)/lines.length*.82),Math.floor(236/Math.max(...lines.map(s=>s.length))*1.75));g.font='bold '+fs+'px system-ui,sans-serif';lines.forEach((s,i)=>g.fillText(s,c.width/2,c.height/2+(i-(lines.length-1)/2)*fs*1.12)); const tx=new T.CanvasTexture(c);tx.encoding=T.sRGBEncoding;const q=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tx}));q.position.set(x,y,z);q.rotation.y=ry||0;root.add(q);return q}catch(e){return null}}  const DH=3.1; function ZW(z,x0,x1,gaps,y0,y1,m,col,th){th=th||.3;let xs=x0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,(a+b)/2,yc,z,b-a,y1-y0,th,col)}; for(const[c,w]of gaps){seg(xs,c-w/2);if(y1-y0>DH+.05)box(m,c,(y0+DH+y1)/2,z,w,y1-y0-DH,th);xs=c+w/2}seg(xs,x1)} function XW(x,z0,z1,gaps,y0,y1,m,col,th){th=th||.3;let zs=z0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,x,yc,(a+b)/2,th,y1-y0,b-a,col)}; for(const[c,w]of gaps){seg(zs,c-w/2);if(y1-y0>DH+.05)box(m,x,(y0+DH+y1)/2,c,th,y1-y0-DH,w);zs=c+w/2}seg(zs,z1)}  function slab(m,yc,t,x0,x1,z0,z1,h0,h1,k0,k1){const A=(a,b,c,d)=>{if(b-a>.02&&d-c>.02)box(m,(a+b)/2,yc,(c+d)/2,b-a,t,d-c)};if(h0===undefined){A(x0,x1,z0,z1);return}A(x0,x1,z0,k0);A(x0,x1,k1,z1);A(x0,h0,k0,k1);A(h1,x1,k0,k1)} 
+(function(){try{ const OX=-335,OZ=-824;  const MU=T.MathUtils||{},damp=MU.damp||((a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt))); const root=new T.Group();root.name='ResearchBase';root.position.set(OX,0,OZ);scene.add(root); const say=m=>toast(m,3.8);  {const xa=OX-7,xb=-250;road(12,xb-xa,(xa+xb)/2,-770,Math.PI/2,asphT.clone())} const st={lockdown:false,coolant:true,phase:0,badge:0};  const mk=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.78,metalness:.18},o||{})); const M={concrete:mk(0x646b70),dark:mk(0x3d4449),steel:mk(0x20282d,{metalness:.7,roughness:.4}),lsteel:mk(0x879197,{metalness:.65,roughness:.35}), hazard:mk(0xf0b52b),red:mk(0xa92525,{emissive:0xa92525,emissiveIntensity:.25}),green:mk(0x53c98a,{emissive:0x53c98a,emissiveIntensity:.35}), blue:mk(0x42a8c9,{emissive:0x42a8c9,emissiveIntensity:.25}),glass:mk(0x61a6b5,{transparent:true,opacity:.35,metalness:.2,roughness:.12,depthWrite:false}), floor:mk(0x343a3e),screen:mk(0x06303a,{emissive:0x42a8c9,emissiveIntensity:.5,roughness:.25}),white:mk(0xd5dedf,{emissive:0xd5dedf,emissiveIntensity:.5}),black:mk(0x111719),lamp:mk(0xffd67a,{emissive:0xffd67a,emissiveIntensity:.9}), tile:mk(0x9aa6a9,{roughness:.55,metalness:.05}),wall:mk(0xaab5b8,{roughness:.9,metalness:.02}),cab:mk(0xc9d0cc,{roughness:.6,metalness:.1}),wood:mk(0x7b5b3b,{roughness:.8,metalness:.02}), orange:mk(0xe0701f),yellow:mk(0xe8c928),bio:mk(0xd2401c,{emissive:0xd2401c,emissiveIntensity:.35}),purple:mk(0x7b4fb0,{emissive:0x7b4fb0,emissiveIntensity:.3}),copper:mk(0xa8693a,{metalness:.6,roughness:.4}), fabric:mk(0x3b5a7a,{roughness:.95,metalness:0}),rubber:mk(0x1b1e20,{roughness:.95,metalness:0}),carpet:mk(0x4a4f56,{roughness:1,metalness:0}), tank:mk(0x5fd6e8,{transparent:true,opacity:.38,emissive:0x2aa8c0,emissiveIntensity:.35,depthWrite:false,roughness:.1}),fluid:mk(0x62e07a,{transparent:true,opacity:.55,emissive:0x2fbf55,emissiveIntensity:.55,depthWrite:false,roughness:.2}), screenG:mk(0x042a14,{emissive:0x3dff7a,emissiveIntensity:.6,roughness:.25}),screenR:mk(0x330808,{emissive:0xff4030,emissiveIntensity:.6,roughness:.25}),specimen:mk(0x1e2a22,{roughness:.9,metalness:0}), skin:mk(0x7d8f74,{roughness:.9,metalness:0}),blood:mk(0x5a0f0f,{roughness:.6,metalness:0})};
+// H-9 interior dress: one vertex-colour mesh per flush, shared with the station materials.
+// No new lights, no shadow casters. Signs stay on the existing label() helper.
+M.h9paint=new T.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.9,metalness:.04});
+const H9P=[];
+function h9Paint(hex,x,y,z,sx,sy,sz){
+ if(!(sx>0.015&&sy>0.015&&sz>0.015))return;
+ H9P.push([x-sx/2,x+sx/2,y-sy/2,y+sy/2,z-sz/2,z+sz/2,hex>>>0]);
+}
+function h9FlushPaint(parent){
+ if(!H9P.length)return;
+ const P=[],N=[],C=[],I=[];let o=0;
+ for(const b of H9P){
+  const w=b[1]-b[0],h=b[3]-b[2],d=b[5]-b[4],g=new T.BoxGeometry(w,h,d),p=g.attributes.position,n=g.attributes.normal;
+  const cr=((b[6]>>16)&255)/255,cg=((b[6]>>8)&255)/255,cb=(b[6]&255)/255;
+  for(let i=0;i<p.count;i++){
+   P.push(p.getX(i)+(b[0]+b[1])/2,p.getY(i)+(b[2]+b[3])/2,p.getZ(i)+(b[4]+b[5])/2);
+   N.push(n.getX(i),n.getY(i),n.getZ(i));
+   C.push(cr,cg,cb);
+  }
+  for(const k of g.index.array)I.push(k+o);
+  o+=p.count;g.dispose();
+ }
+ const G=new T.BufferGeometry();
+ G.setAttribute('position',new T.Float32BufferAttribute(P,3));
+ G.setAttribute('normal',new T.Float32BufferAttribute(N,3));
+ G.setAttribute('color',new T.Float32BufferAttribute(C,3));
+ G.setIndex(I);
+ const q=new T.Mesh(G,M.h9paint);q.name='H9Paint';q.castShadow=false;q.receiveShadow=parent.name!=='H9Upper';
+ parent.add(q);H9P.length=0;
+}
+function h9WallZ(face,x0,x1,y0,y1,dir,up,lo,rail){
+ const z=face+dir*0.018,xm=(x0+x1)/2,w=x1-x0,ry=y0+1.02;
+ if(w<0.2||y1-y0<0.4)return;
+ h9Paint(lo,xm,(y0+ry)/2-0.02,z,w,(ry-y0)-0.05,0.028);
+ h9Paint(up,xm,(ry+0.045+y1)/2,z,w,Math.max(0.05,y1-(ry+0.045)),0.028);
+ if(rail!==false){
+  h9Paint(rail==null?0xd8c7a2:rail,xm,ry,z+dir*0.01,w,0.048,0.02);
+  h9Paint(0x23272a,xm,y0+0.07,z+dir*0.008,w,0.11,0.022);
+ }
+}
+function h9WallX(face,z0,z1,y0,y1,dir,up,lo,rail){
+ const x=face+dir*0.018,zm=(z0+z1)/2,d=z1-z0,ry=y0+1.02;
+ if(d<0.2||y1-y0<0.4)return;
+ h9Paint(lo,x,(y0+ry)/2-0.02,zm,0.028,(ry-y0)-0.05,d);
+ h9Paint(up,x,(ry+0.045+y1)/2,zm,0.028,Math.max(0.05,y1-(ry+0.045)),d);
+ if(rail!==false){
+  h9Paint(rail==null?0xd8c7a2:rail,x+dir*0.01,ry,zm,0.02,0.048,d);
+  h9Paint(0x23272a,x+dir*0.008,y0+0.07,zm,0.02,0.11,d);
+ }
+}
+function h9SpanZ(face,x0,x1,y0,y1,dir,up,lo,gaps,rail){
+ const cuts=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);let x=x0;
+ const seg=(a,b)=>{if(b-a>0.25)h9WallZ(face,a,b,y0,y1,dir,up,lo,rail)};
+ for(const [c,w] of cuts){seg(x,c-w/2);x=c+w/2}seg(x,x1);
+}
+function h9SpanX(face,z0,z1,y0,y1,dir,up,lo,gaps,rail){
+ const cuts=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);let z=z0;
+ const seg=(a,b)=>{if(b-a>0.25)h9WallX(face,a,b,y0,y1,dir,up,lo,rail)};
+ for(const [c,w] of cuts){seg(z,c-w/2);z=c+w/2}seg(z,z1);
+}
+function h9Floor(x0,x1,z0,z1,y,hex){
+ if(x1-x0<0.2||z1-z0<0.2)return;
+ h9Paint(hex,(x0+x1)/2,y,(z0+z1)/2,x1-x0,0.016,z1-z0);
+}
+function h9Ext(x,y,z){
+ h9Paint(0xb42323,x,y+0.36,z,0.16,0.58,0.16);
+ h9Paint(0xf0d080,x,y+0.52,z,0.17,0.07,0.17);
+ h9Paint(0x1c2024,x,y+0.68,z,0.09,0.07,0.09);
+ h9Paint(0x2a2e32,x,y+0.2,z,0.045,0.22,0.045);
+}
+function h9Paper(x,y,z,sx,sz){h9Paint(0xe6dec8,x,y,z,sx||0.28,0.01,sz||0.2)}
+function h9DressGround(){
+ const FY=-9.6;
+ // ---- L0 floors: vinyl, office carpet, receiving, elevator (shaft left open) ----
+ h9Floor(-14.2,14.2,-2.55,6.15,0.092,0x6d838c);
+ h9Floor(-14.15,-5.25,-14.15,-3.25,0.092,0x8a7058);
+ h9Floor(5.25,14.15,-14.15,-3.25,0.092,0x5c6b62);
+ h9Floor(-4.7,-2.15,-14.1,-11.6,0.092,0x4a565c);
+ h9Floor(2.15,4.7,-14.1,-11.6,0.092,0x4a565c);
+ h9Floor(-4.7,4.7,-7.45,-3.35,0.092,0x4a565c);
+ h9Floor(-2.05,2.05,-14.1,-11.55,0.092,0x3e484c);
+ h9Floor(-2.05,2.05,-7.45,-3.35,0.092,0x3e484c);
+ // safety-yellow edges along the lobby walk
+ box('hazard',0,0.1,5.9,26,0.012,0.08);
+ box('hazard',0,0.1,-2.7,26,0.012,0.08);
+ box('hazard',-13.9,0.1,1.6,0.08,0.012,8.2);
+ box('hazard',13.9,0.1,1.6,0.08,0.012,8.2);
+ // ---- L0 walls. Front windows stay open between y 1.15 and 3.9. ----
+ const lobU=0xc5d2d4,lobL=0x3e5963,offU=0xe6d8c4,offL=0x6a5344,recU=0xc9d4c4,recL=0x3d5348,elvU=0xd5dee2,elvL=0x2c3a44;
+ h9SpanZ(6.4,-14.6,-1.95,0,1.12,-1,lobU,lobL);
+ h9SpanZ(6.4,1.95,14.6,0,1.12,-1,lobU,lobL);
+ h9SpanZ(6.4,-14.6,-1.95,3.95,6.05,-1,lobU,lobL,null,false);
+ h9SpanZ(6.4,1.95,14.6,3.95,6.05,-1,lobU,lobL,null,false);
+ h9WallX(-14.4,-14.2,6.2,0,6.05,1,lobU,lobL);
+ h9WallX(14.4,-14.2,6.2,0,6.05,-1,lobU,lobL);
+ // lobby / back split, both faces, doors open
+ h9SpanZ(-2.85,-14.2,-5.3,0,6.05,1,lobU,lobL,[[-10,2.2]]);
+ h9SpanZ(-2.85,-4.6,4.6,0,6.05,1,lobU,lobL,[[0,4.4]]);
+ h9SpanZ(-2.85,5.3,14.2,0,6.05,1,lobU,lobL,[[10,2.2]]);
+ h9SpanZ(-3.15,-14.2,-5.3,0,6.05,-1,offU,offL,[[-10,2.2]]);
+ h9SpanZ(-3.15,-4.6,4.6,0,6.05,-1,elvU,elvL,[[0,4.4]]);
+ h9SpanZ(-3.15,5.3,14.2,0,6.05,-1,recU,recL,[[10,2.2]]);
+ h9SpanX(-5.15,-14.1,-3.2,0,6.05,-1,offU,offL,[[-9,2.4]]);
+ h9SpanX(-4.85,-14.1,-3.2,0,6.05,1,elvU,elvL,[[-9,2.4]]);
+ h9SpanX(4.85,-14.1,-3.2,0,6.05,-1,elvU,elvL,[[-9,2.4]]);
+ h9SpanX(5.15,-14.1,-3.2,0,6.05,1,recU,recL,[[-9,2.4]]);
+ h9SpanZ(-14.4,-14.2,-5.2,0,6.05,1,offU,offL);
+ h9SpanZ(-14.4,-4.6,4.6,0,6.05,1,elvU,elvL,[[8,2.4]]);
+ h9SpanZ(-14.4,5.2,14.2,0,6.05,1,recU,recL);
+ // lobby ceiling tiles + a couple of dark gaps
+ h9Floor(-14,14,-2.4,5.9,5.96,0xd5dedc);
+ h9Paint(0x2a3034,-6.2,5.95,3.2,0.7,0.04,0.4);
+ h9Paint(0x2a3034,8.4,5.95,-0.6,0.55,0.04,0.35);
+ // lived-in bits
+ h9Ext(13.55,0,5.2);h9Ext(-13.7,0,4.4);h9Ext(-13.6,0,-6.5);h9Ext(14.15,0,-6.2);
+ h9Paper(-4.2,1.12,1.55,0.32,0.22);h9Paper(-6.4,1.12,1.7,0.22,0.28);h9Paper(2.4,0.1,2.8,0.34,0.24);
+ h9Paint(0x6a1818,11.2,0.1,-8.4,0.55,0.012,0.32);
+ h9Paint(0x1e2428,-14.22,1.7,1.2,0.02,0.9,1.3);
+ h9Paint(0xe8e2d4,-14.2,1.72,1.2,0.015,0.72,1.05);
+ label('NOTICE\\nBADGES AT RECEPTION',-14.18,1.72,1.2,0.95,0.62,Math.PI/2,'#e8e2d4','#243044');
+ // exterior weathered band, rust, faded mark. Front face is +z.
+ h9Paint(0x667562,-8.5,1.45,7.05,11.6,1.55,0.04);
+ h9Paint(0x667562,8.5,1.45,7.05,11.6,1.55,0.04);
+ h9Paint(0x5c6a58,0,4.15,7.05,6.2,0.7,0.035);
+ for(const x of[-13.4,-7.2,7.6,13.2])h9Paint(0x7a4630,x,2.15,7.08,0.07,2.4,0.025);
+ h9Paint(0x6a4330,-15.02,1.8,-2,0.03,1.8,0.16);
+ h9Paint(0x6a4330,15.02,2.2,-8,0.03,2.2,0.12);
+ label('H-9',-12.2,3.15,7.1,1.15,0.72,0,'#5a6354','#d5ccb0');
+ // ---- B1 floors ----
+ const fB=FY+0.05;
+ h9Floor(-17.4,-2.2,-14.2,-11.65,fB,0x8aa3a8);
+ h9Floor(2.2,17.4,-14.2,-11.65,fB,0x8aa3a8);
+ h9Floor(-17.4,17.4,-7.25,-6.45,fB,0x8aa3a8);
+ h9Floor(-17.4,-7.3,-17.3,-14.7,fB,0xc8c2a4);
+ h9Floor(7.3,17.4,-17.3,-14.7,fB,0xb7d4d2);
+ h9Floor(-8.6,8.6,-23.6,-17.7,fB,0x3c4448);
+ h9Floor(-17.4,-9.3,-23.6,-17.7,fB,0xa9c0cc);
+ h9Floor(9.3,17.4,-23.6,-17.7,fB,0x3a3c55);
+ h9Floor(-17.4,-9.3,-33.4,-24.2,fB,0xd5e6e2);
+ h9Floor(9.3,17.4,-33.4,-24.2,fB,0x6a6560);
+ h9Floor(-8.6,8.6,-33.4,-24.2,fB,0x3a3434);
+ box('hazard',0,FY+0.055,-24.15,16.5,0.012,0.12);
+ // ---- B1 walls ----
+ const cU=0xd7e6e4,cL=0x2c6a70,hU=0xc9b8b0,hL=0x4a3032,y0=FY,y1=-6.15;
+ h9SpanZ(-6.28,-17.5,17.5,y0,y1,-1,cU,cL);
+ h9SpanZ(-14.35,-17.6,-7.2,y0,y1,1,cU,cL,[[-12.5,2.4]]);
+ h9SpanZ(-14.35,-6.2,6.2,y0,y1,1,cU,cL,[[0,3.4]]);
+ h9SpanZ(-14.35,7.2,17.6,y0,y1,1,cU,cL,[[12.5,2.4]]);
+ h9SpanZ(-14.65,-17.6,-9.2,y0,y1,-1,0xe4e0d4,0x5c6840,[[-13.5,2.4]]);
+ h9SpanZ(-14.65,-8.2,8.2,y0,y1,-1,hU,hL,[[0,4.2]]);
+ h9SpanZ(-14.65,9.2,17.6,y0,y1,-1,0xd0ebe8,0x1e5c64,[[13.5,2.4]]);
+ h9WallX(-17.72,-33.5,-6.4,y0,y1,1,cU,cL);
+ h9WallX(17.72,-33.5,-6.4,y0,y1,-1,cU,cL);
+ h9SpanZ(-33.72,-17.5,17.5,y0,y1,1,hU,hL);
+ h9SpanX(-9.15,-33.5,-24.3,y0,y1,-1,0xe8f4f2,0x1a6a62,[[-28,2.4]]);
+ h9SpanX(-8.85,-33.5,-24.3,y0,y1,1,hU,hL,[[-28,2.4]]);
+ h9SpanX(-9.15,-23.5,-17.7,y0,y1,-1,0xd4e6f0,0x2a4a62,[[-20.7,2.4]]);
+ h9SpanX(-8.85,-23.5,-17.7,y0,y1,1,hU,hL,[[-20.7,2.4]]);
+ h9SpanX(8.85,-33.5,-24.3,y0,y1,1,0xe6ddd4,0x5a4038,[[-28,2.4]]);
+ h9SpanX(9.15,-33.5,-24.3,y0,y1,-1,hU,hL,[[-28,2.4]]);
+ h9SpanX(8.85,-23.5,-17.7,y0,y1,1,0xd8d4e8,0x2a2848,[[-20.7,2.4]]);
+ h9SpanX(9.15,-23.5,-17.7,y0,y1,-1,hU,hL,[[-20.7,2.4]]);
+ h9SpanZ(-24.15,-17.4,-9.2,y0,y1,1,0xe8f4f2,0x1a6a62);
+ h9SpanZ(-23.85,-17.4,-9.2,y0,y1,-1,0xd4e6f0,0x2a4a62);
+ h9SpanZ(-24.15,9.2,17.4,y0,y1,1,0xe6ddd4,0x5a4038);
+ h9SpanZ(-23.85,9.2,17.4,y0,y1,-1,0xd8d4e8,0x2a2848);
+ h9SpanZ(-17.35,-17.5,-9.2,y0,y1,-1,0xe4e0d4,0x5c6840);
+ h9SpanZ(-17.65,-17.5,-9.2,y0,y1,1,cU,cL);
+ h9SpanX(-7.15,-14.3,-6.5,y0,y1,-1,cU,cL);
+ h9SpanX(-6.85,-14.3,-6.5,y0,y1,1,cU,cL);
+ h9SpanX(6.85,-14.3,-6.5,y0,y1,-1,cU,cL);
+ h9SpanX(7.15,-14.3,-6.5,y0,y1,1,cU,cL);
+ h9SpanZ(-10.05,7.2,17.5,y0,y1,-1,0xd0ebe8,0x1e5c64,[[12.5,2.4]]);
+ h9SpanZ(-10.35,7.2,17.5,y0,y1,1,cU,cL,[[12.5,2.4]]);
+ // ceiling wash under the dark slab, lights already sit just below it
+ h9Floor(-17.2,17.2,-14.2,-6.5,-6.2,0xdfe6e4);
+ h9Floor(-8.4,8.4,-33.2,-17.8,-6.2,0xcfc6c2);
+ h9Paint(0x2c3034,4.2,-6.18,-12.2,0.7,0.04,0.45);
+ h9Paint(0x4a1818,-2.4,FY+0.06,-27.5,0.7,0.012,0.4);
+ h9Paper(-12.2,FY+0.06,-11.2,0.3,0.22);h9Paper(4.6,FY+0.06,-9.2,0.26,0.18);
+}
+function h9DressUpper(add){
+ const y0=6.3,y1=9.42;
+ const corU=0xc5d4c6,corL=0x3c5648,secU=0x314863,secL=0x1a2838,recU=0xe7dcc6,recL=0x8a704f,labU=0xe7f3f2,labL=0x1e6d72,dirU=0xefe4d2,dirL=0x6b452c;
+ // floors
+ h9Floor(-11.05,14.15,3.55,5.95,6.318,0x74867c);
+ h9Floor(-12.55,-11.25,1.75,3.8,6.318,0x5c6568);
+ h9Floor(-14.3,-11.5,5.4,5.95,3.17,0x5c6568);
+ h9Floor(-11.15,-6.15,-5.95,3.35,6.318,0x2a3a50);
+ h9Floor(-5.8,-0.3,-5.95,3.35,6.318,0xcbb892);
+ h9Floor(0.35,6.75,-5.95,3.35,6.318,0xd5e6e3);
+ h9Floor(7.35,14.15,-5.9,3.3,6.345,0x6a3834);
+ add('hazard',1.4,6.328,4.22,24.2,0.01,0.07);
+ add('hazard',1.4,6.328,5.15,24.2,0.01,0.07);
+ add('hazard',3.4,6.328,-4.6,5.4,0.01,0.1);
+ // corridor walls, door gaps left open. North face is a solid painted bulkhead; glass is a clerestory above the gun line.
+ h9SpanZ(3.6,-11.05,-9.5,y0,y1,1,corU,corL);
+ h9SpanZ(3.6,-8.0,-3.55,y0,y1,1,corU,corL);
+ h9SpanZ(3.6,-2.15,2.95,y0,y1,1,corU,corL);
+ h9SpanZ(3.6,4.4,10.1,y0,y1,1,corU,corL);
+ h9SpanZ(3.6,11.6,14.2,y0,y1,1,corU,corL);
+ h9SpanZ(3.42,-11.05,-9.5,y0,y1,-1,secU,secL,null,0x8a7848);
+ h9SpanZ(3.42,-8.0,-3.55,y0,y1,-1,secU,secL,null,0xc8b48a);
+ h9SpanZ(3.42,-2.15,2.95,y0,y1,-1,recU,recL,null,0xc8b48a);
+ h9SpanZ(3.42,4.4,10.1,y0,y1,-1,labU,labL,null,0x9fd4d2);
+ h9SpanZ(3.42,11.6,14.2,y0,y1,-1,dirU,dirL,null,0x8a6844);
+ // room splits
+ h9SpanX(-6.08,-5.95,3.35,y0,y1,-1,secU,secL,null,0x8a7848);
+ h9SpanX(-5.92,-5.95,3.35,y0,y1,1,recU,recL,null,0xc8b48a);
+ h9SpanX(-0.22,-5.95,3.35,y0,y1,-1,recU,recL,null,0xc8b48a);
+ h9SpanX(0.08,-5.95,3.35,y0,y1,1,labU,labL,null,0x9fd4d2);
+ h9SpanX(7.02,-5.95,3.35,y0,y1,-1,labU,labL,null,0x9fd4d2);
+ h9SpanX(7.18,-5.95,3.35,y0,y1,1,dirU,dirL,null,0x8a6844);
+ h9SpanZ(-6.08,-11.15,-6.15,y0,y1,1,secU,secL,null,0x8a7848);
+ h9SpanZ(-6.08,-5.8,-0.3,y0,y1,1,recU,recL,null,0xc8b48a);
+ h9SpanZ(-6.08,0.35,6.75,y0,y1,1,labU,labL,null,0x9fd4d2);
+ h9SpanZ(-6.08,7.35,14.15,y0,y1,1,dirU,dirL,null,0x8a6844);
+ h9WallX(14.32,3.55,6.0,y0,y1,-1,corU,corL);
+ h9WallX(14.32,-5.9,3.35,y0,y1,-1,dirU,dirL,0x8a6844);
+ h9WallX(-11.18,-5.95,3.35,y0,y1,1,secU,secL,0x8a7848);
+ // north bulkhead, corridor only (stair landing stays clear west of x=-11.1)
+ add('concrete',1.55,7.22,6.02,25.2,1.84,0.2);
+ add('lsteel',1.55,8.16,5.9,25.2,0.06,0.06);
+ add('glass',1.55,8.62,6.14,24.4,0.78,0.04);
+ for(const x of[-8,-2,4,10])add('lsteel',x,8.62,6.1,0.08,0.86,0.08);
+ h9WallZ(5.9,-11.0,14.2,6.3,8.12, -1, corU, corL);
+ // ceilings
+ h9Floor(-11,14.1,3.6,5.9,9.37,0xd5ddd4);
+ h9Floor(-11.1,-6.2,-5.8,3.3,9.37,0x243044);
+ h9Floor(-5.7,-0.35,-5.8,3.3,9.37,0xe6dcc4);
+ h9Floor(0.4,6.7,-5.8,3.3,9.37,0xe7f2f0);
+ h9Floor(7.4,14.1,-5.8,3.3,9.37,0xe8dcc4);
+ h9Paint(0x2c3230,3.6,9.36,4.75,0.62,0.05,0.32);
+ add('dark',4.15,6.335,4.65,0.55,0.015,0.26);
+ // framed ceiling lights (emissive material, no new light objects)
+ for(const x of[-9,-5,-1,2,6,10]){add('lsteel',x,9.35,4.75,1.25,0.03,0.36);add('lamp',x,9.325,4.75,1.05,0.02,0.2)}
+ for(const [x,z] of[[-8.6,-2.5],[-3.2,-2.2],[3.4,-2.4],[11,-2.2]]){add('lsteel',x,9.35,z,1.15,0.03,0.32);add('lamp',x,9.325,z,0.95,0.02,0.18)}
+ // door frames on the corridor face, above-door plates mounted on the header
+ for(const x of[-8.75,-2.85,3.65,10.85]){
+  add('lsteel',x-0.74,7.85,3.64,0.07,3.05,0.08);
+  add('lsteel',x+0.74,7.85,3.64,0.07,3.05,0.08);
+  add('lsteel',x,9.32,3.64,1.55,0.07,0.08);
+ }
+ h9Paint(0x1a2226,-8.75,9.22,3.685,1.12,0.26,0.02);
+ h9Paint(0x1a2226,-2.85,9.22,3.685,1.12,0.26,0.02);
+ h9Paint(0x1a2226,3.65,9.22,3.685,1.16,0.26,0.02);
+ h9Paint(0x1a2226,10.85,9.22,3.685,1.2,0.26,0.02);
+ label('SECURITY',-8.75,9.22,3.72,1.02,0.2,0,'#142033','#d5e4f5');
+ label('RECORDS',-2.85,9.22,3.72,1.02,0.2,0,'#3a3228','#f3ead6');
+ label('SAMPLE LAB',3.65,9.22,3.72,1.06,0.2,0,'#12383a','#d7f4f2');
+ label('DIRECTOR HALE',10.85,9.22,3.72,1.1,0.2,0,'#3a2a1c','#f0e2c8');
+ // east end: panel, notice, extinguisher, crates. Not a blank slab.
+ h9Paint(0x24302a,14.28,7.55,5.15,0.02,1.15,0.7);
+ h9Paint(0xd8e0d4,14.26,7.55,5.15,0.015,0.95,0.52);
+ label('EAST WING\\nELECTRICAL',14.24,7.55,5.15,0.48,0.7,-Math.PI/2,'#d8e0d4','#1c2a24');
+ h9Ext(14.15,6.3,4.15);
+ h9Paint(0x6b4e32,13.55,6.55,5.35,0.55,0.42,0.38);
+ h9Paint(0x5a4030,13.85,6.95,5.15,0.42,0.32,0.42);
+ add('hazard',13.7,7.15,5.25,0.5,0.08,0.06);
+ // security: navy already on the walls; poster, extinguisher, paper, a little blood
+ h9Paint(0x101820,-10.95,7.6,-1.2,0.02,0.85,0.6);
+ h9Paint(0xdfe6ea,-10.93,7.6,-1.2,0.015,0.7,0.46);
+ label('CAMERA LOG\\nGATE DARK 02:14',-10.9,7.6,-1.2,0.42,0.55,Math.PI/2,'#dfe6ea','#142033');
+ h9Ext(-6.35,6.3,2.4);
+ h9Paper(-10.1,7.12,-1.35,0.24,0.16);
+ h9Paint(0x6a1818,-7.2,6.325,-5.4,0.5,0.012,0.28);
+ // records: filing faces, papers
+ h9Paper(-3.1,7.18,-0.15,0.22,0.16);h9Paper(-4.6,6.325,1.1,0.3,0.2);
+ for(const x of[-5.2,-4.05,-2.9,-1.7])add('green',x,6.7,-4.12,0.46,0.025,0.02);
+ // lab fridge face and a bench stain
+ h9Paint(0xc5d0ce,6.35,7.15,-5.08,0.62,1.45,0.02);
+ h9Paint(0x9aa8a6,6.35,7.15,-5.06,0.015,1.2,0.02);
+ h9Paint(0xd0d8d6,6.62,7.2,-5.05,0.06,0.7,0.025);
+ h9Paint(0x6a1818,4.8,6.325,-4.8,0.36,0.01,0.2);
+ // director: diploma and a lamp shade already exists; add a wall plate
+ h9Paint(0x3a2a1c,13.42,7.7,1.7,0.02,0.7,0.5);
+ h9Paint(0xf0e6d0,13.4,7.7,1.7,0.015,0.55,0.36);
+ label('HALE',13.38,7.7,1.7,0.32,0.4,-Math.PI/2,'#f0e6d0','#3a2a1c');
+ // keep the body far enough from glass, partitions and desks that the viewmodel stops at the face
+ colW(1.55,5.68,12.45,0.28,6.3,9.35);
+ colW(-10.25,3.88,0.62,0.22,6.3,9.2);
+ colW(-5.75,3.88,2.15,0.22,6.3,9.2);
+ colW(0.4,3.88,2.45,0.22,6.3,9.2);
+ colW(7.25,3.88,2.7,0.22,6.3,9.2);
+ colW(12.9,3.88,1.22,0.22,6.3,9.2);
+ colW(-6.0,-1.3,0.62,4.5,6.3,9.35);
+ colW(-0.15,-1.3,0.62,4.5,6.3,9.35);
+ colW(7.1,-1.3,0.62,4.5,6.3,9.35);
+ colW(-10.1,-1.15,0.85,0.9,6.3,7.15);
+ colW(-3.1,0.15,0.75,0.9,6.3,7.1);
+ colW(2.3,-3.05,1.3,0.95,6.3,7.25);
+ colW(5.3,-3.05,1.2,0.95,6.3,7.25);
+ colW(11.3,-0.85,1.05,1.05,6.3,7.2);
+ colW(13.7,4.7,0.4,0.35,6.3,7.35);
+}
+  const S={},CY={},UG=[],MYB=[];let ugOn=false; function box(m,x,y,z,sx,sy,sz,col){if(!sx||!sy||!sz)return;(S[m]=S[m]||[]).push([x-sx/2,x+sx/2,y-sy/2,y+sy/2,z-sz/2,z+sz/2]);if(col)colW(x,z,sx/2,sz/2,col[0],col[1])} function colW(x,z,hw,hd,y0,y1){const b={x:OX+x,z:OZ+z,hw,hd,y0,y1};MYB.push(b);if(y1<=0){UG.push(b)}else boxes.push(b);return b} function dyn(m,x,y,z,sx,sy,sz){const q=new T.Mesh(new T.BoxGeometry(sx,sy,sz),M[m]);q.position.set(x,y,z);q.castShadow=sx>2||sz>2;root.add(q);return q} function cyl(m,x,y,z,rt,rb,h,seg,rotX){const q=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg||10),M[m]);q.position.set(x,y,z);if(rotX)q.rotation.x=Math.PI/2;root.add(q);return q} function cylM(m,x,y,z,rt,rb,h,seg,ax){const g=new T.CylinderGeometry(rt,rb,h,seg||8);if(ax==='x')g.rotateZ(Math.PI/2);else if(ax==='z')g.rotateX(Math.PI/2);g.translate(x,y,z);(CY[m]=CY[m]||[]).push(g)} function mergeGeos(list){let nv=0,ni=0;for(const g of list){nv+=g.attributes.position.count;ni+=g.index.count}const P=new Float32Array(nv*3),N=new Float32Array(nv*3),U=new Float32Array(nv*2),I=new Uint32Array(ni);let vo=0,io=0; for(const g of list){P.set(g.attributes.position.array,vo*3);N.set(g.attributes.normal.array,vo*3);U.set(g.attributes.uv.array,vo*2);const ix=g.index.array;for(let i=0;i<ix.length;i++)I[io+i]=ix[i]+vo;vo+=g.attributes.position.count;io+=ix.length} const r=new T.BufferGeometry();r.setAttribute('position',new T.BufferAttribute(P,3));r.setAttribute('normal',new T.BufferAttribute(N,3));r.setAttribute('uv',new T.BufferAttribute(U,2));r.setIndex(new T.BufferAttribute(I,1));return r} const B=(m,x,y0,z,sx,h,sz,col)=>box(m,x,y0+h/2,z,sx,h,sz,col);  const FY=-9.6,RC=-6.1,SF=.05;  const UGc=[-10,-.2];  function label(txt,x,y,z,w,h,ry,bg,fg){try{const c=document.createElement('canvas');c.width=256;c.height=Math.max(32,Math.round(256*h/w));const g=c.getContext('2d');g.fillStyle=bg||'#14262c';g.fillRect(0,0,c.width,c.height);g.strokeStyle=fg||'#7fe3ff';g.lineWidth=3;g.strokeRect(3,3,c.width-6,c.height-6);g.fillStyle=fg||'#7fe3ff';g.textAlign='center';g.textBaseline='middle'; const lines=String(txt).split('\n');const fs=Math.min(30,Math.floor((c.height-10)/lines.length*.82),Math.floor(236/Math.max(...lines.map(s=>s.length))*1.75));g.font='bold '+fs+'px system-ui,sans-serif';lines.forEach((s,i)=>g.fillText(s,c.width/2,c.height/2+(i-(lines.length-1)/2)*fs*1.12)); const tx=new T.CanvasTexture(c);tx.encoding=T.sRGBEncoding;const q=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tx}));q.position.set(x,y,z);q.rotation.y=ry||0;root.add(q);return q}catch(e){return null}}  const DH=3.1; function ZW(z,x0,x1,gaps,y0,y1,m,col,th){th=th||.3;let xs=x0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,(a+b)/2,yc,z,b-a,y1-y0,th,col)}; for(const[c,w]of gaps){seg(xs,c-w/2);if(y1-y0>DH+.05)box(m,c,(y0+DH+y1)/2,z,w,y1-y0-DH,th);xs=c+w/2}seg(xs,x1)} function XW(x,z0,z1,gaps,y0,y1,m,col,th){th=th||.3;let zs=z0;const yc=(y0+y1)/2;gaps=(gaps||[]).slice().sort((a,b)=>a[0]-b[0]);const seg=(a,b)=>{if(b-a>.04)box(m,x,yc,(a+b)/2,th,y1-y0,b-a,col)}; for(const[c,w]of gaps){seg(zs,c-w/2);if(y1-y0>DH+.05)box(m,x,(y0+DH+y1)/2,c,th,y1-y0-DH,w);zs=c+w/2}seg(zs,z1)}  function slab(m,yc,t,x0,x1,z0,z1,h0,h1,k0,k1){const A=(a,b,c,d)=>{if(b-a>.02&&d-c>.02)box(m,(a+b)/2,yc,(c+d)/2,b-a,t,d-c)};if(h0===undefined){A(x0,x1,z0,z1);return}A(x0,x1,z0,k0);A(x0,x1,k1,z1);A(x0,h0,k0,k1);A(h1,x1,k0,k1)} 
   box('dark',0,.015,0,100,.03,82);  box('floor',0,.03,34,14,.03,28);box('hazard',0,.05,34,.22,.02,26);  box('concrete',0,1.4,-38,92,2.8,.8,[0,2.8]);box('concrete',-46,1.4,0,.8,2.8,76,[0,2.8]);box('concrete',46,1.4,0,.8,2.8,76,[0,2.8]); box('concrete',-24,1.4,38,44,2.8,.8,[0,2.8]);box('concrete',24,1.4,38,44,2.8,.8,[0,2.8]); for(let x=-44;x<=44;x+=4){if(Math.abs(x)<8)continue;box('steel',x,2.1,37.4,.18,4.2,.18)} for(const y of[3.6,2.1]){box('lsteel',-27,y,37.4,38,.12,.12);box('lsteel',27,y,37.4,38,.12,.12)} for(let x=-44;x<=44;x+=11){box('hazard',x,3.0,38.45,1.1,.5,.04)}  for(const[x,z]of[[-42,-34],[42,-34],[-42,32],[42,32]]){box('steel',x,2.1,z,.35,4.2,.35);box('dark',x,4.6,z,3.2,2.1,3.2);box('glass',x,4.8,z+1.62,1.7,.9,.06);box('steel',x,5.75,z,3.6,.25,3.6);box('lamp',x,5.4,z+1.7,.5,.25,.25);colW(x,z,1.6,1.6,0,6)}  const gL=dyn('steel',-4,1.5,37.4,7.5,3,.35),gR=dyn('steel',4,1.5,37.4,7.5,3,.35); for(const sx of[-4,4])for(let k=0;k<4;k++)box(k%2?'black':'hazard',sx,.5+k*.7,37.18,6.8,.12,.04); const gate={open:false,p:0,col:colW(0,38,2.1,.5,0,3)};  B('concrete',-9.5,0,35,3.2,2.6,3.2,[0,2.6]);B('steel',-9.5,2.6,35,3.6,.2,3.6);B('glass',-9.5,.9,33.35,2.6,1.3,.08);B('lamp',-9.5,2.45,33.3,.8,.08,.08); B('steel',9.2,0,35.6,.4,3.6,.4);B('dark',9.2,3.6,35.6,.5,.35,.9);B('lamp',9.2,3.55,36.1,.3,.12,.12); for(const sx of[-1,1])B('steel',sx*8.1,0,37.4,.5,5.7,.5,[0,5.7]);box('steel',0,5.55,37.4,17,.4,.5);label('RESEARCH STATION H-9\nAUTHORISED PERSONNEL ONLY',0,4.65,37.68,7.6,1.5,0,'#14262c','#7fe3ff'); label('RESTRICTED\nBIOHAZARD AREA',-20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');label('RESTRICTED\nBIOHAZARD AREA',20,3.3,38.45,3.6,1.1,0,'#7a1010','#ffe9c0');  const EX=0,EZ=-9.5,HS=1.95;  slab('floor',.04,.04,-14.4,14.4,-14.4,6.4,EX-HS,EX+HS,EZ-HS,EZ+HS); box('tile',0,.062,1.7,28.8,.024,8.8);box('carpet',-9.7,.062,-8.8,9.4,.024,11.3);box('concrete',9.8,.062,-8.8,9.3,.024,11.3); for(const s of[-1,1]){box('hazard',EX,.07,EZ+s*2.1,4.3,.02,.24);box('hazard',EX+s*2.1,.07,EZ,.24,.02,4.2)}  slab('steel',6.15,.3,-15.5,15.5,-15.5,7.5,-14.55,-11.25,1.85,6.15);  box('steel',0,6.7,7.22,8,.7,.18);box('hazard',0,6.7,7.33,5.4,.12,.04); label('RESEARCH STATION H-9',0,6.7,7.36,7.4,.56,0,'#10181c','#ffd67a'); const z0=6.7;  for(const s of[-1,1]){box('concrete',s*8.4,.5,z0,13.2,1,.6,[0,6.3]);box('concrete',s*8.4,4.7,z0,13.2,3.2,.6);box('glass',s*8.4,2.7,z0,13.2,2.4,.1);colW(s*8.4,z0,6.6,.3,0,6.3)} box('concrete',0,4.7,z0,3.6,3.2,.6);  box('concrete',-7.5,3,-14.7,15,6,.6,[0,6.3]);  box('concrete',12,3,-14.7,6,6,.6,[0,6.3]);box('concrete',8,4.7,-14.7,2.2,3.2,.6);  box('concrete',-14.7,3,-4,.6,6,22,[0,6.3]);box('concrete',14.7,3,-4,.6,6,22,[0,6.3]); box('concrete',3.45,3,-14.7,6.9,6,.6,[0,6.3]);  const dL=dyn('lsteel',-.9,1.6,z0,1.7,3.2,.25),dR=dyn('lsteel',.9,1.6,z0,1.7,3.2,.25),mainD={open:false,p:0,col:colW(0,z0,1.8,.25,0,3.2)};  const labD={open:false,p:0},lDoor=dyn('lsteel',8,1.6,-14.7,2.2,3.2,.25);labD.col=colW(8,-14.7,1.1,.25,0,3.2);  ZW(-3,-14.4,14.4,[[0,4.4],[-10,2.2],[10,2.2]],0,6,'wall',[0,6.3]); XW(-5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]);XW(5,-14.4,-3,[[-9,2.4]],0,6,'wall',[0,6.3]); for(const[x,z,w,ax]of[[-10,-3,2.2,'x'],[10,-3,2.2,'x']])B('lsteel',x,3.1,z,w+.3,.25,.4); label('OFFICES',-10,3.6,-2.82,2.4,.5,0);label('RECEIVING',10,3.6,-2.82,2.4,.5,0);label('ELEVATOR >> LAB LEVEL',0,5.0,-2.82,4,.6,0,'#10181c','#ffd67a');  B('wood',-5.8,0,1.4,4.4,1.05,1.1,[0,1.2]);B('lsteel',-5.8,1.05,1.4,4.7,.06,1.3);B('black',-6.8,1.1,1.1,.5,.34,.05);B('screen',-6.8,1.12,1.07,.42,.24,.02);B('black',-4.6,1.1,1.1,.5,.34,.05);B('screen',-4.6,1.12,1.07,.42,.24,.02); B('fabric',-6.7,0,2.7,.5,.6,.5);B('fabric',-4.9,0,2.7,.5,.6,.5); label('RECEPTION',-5.8,1.75,1.0,2.2,.5,0); for(const sx of[-1,1]){const x=sx*11.4;B('fabric',x,.0,5.1,3.6,.45,.9,[0,.9]);B('fabric',x,.45,5.45,3.6,.5,.25);B('wood',x,0,3.2,1.4,.45,.7,[0,.5]);B('lsteel',x,.45,3.2,1.5,.04,.8); B('dark',sx*13.6,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*13.6,.7,5.6,.7,.9,.7);B('dark',sx*8.0,0,5.6,.9,.7,.9,[0,1.7]);B('green',sx*8.0,.7,5.6,.7,.9,.7)}  for(const x of[-9,9])label('WELCOME TO STATION H-9\nCHECK IN AT RECEPTION',x*1.0,2.6,6.38,3.2,1,Math.PI,'#10181c','#7fe3ff'); label('FACILITY DIRECTORY\nL0 OFFICES · RECEIVING\nL1 SECURITY · RECORDS · LAB\nL1 DIRECTOR · B1 CONTAINMENT',-14.35,2.4,-0.4,3.2,1.5,Math.PI/2,'#10181c','#7fe3ff'); box('hazard',0,.068,-1.2,.2,.014,7.4);  for(const sx of[-1,1]){B('lsteel',sx*1.3,0,-3,.3,2.7,.7,[0,2.7]);B('glass',sx*1.8,0,-3,.7,1.2,.1,[0,1.2])} B('lsteel',0,2.7,-3,2.9,.3,.7);B('green',0,2.55,-3.38,1.2,.1,.05);B('red',0,2.55,-2.62,.4,.1,.05); B('rubber',3.9,0,-1.4,2.4,.8,.8,[0,.9]);B('lsteel',3.9,.8,-1.4,2.0,.9,1.0);B('black',3.9,1.0,-1.9,.1,.5,.02);label('X-RAY',3.9,1.95,-1.45,.9,.3,0,'#10181c','#ffd67a'); B('wood',-3.9,0,-1.5,1.6,.95,.7,[0,1.0]);B('black',-3.9,.95,-1.5,.4,.3,.05);B('screen',-3.9,.97,-1.52,.34,.2,.02);label('SECURITY',-3.9,1.7,-1.0,1.4,.3,0);  box('steel',-10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',-10,2,1.48,1.7,.9,.08);label('LOCKDOWN\nCONTROL',-10,1.5,1.0,1.7,.6,0,'#7a1010','#ffe9c0'); box('steel',10,1.05,1.5,2.4,1.5,1.1,[0,1.8]);box('screen',10,2,1.48,1.7,.9,.08);label('COOLANT\nCONTROL',10,1.5,1.0,1.7,.6,0,'#10181c','#7fe3ff'); for(const[x,z]of[[-8,1],[8,1],[-8,-8],[0,-8],[8,-8]])box('white',x,5.95,z,2.4,.08,.35); for(const x of[-11,-4,4,11])box('white',x,5.95,4.5,2.6,.08,.4);  for(const sx of[-1,1]){B('lsteel',sx*2.1,0,EZ-.4,.12,1.1,3.2,[0,1.1]);B('hazard',sx*2.1,.5,EZ-.4,.14,.1,3.2)} B('lsteel',0,0,EZ-2.1,4.3,1.1,.12,[0,1.1]);B('hazard',0,.5,EZ-2.1,4.3,.1,.14); for(const sx of[-1,1])B('hazard',sx*2.1,0,EZ+1.25,.14,1.2,.14); box('steel',0,4.1,-14.3,10,2,.15);for(let x=-4;x<=4;x+=2)box(x===0?'screenG':'screen',x,4.1,-14.2,1.55,1.25,.03); label('LIFT STATUS\nSURFACE <> B1 RESEARCH LEVEL',0,5.3,-14.2,6.2,.8,0,'#10181c','#ffd67a');  B('steel',-4.25,0,-6.2,.9,1.0,3.6,[0,1.2]);B('lsteel',-4.25,1.0,-6.2,1.0,.05,3.7);for(let z=-7.4;z<=-5.0;z+=1.2){B('black',-4.3,1.05,z,.08,.34,.5);B('screen',-4.26,1.07,z,.02,.26,.42)} B('fabric',-3.4,0,-7.0,.55,.5,.55);B('fabric',-3.4,0,-5.4,.55,.5,.55); for(const sx of[-1,1]){B('lsteel',sx*4.2,0,-13.7,1.1,2.3,.9,[0,2.4]);B('green',sx*4.2,1.4,-13.2,.8,.12,.04);B('red',sx*4.2,1.7,-13.2,.8,.12,.04)} B('red',4.45,0,-12.0,.5,1.3,.4,[0,1.3]);label('FIRE\nEXT.',4.18,1.6,-12.0,.4,.4,-Math.PI/2); B('steel',4.85,1.5,-7.6,.3,1,.2);B('green',4.7,1.65,-7.6,.06,.12,.12);label('CALL',4.69,1.2,-7.6,.4,.2,-Math.PI/2); label('ELEVATOR ROOM\nLEVEL 4 CLEARANCE BELOW',0,3.4,-3.18,4.6,.9,Math.PI,'#10181c','#ffd67a'); const hatchY=.065;  const desk=(x,z,rot)=>{const[sx,sz]=rot?[.8,1.5]:[1.5,.8];B('wood',x,0,z,sx,.74,sz,[0,.8]);B('lsteel',x,.74,z,sx+.04,.04,sz+.04);const mx=rot?x+.1:x,mz=rot?z:z-.1;B('black',mx,.78,mz,.5,.36,.05);B('screen',mx,.8,mz+.03,.42,.26,.02);B('black',x,.78,z+.22,.4,.03,.14); const cx=rot?x-.9:x,cz=rot?z:z+.85;B('fabric',cx,0,cz,.55,.5,.55);B('fabric',cx,.5,cz+(rot?0:.22),.5,.45,.12)}; desk(-12.6,-6.4,0);desk(-7.4,-6.4,0);desk(-12.6,-11.3,0);desk(-7.4,-11.3,0);desk(-10,-11.3,0); B('wood',-10,0,-13.3,3.4,.76,1.1,[0,.8]);B('lsteel',-10,.76,-13.3,3.5,.04,1.2);for(const x of[-11.4,-8.6])B('fabric',x,0,-12.3,.5,.5,.5);for(const x of[-11.4,-10,-8.6])B('fabric',x,0,-14.1,.5,.5,.5); for(let z=-8.2;z>=-9.8;z-=.8){B('cab',-14.0,0,z,.6,1.4,.7,[0,1.4]);B('dark',-13.69,.9,z,.02,.1,.3)} B('white',-14.3,1.2,-5.9,.05,1.3,2.6);B('blue',-14.27,1.9,-5.9,.02,.04,2.0);B('red',-14.27,1.55,-5.9,.02,.04,1.4);B('blue',-14.27,1.25,-5.9,.02,.04,1.7); label('PROJECT H-9\nQUARTERLY REVIEW',-14.22,2.4,-5.9,2.0,.6,Math.PI/2,'#f4f4f0','#203060'); B('steel',-6.0,0,-14.0,1.0,.9,.6,[0,.95]);B('white',-6.0,.9,-14.0,.3,.35,.3);B('cab',-5.4,0,-14.0,.4,1.1,.4,[0,1.1]);B('blue',-5.4,1.1,-14.0,.3,.4,.3);  B('wood',-8.2,0,-4.2,1.0,.7,.5,[0,.8]);B('green',-8.2,.7,-4.2,.8,.6,.4);  for(let z=-13;z<=-5;z+=2){B('lsteel',13.9,0,z,.1,2.6,.1);}  for(const y of[.4,1.4,2.4])B('lsteel',13.6,y,-9.0,.9,.08,8.4,[0,2.5]); for(let i=0;i<7;i++){const z=-13+i*1.15;B(i%3?'wood':'orange',13.55,.48,z,.7,.7,.9);B(i%2?'wood':'dark',13.55,1.48,z+.1,.7,.7,.9);B(i%3==1?'yellow':'wood',13.55,2.48,z,.7,.6,.9)} for(let i=0;i<4;i++)B(i%2?'dark':'blue',10.2+(i%2)*1.1,0,-13.2+Math.floor(i/2)*1.1,1.0,1.0,1.0,i==0?[0,1.0]:null);B('wood',10.7,0,-13.7,2.4,1.0,1.0,[0,1.0]);  cylM('blue',12.2,.55,-12.3,.3,.3,1.1,8);cylM('yellow',12.9,.55,-12.4,.3,.3,1.1,8);cylM('bio',11.5,.55,-12.3,.3,.3,1.1,8);colW(12.2,-12.3,.9,.4,0,1.1); B('yellow',8.0,0,-11.4,1.6,.9,2.7,[0,1.0]);B('black',8.0,.9,-11.9,.1,1.4,.1);B('black',7.4,.9,-10.9,.08,1.5,.08);B('black',8.6,.9,-10.9,.08,1.5,.08);B('dark',8.0,1.6,-10.9,1.3,.08,1.0);  B('rubber',7.2,0,-12.4,.3,.5,.5);B('rubber',8.8,0,-12.4,.3,.5,.5);B('rubber',7.2,0,-10.4,.3,.5,.5);B('rubber',8.8,0,-10.4,.3,.5,.5); B('steel',6.3,0,-7.3,1.2,.9,.8,[0,1.0]);B('lsteel',6.3,.9,-7.3,1.3,.05,.9);B('dark',6.3,1.0,-7.3,.4,.3,.4);  B('orange',12.9,0,-4.2,.9,1.9,.5,[0,1.9]);B('white',12.9,1.2,-3.92,.7,.5,.04);label('PPE',12.9,1.4,-3.9,.6,.3,0,'#ffe9c0','#7a1010');  B('red',14.0,0,-3.9,.4,1.3,.35,[0,1.3]); label('RECEIVING & STORAGE\nCHECK SEALS BEFORE OPENING',10,3.6,-14.35,4.6,.9,0,'#10181c','#ffd67a'); for(const x of[6.6,10,13.3])box('white',x,5.95,-9,2.4,.08,.35);box('white',-10,5.95,-8.8,2.6,.08,.35);box('white',-10,5.95,-12.5,2.6,.08,.35);box('white',0,5.95,-12.5,2.4,.08,.35);  box('dark',-27,2.5,-12,13,5,14,[0,5.2]);box('steel',-27,5.1,-12,13.6,.25,14.6);box('lsteel',-27,4.2,-4.82,7,1.2,.16); for(let x=-31;x<=-23;x+=2)box('black',x,4.2,-4.7,.12,1.05,.12); for(let i=0;i<3;i++)cylM('steel',-30+i*3,6,-12,.45,.55,2,12); label('GENERATOR HALL\nHIGH VOLTAGE',-27,2.2,-4.65,5,1.2,0,'#7a1010','#ffe9c0'); cylM('lsteel',-37,1.4,-12,1.3,1.3,2.8,16);colW(-37,-12,1.4,1.4,0,2.8);cylM('lsteel',-37,2.9,-12,1.0,1.3,.4,16);label('FUEL',-37,1.6,-10.65,1.3,.5,0,'#7a1010','#ffe9c0'); B('lsteel',-27,5.35,-6,1,.9,.8);B('dark',-23,5.35,-17,3.2,1.1,2.4);B('lsteel',-31,5.35,-17,3.0,1.0,2.0);  box('concrete',27,2.5,-12,13,5,14,[0,5.2]);box('steel',27,5.1,-12,13.6,.25,14.6);box('lsteel',27,2,-4.8,8,4,.25); for(let y=.5;y<4;y+=.7)box('dark',27,y,-4.62,7.8,.08,.05); label('VEHICLE BAY',27,4.6,-4.55,5,.8,0,'#10181c','#ffd67a'); B('lsteel',23,5.35,-17,3.4,1.4,2.2);B('dark',31,5.35,-17,2.6,1.1,2.4);  box('lsteel',-7,8.1,-4,.16,3.8,.16);box('lsteel',-7,9,-4,2.1,.12,.12);cyl('lsteel',6,7.4,-4,1.2,.85,.25,20);box('steel',6,6.8,-4,.18,1.2,.18); B('lsteel',-10,6.3,-9,3.0,1.1,2.0);B('dark',10,6.3,-9,2.6,.9,2.0);B('lsteel',0,6.3,-12,6.0,.7,1.2);  for(const[x,z]of[[-13,9],[13,9],[-13,-17],[13,-17]]){box('steel',x,4.4,z,.18,8.8,.18);box('hazard',x,8.9,z,1,.2,.5);box('lamp',x,8.7,z,.8,.1,.35)}  for(let i=0;i<5;i++){const x=-34+i*3;box(i%2?'steel':'hazard',x,.65,18,2.2,1.3,1.8,[0,1.3]);box('black',x,.65,18.94,.12,1.35,.06)} for(const x of[-9,9])for(let z=15;z<=27;z+=3)cyl('hazard',x,.6,z,.22,.28,1.2,8); const van=(x,z)=>{B('lsteel',x,.5,z,2.2,1.9,4.6,[0,2.2]);B('steel',x,.5,z+2.7,2.1,1.1,1.2);B('glass',x,1.3,z+3.32,1.9,.7,.05);B('bio',x,1.4,z-2.32,.8,.8,.04);for(const sx of[-1,1])for(const dz of[-1.4,1.8])cylM('rubber',x+sx*1.1,.5,z+dz,.5,.5,.35,10,'x')}; van(-33,28);van(33,26); const beacon=dyn('red',14.3,5.1,6.3,.45,.45,.45); 
   const TOP=-.09,BOT=-9.75,LF={y:TOP,tgt:TOP,moving:false}; const lift=dyn('lsteel',EX,TOP,EZ,3.6,.3,3.6),hatch=dyn('dark',EX,.035,EZ,4.0,.05,4.0);hatch.visible=false; for(const s of[-1,1])for(const[w,d,x,z]of[[3.6,.2,0,s*1.7],[.2,3.4,s*1.7,0]]){const q=new T.Mesh(new T.BoxGeometry(w,.03,d),M.hazard);q.position.set(x,.16,z);lift.add(q)}  box('lsteel',EX-1.92,-4.9,EZ,.18,9.6,.18);box('lsteel',EX+1.92,-4.9,EZ,.18,9.6,.18);box('lsteel',EX-1.92,-4.9,EZ-1.7,.18,9.6,.18);box('lsteel',EX+1.92,-4.9,EZ-1.7,.18,9.6,.18);  const ind=dyn('green',4.7,2.2,EZ+1.9,.22,.22,.08);  const WH=9.8,WY=-5.1; box('floor',0,-9.8,-20,36,.4,28);  slab('dark',-.35,.3,-18,18,-34,-6,EX-HS,EX+HS,EZ-HS,EZ+HS);  box('dark',0,WY,-34,36,WH,.5,UGc);box('dark',-18,WY,-20,.5,WH,28,UGc);box('dark',18,WY,-20,.5,WH,28,UGc);box('dark',0,WY,-6,36,WH,.5,UGc); const T2=(x0,x1,z0,z1,m)=>box(m||'tile',(x0+x1)/2,FY+.012,(z0+z1)/2,x1-x0,.024,z1-z0); const RW=[FY-.1,RC+.2],CEIL=(x0,x1,z0,z1)=>box('dark',(x0+x1)/2,RC+.1,(z0+z1)/2,x1-x0,.2,z1-z0); const LP=(x,z,sx,sz,y)=>box('white',x,(y===undefined?RC-.03:y),z,sx||1.8,.06,sz||.4);  ZW(-14.5,-18,18,[[0,3.4],[-12.5,2.4],[12.5,2.4]],FY,RC+.2,'wall',RW);  XW(-7,-14.5,-6.25,[],FY,RC+.2,'wall',RW);XW(7,-14.5,-6.25,[],FY,RC+.2,'wall',RW);  ZW(-10.2,7,17.75,[[12.5,2.4]],FY,RC+.2,'wall',RW);  ZW(-17.5,-18,-9,[[-13.5,2.4]],FY,RC+.2,'wall',RW);ZW(-17.5,9,18,[[13.5,2.4]],FY,RC+.2,'wall',RW);ZW(-17.5,-9,9,[[0,4.2]],FY,-.5,'dark',[FY-.1,-.5]); XW(-9,-33.75,-17.5,[[-28,2.4],[-20.7,2.4]],FY,-.5,'dark',[FY-.1,-.5]);XW(9,-33.75,-17.5,[[-28,2.4],[-20.7,2.4]],FY,-.5,'dark',[FY-.1,-.5]); ZW(-24,-17.75,-9,[],FY,RC+.2,'wall',RW);ZW(-24,9,17.75,[],FY,RC+.2,'wall',RW);  slab('dark',RC+.1,.2,-7,7,-14.5,-6.25,EX-HS,EX+HS,EZ-HS,EZ+HS);  for(const sx of[-1,1]){box('dark',EX+sx*(HS+.1),(RC+.2-.5)/2,EZ,.2,5.4,2*HS+.4);box('dark',EX,(RC+.2-.5)/2,EZ+sx*(HS+.1),2*HS+.4,5.4,.2)}  CEIL(-17.75,-7,-14.5,-6.25);CEIL(7,17.75,-14.5,-6.25);CEIL(-17.75,17.75,-17.5,-14.5);CEIL(-17.75,-9,-33.75,-17.5);CEIL(9,17.75,-33.75,-17.5);  T2(-17.75,17.75,-17.5,-6.25);T2(-9,9,-33.75,-17.5);T2(-17.75,-9,-33.75,-17.5);T2(9,17.75,-33.75,-24,'dark');T2(9,17.75,-24,-17.5); box('hazard',0,FY+.02,-16,34,.02,.14);box('hazard',0,FY+.02,-11.2,5.2,.02,.14);box('hazard',0,FY+.02,-7.8,5.2,.02,.14);box('hazard',-2.6,FY+.02,-9.5,.14,.02,3.5);box('hazard',2.6,FY+.02,-9.5,.14,.02,3.5);  for(const[x,z,tx,w]of[[0,-14.5,'LIFT LOBBY',2.4],[-12.5,-14.5,'PPE LOCKERS',2.2],[12.5,-14.5,'DECONTAMINATION',2.4],[0,-17.5,'CONTAINMENT HALL',3.2],[-13.5,-17.5,'CRYO STORAGE',2.2],[13.5,-17.5,'DATA CENTRE',2.2]]){const so=z>-16;label(tx,x,RC-.55,z+(so?-.17:.17),w,.42,so?Math.PI:0)}
 label('B1 CORRIDOR A',-15.5,RC-.6,-14.68,2.6,.45,Math.PI);label('B1 CORRIDOR A',15.5,RC-.6,-14.68,2.6,.45,Math.PI);
@@ -55329,9 +55625,12 @@ const bubbles=[];const bubM=new T.MeshStandardMaterial({color:0xcfffe8,transpare
 for(let i=0;i<22;i++){const q=new T.Mesh(bubG,bubM);const a=Math.random()*6.283,r=Math.random()*2.1;q.userData={a,r,y:Math.random()*5.6,s:.5+Math.random()*.8};q.position.set(HX+Math.cos(a)*r,FY+1.1+q.userData.y,HZ+Math.sin(a)*r);root.add(q);bubbles.push(q)}
 
 
+h9DressGround();
 // ======================= flush merged geometry (1 draw call per material) =======================
 for(const k in S){const q=new T.Mesh(mergeBoxes(S[k]),M[k]);q.castShadow=false;q.receiveShadow=true;root.add(q);if(k==='glass')q.renderOrder=2}
 for(const k in CY){const q=new T.Mesh(mergeGeos(CY[k]),M[k]);q.castShadow=false;q.receiveShadow=true;root.add(q)}
+h9FlushPaint(root);
+
 // ======================= lights: only three, repositioned as the player moves (point lights cost every pixel) =======================
 const LAMPS=[];function lamp(x,y,z,c,i,d){const l=new T.PointLight(c,0,d);l.userData.i=i;l.position.set(OX+x,y,OZ+z);scene.add(l);LAMPS.push(l);return l}
 const surfL=lamp(0,5,-4,0xd9f5ff,.95,26),roomL=lamp(0,FY+2,-10.4,0xd9f5ff,1.0,22),tankL=lamp(0,-5.5,-27,0x36bfe0,1.5,22);
@@ -55431,14 +55730,13 @@ function h9Ensure(){
  for(const c of Lab.walls){
   const north=c.z>6.05&&c.y0>=6&&c.hw>4;
   if(north){
-   add('concrete',c.x,6.7,c.z,c.hw*2,0.7,c.hd*2);
-   add('concrete',c.x,9.15,c.z,c.hw*2,0.6,c.hd*2);
-   add('glass',c.x,7.9,c.z-0.02,c.hw*2-0.8,1.9,0.04);
-   for(const x of [-8,-1,6,12]) add('concrete',x,7.9,c.z,0.16,2.2,c.hd*2);
+   add('concrete',-12.95,6.7,c.z,3.1,0.7,0.16);
+   add('concrete',-12.95,9.15,c.z,3.1,0.55,0.16);
+   add('glass',-12.95,8.15,c.z-0.02,2.5,1.2,0.04);
+   add('lsteel',-12.95,8.15,c.z,0.1,1.35,0.12);
   }else add(c.id==='rail'?'lsteel':'wall',c.x,(c.y0+c.y1)/2,c.z,Math.max(0.08,c.hw*2),c.y1-c.y0,Math.max(0.08,c.hd*2));
  }
- for(const x of [-8.75,-2.85,3.65]) add('concrete',x,9.05,3.5,1.45,0.45,0.18);
- for(const x of [-9,-2,4,11]) add('white',x,9.32,4.75,1.5,0.04,0.22);
+ for(const x of [-8.75,-2.85,3.65,10.85]) add('concrete',x,9.22,3.58,1.5,0.3,0.16);
  // security office
  add('wood',-10.1,6.68,-1.7,1.7,0.76,0.72); add('lsteel',-10.1,7.08,-1.7,1.78,0.04,0.8);
  add('black',-10.1,7.28,-1.95,0.7,0.32,0.05); add('screen',-10.1,7.3,-1.91,0.6,0.24,0.02);
@@ -55470,8 +55768,10 @@ function h9Ensure(){
  add('fabric',-1.2,6.52,5.25,1.3,0.42,0.5); add('red',6.6,7.05,5.55,0.22,0.7,0.22); add('hazard',1.5,6.34,4.55,8,0.015,0.1);
  // generator panel, outside the hall
  add('steel',-27,1.15,-4.55,0.7,1.5,0.28); add('hazard',-27,1.55,-4.4,0.45,0.28,0.04); add('green',-27,0.85,-4.4,0.12,0.12,0.04);
+ h9DressUpper(add);
  const g=new T.Group(); g.name='H9Upper';
  for(const k in P){const q=new T.Mesh(mergeBoxes(P[k]),M[k]); q.castShadow=false; q.receiveShadow=false; g.add(q)}
+ h9FlushPaint(g);
  root.add(g);
  for(const c of Lab.colliders(st)){
   const b=colW(c.x,c.z,c.hw,c.hd,c.y0,c.y1);
@@ -55481,10 +55781,7 @@ function h9Ensure(){
  h9Door.frontM=shut(dyn('steel',0,1.55,7.55,3.3,3.0,0.14));
  h9Door.stairM=shut(dyn('lsteel',-13.6,1.55,1.85,1.25,3.0,0.1));
  h9Door.dirM=shut(dyn('wood',10.85,7.85,3.5,1.25,3.0,0.1));
- label('L1  SECURITY',-8.8,8.35,3.28,2.3,.42,Math.PI);
- label('L1  RECORDS',-3.1,8.35,3.28,2.2,.42,Math.PI);
- label('L1  SAMPLE LAB',3.5,8.35,3.28,2.4,.42,Math.PI);
- label("DIRECTOR HALE",10.9,8.35,3.28,2.4,.42,Math.PI);
+ // L1 door plates are mounted on the headers in h9DressUpper
  label('WEST STAIR  ·  L1',-13.5,2.5,1.55,1.8,.4,0,'#10181c','#ffd67a');
  label('POWER LOCK',0,2.55,7.72,2.2,.4,0,'#7a1010','#ffe9c0');
  label('GEN HALL\nMAIN BREAKER',-27,2.15,-4.38,1.3,.55,0,'#10181c','#7fe3ff');
