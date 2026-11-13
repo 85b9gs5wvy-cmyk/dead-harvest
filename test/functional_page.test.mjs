@@ -65,9 +65,37 @@ function normalizeFunctional(html) {
   return out;
 }
 
-test('functional page matches test.html except the labeled renderer', () => {
-  const norm = normalizeFunctional(funcHtml);
-  assert.equal(norm, testHtml);
+// The H-9 upper floor, keycard chain, and ending live on test.html only.
+// functional-test.html keeps the previous station and the chapter-end card.
+function cut(html, start, end) {
+  const i = html.indexOf(start);
+  if (i < 0) return html;
+  const j = html.indexOf(end, i + start.length);
+  assert.ok(j > i, end.slice(0, 40));
+  return html.slice(0, i) + html.slice(j + end.length);
+}
+function normalizeMission(html) {
+  let s = cut(html, '/* H9_LAB_BEGIN */', '/* H9_LAB_END */\n');
+  s = cut(s, '// ===== v0.23.4 RESEARCH STATION H-9', 'window.RESBASE_ERROR=e}\n})();\n');
+  s = cut(s, '<script id="story-config">', '</script>\n');
+  s = s.replace(/\/\* H9_SAVE_BEGIN \*\/[\s\S]*?\/\* H9_SAVE_END \*\//, 'h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates}:null,');
+  s = s.replace(/\/\* H9_LOAD_BEGIN \*\/[\s\S]*?\/\* H9_LOAD_END \*\//, 'if(RB&&RB.st&&d.h9){if(d.h9.badge!=null)RB.st.badge=d.h9.badge;if(d.h9.crates!=null)RB.st.crates=d.h9.crates}');
+  return s;
+}
+
+test('the test-only H-9 finale stays off the functional page', () => {
+  // Full-file equality already fails on main: functional-test.html has drifted
+  // (its title and later gameplay hunks). This checks the finale stays on test.html.
+  const funcN = normalizeMission(normalizeFunctional(funcHtml));
+  const testN = normalizeMission(testHtml);
+  for (const html of [funcN, testN, funcHtml]) {
+    assert.equal(html.includes('/* H9_LAB_BEGIN */'), false);
+    assert.equal(html.includes('function h9Ensure'), false);
+    assert.equal(html.includes('H9_CHAIN_HOOK'), false);
+    assert.equal(html.includes('You survived Dead Harvest'), false);
+  }
+  assert.equal(testHtml.includes('/* H9_LAB_BEGIN */'), true);
+  assert.equal(testHtml.includes('H9_CHAIN_HOOK'), true);
 });
 
 test('scripts parse and storage keys stay off the live, test, and harness names', () => {
