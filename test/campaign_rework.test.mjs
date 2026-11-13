@@ -23,7 +23,8 @@ const viewerHtml = read('plot-viewer.html');
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold', 'fort',
+  'hymnal', 'hymnalHold',
+  'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
 ];
@@ -72,7 +73,7 @@ test('chapter 1 drops quarry and sawmill and keeps the hymnal and H-9 chain', ()
   assert.match(script(testHtml, 'story-config'), /H9_CHAIN_HOOK/);
   const fort = ids.indexOf('fort');
   const gate = ids.indexOf('h9-gate');
-  assert.equal(ids.slice(fort, gate).join(','), 'fort,courier-wreck,courier-case,courier-return');
+  assert.equal(ids.slice(fort, gate).join(','), 'fort,fort-log,fort-power,fort-gate,fort-yard,fort-key,fort-boss,courier-wreck,courier-case,courier-return');
   assert.equal(ids.slice(gate).join(','), 'h9-gate,h9-power,h9-card,h9-stairs,h9-director,h9-seal,h9-boss');
   for (const html of [indexHtml, campaignHtml, functionalHtml, viewerHtml]) {
     const kept = script(html, 'story-config');
@@ -133,7 +134,7 @@ test('the resource note opens once after the plant, and old quarry saves move to
   assert.match(runtime, /if\(window\.__resTip\)return/);
   const save = script(testHtml, 'will-save');
   assert.match(save, /resTip:window\.__resTip\?1:0/);
-  assert.match(save, /VER=5/);
+  assert.match(save, /VER=6/);
   assert.match(save, /vk!==1&&vk!==2&&vk!==3/);
   assert.match(save, /if\(d\.resTip\)window\.__resTip=1/);
   assert.match(save, /if\(d\._showResTip&&window\.showResTip\)window\.showResTip\(\)/);
@@ -324,7 +325,7 @@ test('headless test play boots, shows the resource note once, and migrates saves
     assert.equal(play.again, false);
     assert.equal(play.midBlocked, false);
     assert.equal(play.saved.resTip, 1);
-    assert.equal(play.saved.v, 5);
+    assert.equal(play.saved.v, 6);
     assert.equal(play.saved.idx, ORDER.indexOf('hymnal'));
     assert.deepEqual(play.quarry, { idx: ORDER.indexOf('hymnal'), tip: 1 });
     assert.deepEqual(play.saw, { idx: ORDER.indexOf('hymnal'), tip: 1 });
