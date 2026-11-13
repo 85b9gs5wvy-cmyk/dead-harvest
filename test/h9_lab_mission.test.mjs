@@ -199,6 +199,47 @@ test('keycard steps stay in order and the boss step does not complete itself', (
   assert.equal(upper.includes('castShadow=true'), false);
 });
 
+test('L1 signs are header plates and the corridor keep-out leaves the doors open', () => {
+  for (const html of [testHtml, viewerHtml]) {
+    assert.equal(html.includes("label('L1  SECURITY'"), false);
+    assert.match(html, /label\('SECURITY',-8\.75,9\.22,3\.72,1\.02,0\.2,0/);
+    assert.match(html, /label\('RECORDS',-2\.85,9\.22,3\.72,1\.02,0\.2,0/);
+    assert.match(html, /label\('SAMPLE LAB',3\.65,9\.22,3\.72,1\.06,0\.2,0/);
+    assert.match(html, /label\('DIRECTOR HALE',10\.85,9\.22,3\.72,1\.1,0\.2,0/);
+    assert.match(html, /vertexColors:true/);
+    assert.match(html, /function h9DressGround\(\)/);
+    assert.match(html, /h9FlushPaint\(root\)/);
+    assert.match(html, /h9FlushPaint\(g\)/);
+    const upper = between(html, 'function h9Ensure(){', 'function h9Tick(');
+    assert.equal(upper.includes('PointLight'), false);
+    assert.equal(upper.includes('castShadow=true'), false);
+    assert.match(upper, /h9DressUpper\(add\)/);
+  }
+  assert.equal(
+    between(testHtml, 'function h9DressGround()', 'function h9DressUpper(add){'),
+    between(viewerHtml, 'function h9DressGround()', 'function h9DressUpper(add){'),
+  );
+  assert.equal(
+    between(testHtml, 'function h9DressUpper(add){', 'function h9End(){'),
+    between(viewerHtml, 'function h9DressUpper(add){', 'function h9End(){'),
+  );
+  const dress = between(testHtml, 'function h9DressUpper(add){', 'function h9Ensure(){');
+  const pads = [];
+  for (const m of dress.matchAll(/colW\(([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+),/g)) {
+    pads.push({ x: +m[1], z: +m[2], hw: +m[3], hd: +m[4] });
+  }
+  assert.ok(pads.length >= 8, 'keep-out colliders');
+  const doors = [-8.75, -2.85, 3.65, 10.85];
+  for (const pad of pads) {
+    if (Math.abs(pad.z - 3.88) > 0.02) continue;
+    for (const x of doors) {
+      assert.ok(Math.abs(x - pad.x) > pad.hw + 0.04, `pad x ${pad.x} covers door ${x}`);
+    }
+  }
+  const north = pads.find((p) => p.z > 5);
+  assert.ok(north && north.x - north.hw > -11.15, 'north keep-out stays out of the stair');
+});
+
 function listen(server) {
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)));
 }
