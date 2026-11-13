@@ -216,8 +216,12 @@ test('L1 signs are header plates and the corridor keep-out leaves the doors open
     assert.match(upper, /h9DressUpper\(add\)/);
   }
   assert.equal(
-    between(testHtml, 'function h9DressGround()', 'function h9Ensure(){'),
-    between(viewerHtml, 'function h9DressGround()', 'function h9Ensure(){'),
+    between(testHtml, 'function h9DressGround()', 'function h9DressUpper(add){'),
+    between(viewerHtml, 'function h9DressGround()', 'function h9DressUpper(add){'),
+  );
+  assert.equal(
+    between(testHtml, 'function h9DressUpper(add){', 'function h9End(){'),
+    between(viewerHtml, 'function h9DressUpper(add){', 'function h9End(){'),
   );
   const dress = between(testHtml, 'function h9DressUpper(add){', 'function h9Ensure(){');
   const pads = [];

@@ -21,7 +21,7 @@ const read = (name) => readFileSync(new URL(name, ROOT), 'utf8');
 const indexHtml = read('index.html');
 
 const FROZEN = {
-  'test.html': '8c0a36ee19aa2aaf5f5100e1e71cc8fabefc78bd673f897cf0a7bce4fe701737',
+  'test.html': 'da12f7a8e1de8a9e605335a69fe6218ee7c75b795a70129046f19a7d9695e385',
   'campaign-test.html': '1cc4e86f2b1a64a40e6188d57509fc49acf23a66fe0b1ab4625a7c634b1c421a',
   'functional-test.html': 'aaaad9fe062b4032c4ba265128f1231124bb13c9da7f1ec0f7e7e85b31275976',
 };
