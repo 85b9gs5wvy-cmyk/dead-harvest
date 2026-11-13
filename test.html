@@ -55871,6 +55871,8 @@ window.STORY_CONFIG={
   // Quarry and sawmill stay in the world, but they are not missions.
   // A v1/v2 save on those indices (5 quarry, 6 sawmill) moves to hymnal.
   // Later indices shift back by two, so hymnal, hymnalHold, fort, and H-9 keep their missions.
+  // v3 saves are matched by mission id. Courier steps sit in front of h9-gate,
+  // so a save already on an H-9 step stays on that step. See migrateStoryIdx.
   {id:'hymnal',clock:'free',target:'eliza',
    objective:'Recover Eliza Hollow’s hymnal from her angel in Hollow Creek Cemetery and lay it on the chapel lectern',
    popup:{title:'A NAME ON THE SHORTWAVE',text:'The mills are running, and the radio isn’t sending you home to build. It keeps repeating one name: <b>Eliza Hollow</b>. Her reaching angel stands in the plaza of <b>Hollow Creek Cemetery</b>, west of the highway. Take her hymnal from the plinth (F), carry it through the chapel’s tower door, and lay it on the lectern in front of the altar (F).',secs:13},
@@ -55883,8 +55885,20 @@ window.STORY_CONFIG={
    objective:'Go to Fort Harvest and find out what happened in the city',
    popup:{title:'AFTER THE BELL',text:'Hollow Creek pointed you at Fort Harvest. Somebody there knows what happened in the city.',secs:9},
    goal:{reach:'fort'}},
+  {id:'courier-wreck',clock:'free',target:'courierBus',onEnter:'courierWreck',
+   objective:'Search the crashed courier bus in the Blackpine High drop-off lane',
+   popup:{title:'THE COURIER',text:'Fort Harvest radio: an H-9 courier fled the lab and crashed a bus at <b>Blackpine High</b>, west of the fort on the road toward the station. Infected are on the bus lane. Press F beside the bus.',secs:12},
+   goal:{courier:'note'}},
+  {id:'courier-case',clock:'free',target:'courierCase',onEnter:'courierCase',
+   objective:'Take the H-9 courier case from the nurse’s infirmary at Blackpine High',
+   popup:{title:'THE NOTE',text:'The bus is empty. His note says the <b>H-9 courier case</b> is in the <b>nurse’s infirmary</b> at Blackpine High, the nearest building that still locked. Press F at the supply locker.',secs:11},
+   goal:{courier:'case'}},
+  {id:'courier-return',clock:'free',target:'courierRadio',onEnter:'courierReturn',
+   objective:'Open the H-9 courier case at the Fort Harvest gate',
+   popup:{title:'THE CASE',text:'You have the <b>H-9 courier case</b>. It stays in your inventory if you go down. Carry it back to the <b>Fort Harvest gate</b> and press F to open it.',secs:11},
+   goal:{courier:'open'}},
   /* H9_CHAIN_HOOK: insert earlier campaign steps above this line. The finale array stays in order and ends the game. */
-  ...(window.H9_LAB&&window.H9_LAB.steps||[{id:'end',clock:'free',objective:'…',popup:{title:'FORT HARVEST',text:'The gate is sealed and the answers are inside.<br><br><i>End of Chapter 1 — more story coming.</i>',secs:10}}])
+  ...((window.H9_LAB&&window.H9_LAB.steps)||[{id:'end',clock:'free',objective:'…',popup:{title:'FORT HARVEST',text:'The gate is sealed and the answers are inside.<br><br><i>End of Chapter 1 — more story coming.</i>',secs:10}}]).map(s=>s.id==='h9-gate'?Object.assign({},s,{objective:'Open the Research Station H-9 perimeter gate with access code H9-4417',popup:{title:'THE LAST STATION',text:'The case held an H-9 <b>access fob</b>. Code <b>H9-4417</b>. Research Station H-9 is west of the city. The perimeter gate is shut. Press F at the road switch.',secs:12}}):s)
  ]
 };
 </script>
@@ -55893,11 +55907,20 @@ window.STORY_CONFIG={
 (function(){
 /*CAMPAIGN_REWORK_BEGIN*/
 function migrateStoryIdx(ver, idx){
-  idx=idx|0;
-  if((ver|0)>=3) return idx;
-  if(idx<=4) return idx;
-  if(idx===5||idx===6) return 5;
-  return idx-2;
+  // Live Test Play order. New campaign steps go here, in front of the H-9 finale, same as the story-config hook.
+  // Older catalogs stay frozen and saves are matched by mission id, so an H-9 save stays on that mission.
+  const NOW=['calm','surge','barn','barnLights','plant','hymnal','hymnalHold','fort','courier-wreck','courier-case','courier-return','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
+  idx=idx|0; ver=ver|0;
+  if(ver>=4) return idx<0?0:(idx>=NOW.length?NOW.length-1:idx);
+  const V3=['calm','surge','barn','barnLights','plant','hymnal','hymnalHold','fort','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
+  let id;
+  if(ver<3){
+    const V2=['calm','surge','barn','barnLights','plant','quarry','sawmill','hymnal','hymnalHold','fort','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
+    id=(idx===5||idx===6)?'hymnal':V2[idx];
+  }else id=V3[idx];
+  if(!id) return idx<0?0:(idx>=NOW.length?NOW.length-1:idx);
+  const at=NOW.indexOf(id);
+  return at<0?0:at;
 }
 function resTipShouldShow(shown, fromId){
   return !shown && fromId==='plant';
@@ -55978,7 +56001,7 @@ const gridOff=()=>{if(POWER.on)setGrid(false)};
 const setState=st=>{if(!st)return;if(st.grid===true)gridOn();else if(st.grid===false)gridOff();if(st.barn==='on'){barn.closed=true;barn.mode='on'}else if(st.barn==='off'){barn.mode='off';barn.closed=false}};
 let hold=true,speed=1;const _env=env;env=function(dt){const d0=dayT;_env(dt);if(hold)dayT=d0;else if(speed!==1)dayT=d0+(dayT-d0)*speed;tick(dt)};
 const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else{hold=false;speed=1}};
-const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(typeof t==='object')return t;return null};
+const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(t==='courierBus'||t==='courierCase'||t==='courierRadio'){const P=window.COURIER&&window.COURIER.spots;return P?P[t]:null}if(typeof t==='object')return t;return null};
 const mkr=new T.Group();mkr.visible=false;scene.add(mkr);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;mkr.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;mkr.add(b);mkr.userData.d=d}
 const timeline=[],after=(s,f)=>timeline.push({t:s,f});
 const FXN={
@@ -55986,7 +56009,10 @@ surge(){const order=[1,0,2,3];order.forEach((i,k)=>after(k*.55,()=>{blowPole(POL
 after(1.6,()=>{if(plantN)try{blip(180,.6,'sawtooth')}catch(e){}})},
 barnLightsOn(){barn.closed=true;barn.mode='temp';barn.temp=C.steps.find(s=>s.id==='barnLights').goal.wait;toast('💡 The barn lights flicker on…',3)},
 barnBurst(){burstBarn()},
-restoreBarn(){after(4,()=>{toast(barn.closed?'💡 Power is back at the barn.':'⚡ The grid is back, but the barn breaker is still tripped.',3.5)})}};
+restoreBarn(){after(4,()=>{toast(barn.closed?'💡 Power is back at the barn.':'⚡ The grid is back, but the barn breaker is still tripped.',3.5)})},
+courierWreck(){courierSpawn('wreck')},
+courierCase(){courierSpawn('case')},
+courierReturn(){courierSpawn('return')}};
 /*HYMNAL_RULES_START*/
 const HYMNAL_LOCAL={eliza:{x:5.15,z:0.15},lectern:{x:-29.2,z:0.35},book:{x:6.22,y:0.92,z:0.12},stand:{x:-30.55,y:0,z:0.85}};
 function hymnalLoad(raw,storyIdx,hymnalIdx){
@@ -56014,6 +56040,57 @@ function hymnalMarker(h){if(!h||!h.step||h.delivered)return null;return h.carrie
 function hymnalActive(id){return id==='hymnal'||id==='hymnalHold'}
 function hymnalSkip(id,state){return id==='hymnalHold'&&!!(state&&state.delivered)}
 /*HYMNAL_RULES_END*/
+/*COURIER_RULES_BEGIN*/
+const COURIER_CODE='H9-4417';
+const COURIER_STEPS=['courier-wreck','courier-case','courier-return'];
+const COURIER_PLACES={
+ courierBus:{building:'Blackpine High School',spot:'school bus drop-off',lx:-12.8,lz:18.2},
+ courierCase:{building:'Blackpine High School',spot:'nurse infirmary locker',lx:6.8,lz:-4},
+ courierRadio:{building:'Fort Harvest Military Outpost',spot:'gate apron',lx:-6,lz:23}
+};
+const COURIER_SPAWN={
+ wreck:[{b:'Blackpine High School',lx:-11.2,lz:18.5},{b:'Blackpine High School',lx:-15.2,lz:15},{b:'Blackpine High School',lx:-10,lz:14}],
+ case:[{b:'Blackpine High School',lx:6.2,lz:-6.5,inn:1},{b:'Blackpine High School',lx:3.4,lz:-8,inn:1},{b:'Blackpine High School',lx:4.5,lz:-5,inn:1},{b:'Blackpine High School',lx:-9.2,lz:13.4}],
+ 'return':[{b:'Fort Harvest Military Outpost',lx:-8,lz:24},{b:'Fort Harvest Military Outpost',lx:-2,lz:25},{b:'Fort Harvest Military Outpost',lx:3.5,lz:24.6}]
+};
+function courierBlank(){return{note:false,carried:false,opened:false,step:''}}
+function courierLoad(raw,storyIdx,returnIdx){
+ const past=typeof storyIdx==='number'&&typeof returnIdx==='number'&&returnIdx>=0&&storyIdx>returnIdx;
+ if(past)return{note:true,carried:false,opened:true,step:''};
+ const note=!!(raw&&(raw.note===1||raw.note===true));
+ const carried=!!(raw&&(raw.carried===1||raw.carried===true));
+ const opened=!!(raw&&(raw.opened===1||raw.opened===true));
+ if(opened)return{note:true,carried:false,opened:true,step:''};
+ if(carried)return{note:true,carried:true,opened:false,step:''};
+ if(note)return{note:true,carried:false,opened:false,step:''};
+ return courierBlank()}
+function courierReduce(c,ev){
+ const s={note:!!c.note,carried:!!c.carried,opened:!!c.opened,step:c.step||''};
+ if(ev==='search'){
+  if(s.note)return{c:s,ok:false,why:'read',advance:false};
+  if(s.step!=='courier-wreck')return{c:s,ok:false,why:'early',advance:false};
+  return{c:{note:true,carried:false,opened:false,step:s.step},ok:true,why:'note',advance:true}}
+ if(ev==='take'){
+  if(s.opened)return{c:s,ok:false,why:'done',advance:false};
+  if(s.carried)return{c:s,ok:false,why:'held',advance:false};
+  if(s.step!=='courier-case')return{c:s,ok:false,why:'early',advance:false};
+  return{c:{note:true,carried:true,opened:false,step:s.step},ok:true,why:'took',advance:true}}
+ if(ev==='open'){
+  if(s.opened)return{c:s,ok:false,why:'opened',advance:false};
+  if(!s.carried)return{c:s,ok:false,why:'empty',advance:false};
+  if(s.step!=='courier-return')return{c:s,ok:false,why:'early',advance:false};
+  return{c:{note:true,carried:false,opened:true,step:s.step},ok:true,why:'code',advance:true,code:COURIER_CODE}}
+ if(ev==='death')return{c:s,ok:true,why:'kept',advance:false};
+ if(ev==='goal')return{c:s,met:courierGoal(s.step,s),advance:false};
+ return{c:s,ok:false,why:'unknown',advance:false}}
+function courierGoal(id,c){
+ if(!c)return false;
+ if(id==='courier-wreck')return !!c.note;
+ if(id==='courier-case')return !!c.carried;
+ if(id==='courier-return')return !!c.opened;
+ return false}
+/*COURIER_RULES_END*/
+window.courierLoad=courierLoad;window.courierReduce=courierReduce;window.courierGoal=courierGoal;window.COURIER_CODE=COURIER_CODE;window.COURIER_STEPS=COURIER_STEPS;window.COURIER_PLACES=COURIER_PLACES;window.COURIER_SPAWN=COURIER_SPAWN;
 function hymnalWorld(local){const g=window.GYG,ox=g?g.position.x:-100,oz=g?g.position.z:-260;return{x:ox+local.x,y:local.y||0,z:oz+local.z}}
 function showResTip(){
  if(window.__resTip)return;
@@ -56041,7 +56118,8 @@ const keepPop=!!(prev&&hymnalActive(prev.id)&&popT>2);
 if(!keepPop)popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z);S.tgt=t;
 if(window.resTipShouldShow(!!window.__resTip, prev&&prev.id))showResTip();
 if(window.HYMNAL)hymnalSync();
-if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
+if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance();
+if(window.courierGoal&&window.COURIER&&window.courierGoal(S.cur.id,window.COURIER)){advance();return}}
 function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
 const actP=()=>!foot&&typeof car!=='undefined'&&car?car.position:pl;const reached=(t,r)=>{const p=place(t);const q=actP();return p&&Math.hypot(q.x-p.x,q.z-p.z)<r};
 const baseInfo=()=>{const set=new Set(FDm.keys()),F=[...set].map(k=>k.split(',').map(Number));let need=0,have=0,door=false;
@@ -56096,6 +56174,8 @@ if(popT>0){popT-=dt;if(popT<=0)pEl.style.opacity=0}
 if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
 {let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
 if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)o=window.HYMNAL.carried?'Lay Eliza Hollow’s hymnal on the Hollow Creek chapel lectern':'Take Eliza Hollow’s hymnal from the reaching angel in Hollow Creek Cemetery';
+if(S.cur.id==='courier-return'&&window.COURIER&&window.COURIER.carried)o='Open the H-9 courier case at the Fort Harvest gate';
+if((S.cur.id==='courier-case'||S.cur.id==='courier-return')&&window.COURIER&&window.COURIER.carried)sub=(sub?sub+' · ':'')+'Carrying the H-9 courier case';
 if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
 if(gl.baseBuilt){const q=baseInfo();sub=(q.tc?'TC ✓':'TC ✗')+' · Foundations '+Math.min(q.f,2)+'/2 · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
 if(S.tgt)sub=(sub?sub+' · ':'')+Math.round(Math.hypot(S.tgt.x-actP().x,S.tgt.z-actP().z))+' m';
@@ -56147,6 +56227,38 @@ function hymnalDeliver(){const r=hymnalApply('deliver');
  nodes.push(angelN,lectN);
  window.HYMNAL={carried:false,delivered:false,rewarded:false,step:false,spots:{eliza:{x:eliza.x,z:eliza.z},lectern:{x:lectP.x,z:lectP.z}},book,sign:lab,onStand,glow:bookGlow,angel:angelN,lect:lectN,load(raw,storyIdx){const ids=S.steps(),gate=ids.indexOf('hymnalHold'),n=hymnalLoad(raw,storyIdx,gate>=0?gate:ids.indexOf('hymnal'));this.carried=n.carried;this.delivered=n.delivered;this.rewarded=n.rewarded;hymnalSync()}};
  hymnalSync()}}
+/*COURIER_WORLD_BEGIN*/
+const courierByName=n=>insts.find(q=>q.m&&q.m.name===n);
+function courierAt(spec){const I=courierByName(spec.building);if(!I)return null;return{x:I.x+spec.lx*I.s,z:I.z+spec.lz*I.s,I}}
+const courierSpots={};
+for(const k of['courierBus','courierCase','courierRadio']){const p=courierAt(COURIER_PLACES[k]);if(p)courierSpots[k]={x:p.x,z:p.z}}
+window.COURIER=Object.assign(courierBlank(),{code:COURIER_CODE,spots:courierSpots,places:COURIER_PLACES,load(raw,storyIdx){const ids=S.steps(),n=courierLoad(raw,storyIdx|0,ids.indexOf('courier-return'));this.note=n.note;this.carried=n.carried;this.opened=n.opened;this.step=n.step||''}});
+function courierApply(ev){const Q=window.COURIER;if(!Q)return{ok:false,why:'missing'};Q.step=S.cur?S.cur.id:'';const r=courierReduce(Q,ev);Q.note=r.c.note;Q.carried=r.c.carried;Q.opened=r.c.opened;Q.step=r.c.step;if(r.advance&&S.cur&&courierGoal(S.cur.id,Q))advance();return r}
+function courierSearch(){const r=courierApply('search');
+ if(r.why==='note')toast('The courier’s note: the case is in the nurse’s infirmary.',4);
+ else if(r.why==='read')toast('You already took the note from the bus.',2.5);
+ else if(r.why==='early')toast('A wrecked bus. Nothing here the radio has asked for.',3)}
+function courierTake(){const r=courierApply('take');
+ if(r.why==='took')toast('H-9 courier case. It stays with you if you die. Open it at the Fort Harvest gate.',4.5);
+ else if(r.why==='held')toast('You already have the H-9 courier case.',2.5);
+ else if(r.why==='done')toast('The locker is empty. The case is already open.',2.5);
+ else if(r.why==='early')toast('A school locker. The courier case is not here yet.',3)}
+function courierOpen(){const r=courierApply('open');
+ if(r.why==='code')toast('Access fob '+COURIER_CODE+'. The H-9 perimeter gate will take it.',4.5);
+ else if(r.why==='empty')toast('You need the H-9 courier case from the Blackpine infirmary.',3.5);
+ else if(r.why==='opened')toast('The case is already open. Gate code '+COURIER_CODE+'.',3);
+ else if(r.why==='early')toast('Nothing to open here yet. Bring the courier case when Fort Harvest asks for it.',3.5)}
+const courierSpawned={wreck:0,case:0,'return':0};
+window.COURIER.spawned=courierSpawned;
+function courierSpawn(kind){if(courierSpawned[kind]||typeof addZ!=='function')return;courierSpawned[kind]=1;
+ for(const s of COURIER_SPAWN[kind]){const I=courierByName(s.b);if(!I)continue;const z=addZ(I.x+s.lx*I.s,I.z+s.lz*I.s,s.inn?I:null,false,null);if(z)z.courier=1}}
+{const bus=courierAt(COURIER_PLACES.courierBus),box=courierAt(COURIER_PLACES.courierCase),radio=courierAt(COURIER_PLACES.courierRadio);
+ const busN=bus?{x:bus.x,z:bus.z,t:'ctl',amt:1,max:1,g:null,rad:2.2,pr:()=>window.COURIER&&window.COURIER.note?'F: Courier bus (already searched)':'F: Search the crashed courier bus',act:()=>courierSearch()}:null;
+ const boxN=box?{x:box.x,z:box.z,t:'ctl',amt:1,max:1,g:null,rad:1.8,pr:()=>window.COURIER&&window.COURIER.carried?'F: Infirmary locker (case taken)':window.COURIER&&window.COURIER.opened?'F: Infirmary locker (empty)':'F: Take the H-9 courier case',act:()=>courierTake()}:null;
+ const radioN=radio?{x:radio.x,z:radio.z,t:'ctl',amt:1,max:1,g:null,rad:2.2,pr:()=>window.COURIER&&window.COURIER.opened?'F: Fort Harvest gate — code '+COURIER_CODE:window.COURIER&&window.COURIER.carried?'F: Open the H-9 courier case':'F: Fort Harvest gate — needs the H-9 courier case',act:()=>courierOpen()}:null;
+ if(busN)nodes.push(busN);if(boxN)nodes.push(boxN);if(radioN)nodes.push(radioN);
+ window.COURIER.nodes={bus:busN,case:boxN,radio:radioN}}
+/*COURIER_WORLD_END*/
 // ---------------- START ----------------
 POWER.did=true;POWER.on=true;POWER.wave=(POWER.len2||1)+40;
 dayT=nf(C.startHour);day=1;hold=true;
@@ -56160,7 +56272,7 @@ enter(0);
 <script id="will-save">
 /* ===== v0.24.1 SAVE / LOAD (Will, B7): localStorage autosave every 60 s + on page hide, Continue / New Game on start ===== */
 (function(){try{
-const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=3;/*WILL_FIX3_BUILDS*/let armed=false;
+const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=4;/*WILL_FIX3_BUILDS*/let armed=false;
 const prim=o=>{const r={};for(const k in o){const v=o[k];if(v==null||typeof v!=='object'&&typeof v!=='function')r[k]=v}return r};
 function snap(){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
@@ -56173,6 +56285,7 @@ function snap(){
   story:{idx:ST?ST.idx:0,night:!!RT.night},
   resTip:window.__resTip?1:0,
   hymnal:window.HYMNAL?{carried:window.HYMNAL.carried?1:0,delivered:window.HYMNAL.delivered?1:0}:null,
+  courier:window.COURIER?{note:window.COURIER.note?1:0,carried:window.COURIER.carried?1:0,opened:window.COURIER.opened?1:0}:null,
   power:{on:!!POWER.on,wave:POWER.wave},
   barn:RT.barn?{closed:RT.barn.closed,mode:RT.barn.mode==='temp'?'on':RT.barn.mode}:null,
   mills:Object.fromEntries(Object.keys(MS).map(k=>[k,{on:MS[k].on,lv:MS[k].lv,fuel:MS[k].fuel,wear:MS[k].wear,jam:MS[k].jam,out:{...MS[k].out}}])),
@@ -56183,7 +56296,7 @@ function snap(){
   brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
   builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
 function save(why){if(!armed)return false;try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(VKEY,String(VER));return true}catch(e){console.warn('[save] failed',e);return false}}
-function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2&&vk!==3)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!(d&&(d.v===1||d.v===2||d.v===3)&&d.v===vk))return null;if(d.story){const raw=d.story.idx|0;if(window.migratedResTip&&window.migratedResTip(d.v,raw,d.resTip))d._showResTip=1;if(window.migrateStoryIdx)d.story.idx=window.migrateStoryIdx(d.v,raw)}return d}catch(e){return null}}
+function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2&&vk!==3&&vk!==4)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!(d&&(d.v===1||d.v===2||d.v===3||d.v===4)&&d.v===vk))return null;if(d.story){const raw=d.story.idx|0;if(window.migratedResTip&&window.migratedResTip(d.v,raw,d.resTip))d._showResTip=1;if(window.migrateStoryIdx)d.story.idx=window.migrateStoryIdx(d.v,raw)}return d}catch(e){return null}}
 function apply(d){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
  // clock first (a story step reads dayT when it starts)
@@ -56192,6 +56305,7 @@ function apply(d){
  // power off before the story step so the plant step doesn't auto-complete
  if(!d.power.on&&POWER.on&&typeof setGrid==='function')setGrid(false);
  if(window.HYMNAL&&d.story)window.HYMNAL.load(d.hymnal,d.story.idx|0);
+ if(window.COURIER&&d.story)window.COURIER.load(d.courier,d.story.idx|0);
  if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=ids.indexOf('plant');
   if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
   ST.goto(d.story.idx)}

@@ -139,8 +139,10 @@ test('keycard steps stay in order and the boss step does not complete itself', (
   vm.runInContext(script(testHtml, 'story-config'), sandbox);
   const ids = Array.from(sandbox.window.STORY_CONFIG.steps, (s) => s.id);
   const fort = ids.indexOf('fort');
+  const gate = ids.indexOf('h9-gate');
   assert.ok(fort > 0);
-  assert.equal(ids.slice(fort + 1).join(','), ORDER.join(','));
+  assert.ok(gate > fort);
+  assert.equal(ids.slice(gate).join(','), ORDER.join(','));
   assert.equal(ids.includes('end'), false);
   assert.match(testHtml, /H9_CHAIN_HOOK/);
   assert.match(indexHtml, /End of Chapter 1/);
