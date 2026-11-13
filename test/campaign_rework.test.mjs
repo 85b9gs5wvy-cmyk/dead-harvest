@@ -21,7 +21,9 @@ const functionalHtml = read('functional-test.html');
 const viewerHtml = read('plot-viewer.html');
 
 const ORDER = [
-  'calm', 'surge', 'barn', 'barnLights', 'plant', 'hymnal', 'hymnalHold', 'fort',
+  'calm', 'surge', 'barn', 'barnLights',
+  'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
+  'hymnal', 'hymnalHold', 'fort',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
 ];
@@ -91,15 +93,18 @@ test('no story step runs a night countdown', () => {
   assert.equal(runtime.includes("clock==='countdown'"), false);
   assert.equal(runtime.includes('C.text.nightfall'), false);
   assert.match(runtime, /const clockFor=s=>\{if\(s\.clock==='hold'\)\{hold=true;speed=1\}else\{hold=false;speed=1\}\}/);
-  const plant = steps.find((s) => s.id === 'plant');
-  assert.equal(plant.clock, 'free');
+  for (const id of ['plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control']) {
+    assert.equal(steps.find((s) => s.id === id).clock, 'free', id);
+  }
 });
 
 test('the resource note opens once after the plant, and old quarry saves move to the hymnal', () => {
   const { migrateStoryIdx, resTipShouldShow, migratedResTip } = ruleBox;
   assert.equal(resTipShouldShow(false, 'plant'), true);
+  assert.equal(resTipShouldShow(false, 'plant-control'), true);
   assert.equal(resTipShouldShow(true, 'plant'), false);
   assert.equal(resTipShouldShow(false, 'hymnal'), false);
+  assert.equal(resTipShouldShow(false, 'plant-arrive'), false);
   assert.equal(resTipShouldShow(false, 'quarry'), false);
   assert.equal(migratedResTip(2, 5, false), true);
   assert.equal(migratedResTip(2, 6, false), true);
@@ -108,11 +113,14 @@ test('the resource note opens once after the plant, and old quarry saves move to
   assert.equal(migratedResTip(3, 6, false), false);
 
   for (let i = 0; i < OLD.length; i++) {
-    const want = OLD[i] === 'quarry' || OLD[i] === 'sawmill' ? 'hymnal' : OLD[i];
+    const want = OLD[i] === 'quarry' || OLD[i] === 'sawmill' ? 'hymnal' : OLD[i] === 'plant' ? 'plant-arrive' : OLD[i];
     assert.equal(ORDER[migrateStoryIdx(2, i)], want, `v2 index ${i} ${OLD[i]}`);
   }
   assert.equal(ORDER[migrateStoryIdx(3, 6)], 'hymnalHold');
-  assert.equal(migrateStoryIdx(3, 6), 6);
+  assert.equal(migrateStoryIdx(3, 6), ORDER.indexOf('hymnalHold'));
+  assert.equal(ORDER[migrateStoryIdx(4, 4)], 'plant-arrive');
+  assert.equal(ORDER[migrateStoryIdx(4, 5)], 'hymnal');
+  assert.equal(migrateStoryIdx(5, ORDER.indexOf('plant-control')), ORDER.indexOf('plant-control'));
   assert.equal(ORDER[migrateStoryIdx(1, 5)], 'hymnal');
   assert.equal(ORDER[migrateStoryIdx(2, 16)], 'h9-boss');
 
@@ -125,7 +133,7 @@ test('the resource note opens once after the plant, and old quarry saves move to
   assert.match(runtime, /if\(window\.__resTip\)return/);
   const save = script(testHtml, 'will-save');
   assert.match(save, /resTip:window\.__resTip\?1:0/);
-  assert.match(save, /VER=4/);
+  assert.match(save, /VER=5/);
   assert.match(save, /vk!==1&&vk!==2&&vk!==3/);
   assert.match(save, /if\(d\.resTip\)window\.__resTip=1/);
   assert.match(save, /if\(d\._showResTip&&window\.showResTip\)window\.showResTip\(\)/);
@@ -250,7 +258,7 @@ test('headless test play boots, shows the resource note once, and migrates saves
     const played = await send('Runtime.evaluate', {
       expression: `(() => {
         POWER.on = true;
-        const first = STORY.goto('plant');
+        const first = STORY.goto('plant-control');
         const tip = document.getElementById('resTip');
         const btn = document.getElementById('resTipOk');
         const box = tip ? tip.getBoundingClientRect() : null;
@@ -266,7 +274,7 @@ test('headless test play boots, shows the resource note once, and migrates saves
         };
         if (btn) btn.click();
         const gone = !document.getElementById('resTip');
-        STORY.goto('plant');
+        STORY.goto('plant-control');
         const again = !!document.getElementById('resTip');
         const mid = document.elementFromPoint(innerWidth / 2, innerHeight * 0.2);
         dhSave.save();
@@ -316,7 +324,7 @@ test('headless test play boots, shows the resource note once, and migrates saves
     assert.equal(play.again, false);
     assert.equal(play.midBlocked, false);
     assert.equal(play.saved.resTip, 1);
-    assert.equal(play.saved.v, 4);
+    assert.equal(play.saved.v, 5);
     assert.equal(play.saved.idx, ORDER.indexOf('hymnal'));
     assert.deepEqual(play.quarry, { idx: ORDER.indexOf('hymnal'), tip: 1 });
     assert.deepEqual(play.saw, { idx: ORDER.indexOf('hymnal'), tip: 1 });
@@ -394,7 +402,7 @@ test('resource card keeps Got it on screen at phone sizes', { timeout: 180000 },
       const old = document.getElementById('resTip');
       if (old) old.remove();
       POWER.on = true;
-      if (window.STORY) window.STORY.goto('plant');
+      if (window.STORY) window.STORY.goto('plant-control');
       if (!document.getElementById('resTip') && window.showResTip) window.showResTip();
       const tip = document.getElementById('resTip');
       const btn = document.getElementById('resTipOk');

@@ -49243,7 +49243,7 @@ const THREE={"ACESFilmicToneMapping":ACESFilmicToneMapping,"AddEquation":AddEqua
 (function(){
   var q=new URLSearchParams(location.search);
   var comp=q.get('comp')||'';
-  var comps={farm:1,sawmill:1,quarry:1,cemetery:1,h9:1};
+  var comps={farm:1,sawmill:1,quarry:1,cemetery:1,h9:1,plant:1};
   if(comp&&!comps[comp])comp='';
   var plot=parseInt(q.get('plot')||'1',10);
   if(!(plot>=1&&plot<=24))plot=1;
@@ -49448,7 +49448,7 @@ M2.felt=mk(0x1b5e3a,.9);M2.mahog=mk(0x421c12,.45,.1);M2.chrome=mk(0xd8dde2,.18,.
   if(/SCHOOL/i.test(n))return tint(0xe0d7b9);if(/STORE|FIRE/i.test(n))return tint(0xdccbb0);if(/APART/i.test(n))return tint(0xd9cdb8);
   if(s.curt){const H=[0xe2d4bb,0xd5dacb,0xdfccc0,0xd8d0c0];return tint(H[Math.abs(Math.round((s.w||0)*7+(s.d||0)*3+(s.dw||0)*11))%H.length])}
   return M2.plaster}}
-function makeModel2(s){const __id=(window.__DH_N=(window.__DH_N|0)+1),__one=window.__DH_ONE;if(__one&&(__one.comp||__one.buildId!==__id)){const hw=(s.w||8)/2,hd=(s.d||8)/2,lv=s.lv||1,cols=Object.assign([],{H:(s.fl||lv)*4});return{grp:new T.Group(),cols,ramps:[],hw,hd,lv,lamps:[],idoors:[],door:null,mast:null,__dhStub:1};}const LPS=[],IDRS=[];
+function makeModel2(s){const __id=(window.__DH_N=(window.__DH_N|0)+1),__one=window.__DH_ONE;if(__one&&(__one.comp?!(__one.comp==='plant'&&__id===8):__one.buildId!==__id)){const hw=(s.w||8)/2,hd=(s.d||8)/2,lv=s.lv||1,cols=Object.assign([],{H:(s.fl||lv)*4});return{grp:new T.Group(),cols,ramps:[],hw,hd,lv,lamps:[],idoors:[],door:null,mast:null,__dhStub:1};}const LPS=[],IDRS=[];
  const{w,d,fl,lv,dw,dh}=s,hw=w/2,hd=d/2,H=fl*FH,t=.3,B={},cols=Object.assign([],
 // === JESSICA FIX START: U3 ===
 {H}/* roof height for blockedAt */
@@ -51352,7 +51352,7 @@ new T.Mesh(mergeBoxes([[-.45,.45,-1.5,1.5,-.45,.45]]),M2.brick)
   const post=new T.Mesh(new T.CylinderGeometry(.09,.11,3.6,8),new T.MeshStandardMaterial({color:0x3a2e24,roughness:.9}));post.position.set(x,1.8,z);post.castShadow=true;scene.add(post);
   const pl=new T.Mesh(new T.PlaneGeometry(3.4,1.49),new T.MeshBasicMaterial({map:t,side:T.DoubleSide}));pl.position.set(x,3.1,z+(south?-.14:.14));pl.rotation.y=ry;scene.add(pl);
   boxes.push({x,z,hw:.25,hd:.25})}
- for(const p of PLOTS){const __one=window.__DH_ONE;if(__one){if(__one.comp||p.n!==__one.plot)continue;if(p.occ&&p.occ.__dhStub)continue;if(p.occ){const m=p.occ,S=slots(p,m.hd);place(m,S.x,S.z,p.rot);plotSign(p,m.name.split(' (')[0].toUpperCase())}else{p.filler=true;filler(p);plotSign(p,'FILLER HOUSE')}}else if(p.occ){const m=p.occ,S=slots(p,m.hd);place(m,S.x,S.z,p.rot);plotSign(p,m.name.split(' (')[0].toUpperCase())}else{p.filler=true;filler(p);plotSign(p,'FILLER HOUSE')}}
+ for(const p of PLOTS){const __one=window.__DH_ONE;if(__one){if(__one.comp?!(__one.comp==='plant'&&p.n===6):p.n!==__one.plot)continue;if(p.occ&&p.occ.__dhStub)continue;if(p.occ){const m=p.occ,S=slots(p,m.hd);place(m,S.x,S.z,p.rot);plotSign(p,m.name.split(' (')[0].toUpperCase())}else{p.filler=true;filler(p);plotSign(p,'FILLER HOUSE')}}else if(p.occ){const m=p.occ,S=slots(p,m.hd);place(m,S.x,S.z,p.rot);plotSign(p,m.name.split(' (')[0].toUpperCase())}else{p.filler=true;filler(p);plotSign(p,'FILLER HOUSE')}}
 }
 // wrecked patrol cars out front of the police station (follows it to whatever plot it is on)
 {const PI0=insts.find(q=>q.m===MODELS[4]);if(PI0){const fz=PI0.z+PI0.m.hd*PI0.s,sg=PI0.s;[[-6.5,6,1.4,0x16224a],[8.5,12.5,-.5,0x16224a],[22,11,.25,0x3c4a3a],[-18,7,2.9,0x6a6a2a]].forEach(([dx,dz,ry,c])=>wreck(PI0.x+dx,fz+sg*dz,ry,c))}}
@@ -54015,6 +54015,214 @@ for(const[x,z]of[[-4,-34.4],[11,16.2]])for(let k=0;k<4;k++)M.cyl(mRub,.5,.5,.26,
 {const g=new T.Group();g.position.set(22.6,0,7.8);g.rotation.y=-PI2/2+.08;PGp.add(g);const tm=gM(0xc9ccd0,.4,.7);pBx(g,mDm,0,.9,0,2.2,.35,10);const tank=new T.Mesh(new T.CylinderGeometry(1.2,1.2,7.2,20),tm);tank.rotation.x=PI2/2;tank.position.set(0,2.0,1.6);tank.castShadow=true;g.add(tank);for(const z of[-1.9,1.2,4.2])pBx(g,mRed,0,2.0,z,2.5,.06,.06).scale.set(1,1,1);
  pBx(g,mRed,0,1.95,-4.2,2.3,2.2,2.2);pBx(g,gM(0x4d6b7c,.2,.1),0,2.5,-5.35,2,1,.05);pBx(g,mDm,0,1.1,-5.2,2.4,.3,.5);for(const z of[-3.8,.9,2.4,4.6])for(const s of[-1,1]){const w=pCy(g,mRub,.55,.55,.4,s*1.1,.55,z,0,PI2/2,14)}
  pBx(g,mYl,0,2.0,6.2,.5,.5,.1);pW(22.6,7.8,6,1.4);pBx(g,new T.MeshBasicMaterial({color:0x2a1608}),0,.03,-6.5,2.5,.02,3.5)}
+/* PLANT_SITE_BEGIN */
+try{
+const Md=mkMG();
+const paint=gM(0x3c6078,.78,.06),cream=gM(0xd9d3c2,.86,.02),steel=gM(0x5c656c,.46,.62),dk=gM(0x2a3036,.55,.4);
+const red=gM(0x8d2c24,.58,.2),yel=gM(0xd7a21a,.55,.25),pipe=gM(0x8a5a3a,.5,.45),bodyC=gM(0x3a4650,.8,.05);
+const floorA=new T.MeshStandardMaterial({color:0x2a4a48,roughness:.92,metalness:.04,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorB=new T.MeshStandardMaterial({color:0x5a4636,roughness:.94,metalness:.02,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorC=new T.MeshStandardMaterial({color:0x3a342c,roughness:.95,metalness:.03,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorD=new T.MeshStandardMaterial({color:0x24344a,roughness:.9,metalness:.05,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const mScr=new T.MeshBasicMaterial({color:0x3ee07a}),mAmb=new T.MeshBasicMaterial({color:0xffb24a}),mCard=new T.MeshBasicMaterial({color:0xb6ffcf});
+const L={gate:[0,19],card:[-15.55,-8.2],door:[12.5,3.22],console:[14.65,7.32],gen:[13,-13.5],b0:[-15.72,0.4,4.5],b1:[-23.15,-6.35],b2:[-11.55,-19.55]};
+const SITE={locals:L,lamps:{},draws:0,tri:0,doorOpen:false,inst:plantI};
+SITE.world=function(lx,lz,y){return {x:plantI.x+lx*pS,z:plantI.z+lz*pS,y:y||0}};
+SITE.inside=function(x,z){const lx=(x-plantI.x)*pS,lz=(z-plantI.z)*pS;return lx>-38&&lx<22&&lz>-48&&lz<26};
+const solid=(x0,x1,z0,z1,y0,y1)=>boxes.push({x:plantI.x+((x0+x1)/2)*pS,z:plantI.z+((z0+z1)/2)*pS,hw:Math.abs(x1-x0)/2,hd:Math.abs(z1-z0)/2,y0:y0||0,y1:y1==null?2.6:y1,plantNew:1});
+const box=(m,x,y,z,w,h,d)=>{Md.box(m,x,y,z,w,h,d)};
+const cyl=(m,rt,rb,h,x,y,z,sg)=>{Md.cyl(m,rt,rb,h,x,y,z,0,0,0,sg||8)};
+function segWall(ax,a0,a1,f,y0,y1,mat,th,gaps,block){
+ const gs=(gaps||[]).slice().sort((p,q)=>p.a-q.a);let c=a0;const segs=[];
+ for(const g of gs){if(g.a>c+0.02)segs.push([c,g.a]);c=Math.max(c,g.b)}
+ if(a1>c+0.02)segs.push([c,a1]);
+ for(const [a,b] of segs){
+  if(ax==='x'){box(mat,(a+b)/2,(y0+y1)/2,f,b-a,y1-y0,th);if(block!==false)solid(a,b,f-th/2,f+th/2,y0,y1)}
+  else{box(mat,f,(y0+y1)/2,(a+b)/2,th,y1-y0,b-a);if(block!==false)solid(f-th/2,f+th/2,a,b,y0,y1)}
+ }
+}
+function lintel(ax,a,b,f,y0,y1,mat,th){
+ if(ax==='x'){box(mat,(a+b)/2,(y0+y1)/2,f,b-a,y1-y0,th);solid(a,b,f-th/2,f+th/2,y0,y1)}
+ else{box(mat,f,(y0+y1)/2,(a+b)/2,th,y1-y0,b-a);solid(f-th/2,f+th/2,a,b,y0,y1)}
+}
+function deck(m,x0,x1,z0,z1){box(m,(x0+x1)/2,0.09,(z0+z1)/2,x1-x0,0.02,z1-z0)}
+function lamp(key,col,x,y,z){const mesh=new T.Mesh(new T.SphereGeometry(0.07,8,6),new T.MeshBasicMaterial({color:col}));mesh.position.set(x,y,z);mesh.userData.plantNew=1;mesh.castShadow=false;PGp.add(mesh);SITE.lamps[key]=mesh.material;return mesh}
+function sign(lines,bg,fg,W,H,w,h,x,y,z,ry){const m=pSign(lines,bg,fg,W,H,w,h,x,y,z,ry);m.castShadow=false;m.userData.plantNew=1;return m}
+const floors=[];
+function flat(x0,x1,z0,z1,y){floors.push({x0,x1,z0,z1,y})}
+function ramp(x0,x1,zLow,zHigh,y0,y1){floors.push({x0,x1,z0:Math.min(zLow,zHigh),z1:Math.max(zLow,zHigh),zLow,zHigh,y0,y1})}
+const prevFA=floorAt;
+floorAt=function(px,pz,py){
+ let best=prevFA(px,pz,py);
+ const lx=(px-plantI.x)*pS,lz=(pz-plantI.z)*pS;
+ if(lx<-40||lx>24||lz<-50||lz>28)return best;
+ for(const r of floors){
+  if(lx<r.x0||lx>r.x1||lz<r.z0||lz>r.z1)continue;
+  let y=r.y;
+  if(y==null){const t=(lz-r.zLow)/(r.zHigh-r.zLow);y=r.y0+(r.y1-r.y0)*Math.max(0,Math.min(1,t))}
+  if(y<=py+0.7&&y>best)best=y;
+ }
+ return best;
+};
+// ---- tinted floors (no colliders; the slabs are decals) ----
+deck(floorA,-16.4,16.4,-10.4,10.4);
+deck(floorD,9.3,16.5,4.2,10.5);
+deck(floorB,-16.3,-6.4,-10.35,-7.65);
+deck(floorC,4.3,12.1,-21.5,-18.3);
+deck(floorC,-14.9,-8.6,-21.9,-18.95);
+deck(floorB,-15.8,-10.2,13.2,16.8);
+for(let x=-3.6;x<3.6;x+=0.45)box(mHz,x+0.16,0.1,9.7,0.28,0.015,1.3);
+box(mHz,12.5,0.1,3.7,1.5,0.015,0.35);
+// ---- hall paint, hazard band, cable tray ----
+segWall('x',-16.2,8.6,-10.55,0.1,1.35,paint,0.06,null,false);
+segWall('x',-16.2,8.6,-10.55,1.35,1.55,yel,0.07,null,false);
+segWall('z',-10.3,10.2,16.55,0.1,1.35,paint,0.06,null,false);
+segWall('z',4.3,10.3,9.15,0.1,3.05,cream,0.06,null,false);
+box(steel,13.2,2.85,7.3,6.2,0.08,0.18);box(steel,13.2,2.85,8.6,6.2,0.08,0.12);
+for(const z of [7.3,8.6]){box(pipe,11.2,2.55,z,0.08,0.7,0.08);box(pipe,15.4,2.55,z,0.08,0.7,0.08)}
+solid(10.2,16.2,7.15,7.45,2.7,3.05);
+// ---- control room: mimic board, consoles, screens, reader, door ----
+box(dk,12.6,1.85,10.42,4.6,1.7,0.08);box(mScr,11.4,1.95,10.36,1.5,0.7,0.03);box(mScr,13.2,1.95,10.36,1.5,0.7,0.03);box(mAmb,14.7,1.7,10.36,0.9,0.35,0.03);
+box(steel,11.3,0.78,6.6,1.5,0.9,0.7);box(steel,11.3,0.78,8.5,1.5,0.9,0.7);
+box(dk,11.3,1.28,6.6,1.35,0.08,0.55);box(dk,11.3,1.28,8.5,1.35,0.08,0.55);
+box(mScr,11.3,1.55,6.35,0.7,0.4,0.03);box(mAmb,11.3,1.55,8.25,0.7,0.4,0.03);
+for(const z of [6.15,7.05,8.05,8.95]){box(cream,10.55,0.48,z,0.42,0.5,0.42);box(dk,10.55,0.95,z,0.4,0.45,0.08)}
+box(steel,13.7,0.85,3.55,0.35,1.1,0.28);box(dk,13.7,1.15,3.4,0.28,0.22,0.04);
+lamp('reader',0xff3030,13.7,1.35,3.38);
+const doorBox={x:plantI.x+12.5*pS,z:plantI.z+4.02*pS,hw:0.48,hd:0.1,y0:0,y1:2.25,plantNew:1,plantDoor:1};
+boxes.push(doorBox);
+SITE.openDoor=function(){
+ if(SITE.doorOpen)return;SITE.doorOpen=true;
+ const i=boxes.indexOf(doorBox);if(i>=0)boxes.splice(i,1);
+ const wx=plantI.x+12.5*pS,wz=plantI.z+4*pS;
+ const d=(typeof bdoors!=='undefined'?bdoors:[]).find(q=>q.idoor&&Math.abs(q.x-wx)<0.8&&Math.abs(q.z-wz)<0.8);
+ if(d&&!d.open){toggleBDoor(d);d.t=1;for(const l of d.leaves)if(!l.roll)l.p.rotation.y=-l.sd*1.5}
+};
+sign([['CONTROL ROOM',34,48],['KEYCARD DOOR',20,92]],'#1f3b57','#f2f4f8',256,120,1.5,0.55,12.5,2.15,3.72,0);
+// move the master-switch plate onto the east wall of this room
+plantI.g.traverse(o=>{if(o.isMesh&&Math.abs(o.position.x-15.86)<0.03&&Math.abs(o.position.z+2.5)<0.03&&Math.abs(o.position.y-2.62)<0.05)o.position.set(16.5,1.7,7.32)});
+sign([['LOCAL GAUGES',28,46],['MASTER IS IN THE',16,84],['CONTROL ROOM',18,112]],'#16161a','#d9a516',256,140,1.3,0.7,15.7,2.1,-2.5,-Math.PI/2);
+// ---- maintenance locker + break room (inside the hall, north wall) ----
+segWall('x',-16.45,-6.35,-7.55,0.06,3.15,paint,0.12,[{a:-16.15,b:-14.75},{a:-9.35,b:-7.95}]);
+lintel('x',-16.15,-14.75,-7.55,2.35,3.15,paint,0.12);lintel('x',-9.35,-7.95,-7.55,2.35,3.15,paint,0.12);
+segWall('z',-10.45,-7.55,-6.35,0.06,3.15,paint,0.12);
+segWall('z',-10.35,-7.6,-10.7,0.06,2.3,cream,0.08,[{a:-9.15,b:-8.05}]);
+lintel('z',-9.15,-8.05,-10.7,2.3,3.05,cream,0.08);
+for(let i=0;i<4;i++){const z=-9.85+i*0.55;box(steel,-16.15,1.05,z,0.4,2.0,0.48);box(dk,-15.92,1.15,z,0.04,1.5,0.36)}
+box(bodyC,-15.55,0.22,-9.05,0.85,0.28,0.42);box(bodyC,-15.95,0.18,-9.05,0.28,0.16,0.2);box(cream,-15.15,0.2,-9.05,0.22,0.16,0.22);
+box(mCard,-15.45,0.4,-8.95,0.18,0.012,0.26);solid(-15.95,-15.2,-9.35,-8.75,0,0.55);
+box(red,-16.35,1.15,-7.85,0.16,0.55,0.16);box(dk,-16.35,1.5,-7.85,0.08,0.16,0.08);
+box(cream,-8.7,0.42,-9.3,1.3,0.08,0.7);for(const x of [-9.2,-8.2])for(const z of [-9.6,-9.0])box(dk,x,0.22,z,0.08,0.4,0.08);
+box(steel,-7.15,0.7,-9.6,0.55,1.3,0.5);box(mAmb,-7.15,1.15,-9.32,0.3,0.2,0.03);
+box(cream,-8.4,1.5,-10.35,1.1,0.7,0.04);
+sign([['LOCKER ROOM',30,50],['SHIFT OFFICE',18,96]],'#1a1a1a','#f2f4f8',256,120,1.6,0.5,-15.4,2.15,-7.4,Math.PI);
+sign([['BREAK ROOM',32,64]],'#5a3a32','#f2f4f8',256,80,1.2,0.4,-8.6,2.05,-7.4,Math.PI);
+// ---- turbine catwalk stair (west wall) + breaker ----
+flat(-16.7,-15.32,-9.9,9.5,4.48);flat(-15.55,-14.15,0.7,1.35,4.48);
+ramp(-15.55,-14.2,8.6,1.05,0.06,4.48);
+for(let i=0;i<16;i++){const z0=8.55-i*0.47,z1=z0-0.47,t=(8.6-z0)/(8.6-1.05),y=0.06+t*4.42;box(steel,-14.85,y/2,(z0+z1)/2,1.15,Math.max(0.08,y),0.46);box(yel,-14.22,y+0.45,(z0+z1)/2,0.06,0.9,0.06)}
+for(let z=-9;z<=9;z+=1.6){if(z>0.35&&z<1.7)continue;box(steel,-15.28,5.15,z,0.06,1.3,0.06);solid(-15.36,-15.2,z-0.06,z+0.06,4.48,5.75)}
+box(steel,-15.28,5.75,-4.2,0.06,0.06,9.2);box(steel,-15.28,5.75,5.2,0.06,0.06,8.4);
+solid(-15.36,-15.2,-9,0.35,5.6,5.9);solid(-15.36,-15.2,1.7,9,5.6,5.9);
+box(dk,-16.35,5.35,0.4,0.28,0.7,0.45);box(yel,-16.18,5.35,0.4,0.06,0.4,0.2);lamp('b0',0xff3020,-16.18,5.7,0.4);
+sign([['TG-1 BREAKER',26,48],['CATWALK',16,88]],'#16161a','#d9a516',256,110,0.9,0.4,-16.15,5.15,1.15,Math.PI/2);
+// ---- yard pipe rack + stair ----
+flat(-10.4,-3.6,-16.4,-13.4,3.2);
+ramp(-7.5,-5.1,-11.7,-13.45,0.06,3.2);
+for(const x of [-10,-8,-6,-4]){box(steel,x,1.6,-16.2,0.16,3.2,0.16);box(steel,x,1.6,-13.6,0.16,3.2,0.16);solid(x-0.12,x+0.12,-16.32,-16.08,0,3.2);if(x<-7.6||x>-4.4)solid(x-0.12,x+0.12,-13.72,-13.48,0,3.2)}
+box(pipe,-7,3.45,-14.9,7.2,0.28,0.28);box(pipe,-7,3.05,-14.9,7.2,0.2,0.2);box(steel,-7,3.2,-13.45,6.6,0.08,1.1);
+for(let i=0;i<8;i++){const z=-13.4+i*0.22,t=i/7,y=3.2-t*3.1;box(steel,-6.3,Math.max(0.08,y)/2,z,1.3,Math.max(0.1,y),0.2)}
+box(yel,-5.15,1.6,-12.5,0.06,3.2,0.06);
+// ---- boiler house ----
+segWall('x',4.3,12.2,-21.55,0,6.2,paint,0.16);segWall('x',4.3,12.2,-18.25,0,6.2,paint,0.16,[{a:7.3,b:9.1}]);
+lintel('x',7.3,9.1,-18.25,2.4,6.2,paint,0.16);
+segWall('z',-21.55,-18.25,4.3,0,6.2,paint,0.16);segWall('z',-21.55,-18.25,12.2,0,6.2,paint,0.16);
+box(steel,6.2,1.7,-19.9,1.5,3.2,1.5);box(steel,10.2,1.7,-19.9,1.5,3.2,1.5);
+cyl(pipe,0.55,0.55,2.4,6.2,4.2,-19.9,8);cyl(pipe,0.55,0.55,2.4,10.2,4.2,-19.9,8);
+box(pipe,8.2,4.5,-19.9,5.2,0.4,0.4);box(red,8.2,1.15,-18.45,0.5,0.5,0.2);
+for(let y=0.4;y<6;y+=0.7)box(yel,4.45,y,-19.9,0.08,0.18,2.6);
+sign([['BOILER HOUSE',34,52],['UNIT 1 + 2',18,96]],'#3a2a22','#f2f4f8',256,120,2.2,0.7,8.2,3.2,-18.1,0);
+// ---- pump house, cooling-water valve ----
+segWall('x',-14.95,-8.55,-22.05,0,4.2,paint,0.14);segWall('x',-14.95,-8.55,-18.85,0,4.2,paint,0.14,[{a:-12.5,b:-10.8}]);
+lintel('x',-12.5,-10.8,-18.85,2.35,4.2,paint,0.14);
+segWall('z',-22.05,-18.85,-14.95,0,4.2,paint,0.14);segWall('z',-22.05,-18.85,-8.55,0,4.2,paint,0.14);
+cyl(pipe,0.45,0.45,1.5,-12.4,0.9,-20.6,8);cyl(pipe,0.45,0.45,1.5,-10.2,0.9,-20.6,8);
+box(pipe,-11.3,1.15,-20.6,2.8,0.28,0.28);cyl(red,0.22,0.22,0.08,-11.3,1.55,-20.2,8);lamp('b2',0xff3020,-11.3,1.75,-20.2);
+sign([['PUMP HOUSE',32,50],['COOLING WATER',16,92]],'#102028','#d7e6ea',256,110,1.8,0.55,-11.6,2.5,-18.7,0);
+// ---- switchyard cabinet + extra bus hardware ----
+box(dk,-23.15,0.85,-6.35,0.7,1.6,0.45);box(yel,-22.75,1.1,-6.35,0.06,0.7,0.3);lamp('b1',0xff3020,-22.75,1.55,-6.35);
+for(const z of [-9.2,-5.2,-1.4]){cyl(cream,0.16,0.2,1.1,-18.4,0.7,z,6);box(steel,-18.4,1.45,z,0.5,0.12,0.5)}
+for(const dx of [-1.3,1.3])for(const dz of [-1.3,1.3]){box(steel,-8+dx,8,-45+dz,0.28,16,0.28);solid(-8+dx-0.18,-8+dx+0.18,-45+dz-0.18,-45+dz+0.18,0,16)}
+box(steel,-8,14.2,-45,3.4,0.28,3.4);box(steel,-8,10.5,-45,3.8,0.18,0.18);box(steel,-8,10.5,-45,0.18,0.18,3.8);box(steel,-8,7.2,-45,2.6,0.16,2.6);
+sign([['SWITCHYARD',36,50],['138 kV  LIVE',18,96]],'#8d2c24','#f2f4f8',256,120,2.2,0.7,-23.2,2.4,-4.2,0);
+// ---- diesel cabinet lamp (the set itself already stands here) ----
+box(dk,13,1.15,-13.35,0.55,1.5,0.35);lamp('gen',0xff3020,13.28,1.7,-13.35);
+sign([['BACKUP DIESEL',28,46],['BLACK START',16,90]],'#d9a516','#16161a',256,110,1.5,0.55,13,1.9,-13.05,0);
+// ---- second stack, basins, loading bay, site office, clutter ----
+cyl(cream,1.15,1.45,28,-33,14,-38,8);box(dk,-33,28.2,-38,2.5,0.3,2.5);solid(-34.2,-31.8,-39.2,-36.8,0,28);
+for(const x of [-9,9]){cyl(steel,6.3,6.3,0.7,x,0.45,-30,12);box(pipe,x,1.3,-22.6,0.45,0.45,2.2)}
+box(floorC,-32.2,0.12,-18,3.4,0.16,7.2);box(steel,-32.2,1.15,-16.2,2.2,1.3,1.4);box(dk,-32.2,1.7,-17.6,2.1,0.7,1.6);
+box(dk,-32.2,0.45,-19.6,2.3,0.4,0.8);solid(-33.4,-31,-17.2,-15.4,0,2.2);
+segWall('x',-15.9,-10.1,16.85,0,3.05,cream,0.12);segWall('x',-15.9,-10.1,13.15,0,3.05,cream,0.12,[{a:-13.3,b:-11.7}]);
+lintel('x',-13.3,-11.7,13.15,2.3,3.05,cream,0.12);
+segWall('z',13.15,16.85,-15.9,0,3.05,cream,0.12);segWall('z',13.15,16.85,-10.1,0,3.05,cream,0.12);
+box(cream,-13.2,0.75,15.6,1.4,0.08,0.7);box(dk,-14.8,1.1,16.4,0.5,1.6,0.4);box(mAmb,-14.8,1.55,16.15,0.4,0.3,0.03);
+sign([['SITE OFFICE',30,56]],'#1f3b57','#f2f4f8',256,80,1.5,0.4,-12.5,2.2,13.05,Math.PI);
+sign([['DANGER',40,46],['STACK 2',22,96]],'#8d2c24','#f2f4f8',256,110,1.4,0.6,-31.4,3.2,-38,Math.PI/2);
+// barrels + crates instanced, each with a collider
+const barrels=[[-4.2,8.2],[-2.6,8.5],[5.5,8.6],[16.2,-3.4],[11.4,-17.2],[-28.4,-8.2],[-31.2,-16.4],[-5.2,-8.4],[2.4,-8.2],[-18.6,8.4],[8.6,16.4],[-6.5,14.2]];
+const crates=[[-3.2,6.4],[6.4,6.2],[-9.2,6.8],[15.2,2.4],[-27.2,-6.4],[9.4,-17.6],[-1.5,14.6],[-14.2,12.2]];
+const bGeo=new T.CylinderGeometry(0.28,0.32,0.86,7),cGeo=new T.BoxGeometry(0.7,0.55,0.7);
+const bMesh=new T.InstancedMesh(bGeo,red,barrels.length),cMesh=new T.InstancedMesh(cGeo,cream,crates.length);
+const dm=new T.Object3D();
+barrels.forEach((p,i)=>{dm.position.set(p[0],0.5,p[1]);dm.rotation.set(0,i,0);dm.updateMatrix();bMesh.setMatrixAt(i,dm.matrix);solid(p[0]-0.32,p[0]+0.32,p[1]-0.32,p[1]+0.32,0,0.9)});
+crates.forEach((p,i)=>{dm.position.set(p[0],0.34,p[1]);dm.rotation.set(0,i*0.4,0);dm.updateMatrix();cMesh.setMatrixAt(i,dm.matrix);solid(p[0]-0.35,p[0]+0.35,p[1]-0.35,p[1]+0.35,0,0.6)});
+bMesh.castShadow=cMesh.castShadow=false;bMesh.receiveShadow=cMesh.receiveShadow=true;bMesh.userData.plantNew=cMesh.userData.plantNew=1;PGp.add(bMesh,cMesh);
+// extinguishers, tool carts, papers
+[[-16.2,2.2],[16.2,4.6],[-6.2,-6.4],[6.0,-20.2],[-13.4,-20.8],[4.6,10.2]].forEach((p)=>{box(red,p[0],0.55,p[1],0.16,0.7,0.16);box(dk,p[0],0.95,p[1],0.1,0.12,0.1);solid(p[0]-0.12,p[0]+0.12,p[1]-0.12,p[1]+0.12,0,1)});
+[[1.5,5.5],[-4.5,-6.2],[10.6,-20.4]].forEach(p=>{box(steel,p[0],0.45,p[1],0.9,0.7,0.55);box(dk,p[0],0.9,p[1],0.7,0.2,0.4);solid(p[0]-0.45,p[0]+0.45,p[1]-0.28,p[1]+0.28,0,1)});
+[[-8.55,0.78,-9.15],[-8.2,0.79,-9.4],[-14.7,0.78,15.4],[-13.4,0.79,15.7]].forEach(p=>box(cream,p[0],p[1],p[2],0.28,0.012,0.2));
+const made=Md.flush(PGp,false);
+for(const o of made){o.castShadow=false;o.receiveShadow=true;o.userData.plantNew=1}
+let tri=0,draws=0;
+PGp.traverse(o=>{if(!(o.userData&&o.userData.plantNew&&o.geometry))return;draws++;const g=o.geometry;const n=g.index?g.index.count/3:(g.attributes.position?g.attributes.position.count/3:0);tri+=n*(o.isInstancedMesh?o.count:1)});
+SITE.tri=Math.round(tri);SITE.draws=draws;
+SITE.views={
+ overview:{eye:[-42,30,18],look:[-6,8,-16]},
+ turbine:{eye:[-1.2,2.5,8.2],look:[-8,2.4,-1.5]},
+ control:{eye:[11.6,1.65,5.6],look:[15.6,1.55,9.2]},
+ switchyard:{eye:[-22,8,10],look:[-27,2,-7]},
+ keycard:{eye:[-14.2,1.6,-7.75],look:[-15.55,0.55,-9.05]}
+};
+SITE.spawns=[[2.2,6.2,1],[-1.5,1.5,1],[-6.5,-1.5,1],[-12.2,-4.6,1],[-14.8,-8.4,1],[11.2,-12.4,0],[-21.5,-3.5,0],[-11.2,-17.2,0]];
+SITE.floorLocal=function(lx,lz,py){const w=SITE.world(lx,lz);return floorAt(w.x,w.z,py==null?0:py)};
+SITE.blockedLocal=function(lx,lz,y){const w=SITE.world(lx,lz);return !!blockedAt(w.x,y,w.z)};
+SITE.place=function(lx,lz,y){const w=SITE.world(lx,lz);pl.set(w.x,y==null?0.1:y,w.z);pl.y=floorAt(pl.x,pl.z,pl.y)};
+SITE.walkTo=function(lx,lz){
+ const g=SITE.world(lx,lz);
+ for(let n=0;n<700;n++){
+  const dx=g.x-pl.x,dz=g.z-pl.z,d=Math.hypot(dx,dz);
+  if(d<0.08)break;
+  const st=Math.min(0.12,d);
+  pl.x+=dx/d*st;pl.z+=dz/d*st;
+  const y=pl.y;
+  for(const b of boxes)if(!b.c&&(b.y0==null||(y<b.y1&&y+1.8>b.y0))){
+   const ox=b.hw+0.4-Math.abs(pl.x-b.x),oz=b.hd+0.4-Math.abs(pl.z-b.z);
+   if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(pl.x-b.x||1)*ox;else pl.z+=Math.sign(pl.z-b.z||1)*oz}
+  }
+  for(const I of insts)if(Math.abs(pl.x-I.x)<40&&Math.abs(pl.z-I.z)<40)for(const c of I.cols)if(c.lv==null||Math.abs(y-c.lv*FH)<2.5){
+   const ox=c.hw+0.4-Math.abs(pl.x-c.x),oz=c.hd+0.4-Math.abs(pl.z-c.z);
+   if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(pl.x-c.x||1)*ox;else pl.z+=Math.sign(pl.z-c.z||1)*oz}
+  }
+  const ty=floorAt(pl.x,pl.z,pl.y);
+  pl.y=ty>pl.y?Math.min(ty,pl.y+0.55):Math.max(ty,pl.y-0.7);
+ }
+ return {y:+pl.y.toFixed(2),lx:+((pl.x-plantI.x)*pS).toFixed(2),lz:+((pl.z-plantI.z)*pS).toFixed(2)};
+};
+window.PLANT_SITE=SITE;
+}catch(e){console.error('[plant-site]',e);window.PLANT_SITE_ERROR=String(e&&e.stack||e);if(typeof dhErr==='function')dhErr('plant-site',e)}
+/* PLANT_SITE_END */
+
 M.flush(PGp);
 }
 // ---- v0.24.3 power-station ticks: everything keys off the grid (POWER.on) with a slow spin-up/spin-down (rn)
@@ -56196,7 +56404,8 @@ if(window.__DH_ONE){(function(){try{
     if(south){pl.set(x,0,front-5);yaw=Math.PI}else{pl.set(x,0,front+5);yaw=0}pit=-.05;
   }
   var COMP={farm:{x:-23.7,z:-1.4,yaw:0},sawmill:{x:50,z:-505,yaw:0},quarry:{x:-55,z:-505,yaw:Math.PI},cemetery:{x:-100,z:-260,yaw:0},h9:{x:-335,z:-780,yaw:0}};
-  if(one.comp&&COMP[one.comp]){var c=COMP[one.comp];pl.set(c.x,0,c.z);yaw=c.yaw;pit=-.08}
+  if(one.comp==='plant'){var P=insts.find(function(q){return q.m&&q.m.name==='Riverside Power Station'});if(P){pl.set(P.x,0,P.z+P.s*(P.m.hd+6));yaw=P.s>0?0:Math.PI;pit=-.08}}
+  else if(one.comp&&COMP[one.comp]){var c=COMP[one.comp];pl.set(c.x,0,c.z);yaw=c.yaw;pit=-.08}
   else if(I)go(0);else standPlot();
   function applyCut(){if(!one.cut){if(ren.clippingPlanes&&ren.clippingPlanes.length)ren.clippingPlanes=[];return}cutPlane.constant=yCut();if(!ren.clippingPlanes||ren.clippingPlanes[0]!==cutPlane)ren.clippingPlanes=[cutPlane]}
   function orbApply(){
@@ -56209,7 +56418,10 @@ if(window.__DH_ONE){(function(){try{
     vm.visible=false;
   }
   var _ren=ren.render.bind(ren);
-  ren.render=function(s,c){if(s)s.fog=null;applyCut();if(orb.on&&s===scene)orbApply();vm.visible=false;return _ren(s,c)};
+  function plantFrame(){if(!one._shot)return false;var I=insts.find(function(q){return q.m&&q.m.name==='Riverside Power Station'});if(!I)return false;var v=one._shot,s=I.s;cam.position.set(I.x+v.eye[0]*s,v.eye[1],I.z+v.eye[2]*s);cam.lookAt(I.x+v.look[0]*s,v.look[1],I.z+v.look[2]*s);return true}
+  one.plantShot=function(name){var V=window.PLANT_SITE&&window.PLANT_SITE.views;if(!V||!V[name])return false;one._shot=V[name];one.shotName=name;setOrbit(false);return true};
+  var shotQ=new URLSearchParams(location.search).get('shot')||'';if(one.comp==='plant'&&shotQ)one.plantShot(shotQ);
+  ren.render=function(s,c){if(s)s.fog=null;applyCut();if(one._shot&&s===scene)plantFrame();else if(orb.on&&s===scene)orbApply();vm.visible=false;return _ren(s,c)};
   function setOrbit(on){orb.on=!!on;one.orbit=orb.on;vm.visible=false;if(orb.on){try{if(document.pointerLockElement)document.exitPointerLock()}catch(e){}}else cam.rotation.order='YXZ'}
   one.setOrbit=setOrbit;
   one.toggleCut=function(){one.cut=!one.cut;if(one.cut)setOrbit(true);applyCut()};
@@ -56248,13 +56460,14 @@ if(window.__DH_ONE){(function(){try{
   bar.appendChild(document.createTextNode('PLOT VIEWER · low graphics · '+label+' · Walk or Orbit · [ ] floor · C cutaway · saves off '));
   var sel=document.createElement('select');
   for(var n=1;n<=24;n++){var o=document.createElement('option');o.value='plot='+n;o.textContent='Plot '+n;if(!one.comp&&one.plot===n)o.selected=true;sel.appendChild(o)}
-  ['farm','sawmill','quarry','cemetery','h9'].forEach(function(name){var o=document.createElement('option');o.value='comp='+name;o.textContent=name;if(one.comp===name)o.selected=true;sel.appendChild(o)});
+  ['farm','sawmill','quarry','cemetery','h9','plant'].forEach(function(name){var o=document.createElement('option');o.value='comp='+name;o.textContent=name;if(one.comp===name)o.selected=true;sel.appendChild(o)});
   sel.addEventListener('change',function(){location.search='?'+sel.value+'&gfx=3'});
   bar.appendChild(sel);
   function btn(t,fn){var b=document.createElement('button');b.type='button';b.textContent=t;b.addEventListener('pointerdown',function(ev){ev.preventDefault();ev.stopPropagation();fn()});bar.appendChild(b)}
   btn('Floor −',function(){if(one.comp==='h9')h9Step(-1);else go((one.floor||0)-1)});
   btn('Floor +',function(){if(one.comp==='h9')h9Step(1);else go((one.floor||0)+1)});
   if(one.comp==='h9'){['yard','L0','L1','B1'].forEach(function(name){btn(name==='yard'?'Yard':name,function(){h9Go(name)})})} 
+  if(one.comp==='plant'){['overview','turbine','control','switchyard','keycard'].forEach(function(name){btn(name,function(){if(one.plantShot)one.plantShot(name)})});btn('Walk',function(){one._shot=null})}
   btn('Cutaway',function(){one.toggleCut()});
   btn(orb.on?'Walk':'Orbit',function(){setOrbit(!orb.on);this.textContent=orb.on?'Walk':'Orbit'});
   document.body.appendChild(bar);
