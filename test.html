@@ -55864,20 +55864,13 @@ window.STORY_CONFIG={
    objective:'Stand by…',
    popup:{title:'IT HOLDS… MAYBE',text:'The lights flicker on. Wait and see if the wiring survives.',secs:4},
    goal:{wait:7}},
-  {id:'plant',clock:'countdown',countdownSec:420,target:'plant',onExit:'restoreBarn',
+  {id:'plant',clock:'free',target:'plant',onExit:'restoreBarn',
    objective:'Reach the power plant and START the grid',
    popup:{title:'IT’S THE GRID',text:'The wiring was fine — the grid is down. Head to the power plant and restart the grid. Use the 📍 fast-travel button if the walk is too long.',secs:9},
    goal:{plantBreaker:true}},
-  {id:'quarry',clock:'countdown',countdownSec:300,target:'quarry',
-   objective:'Go to the quarry and turn it on',
-   popup:{title:'GRID ONLINE',text:'Power is flowing again. You’ll need stone and metal to dig in. Head to Ridgeline Quarry, press F at the operations console and START it. If it says no power, give the line a moment to reach it.',secs:10},
-   goal:{on:'quarry'}},
-  {id:'sawmill',clock:'countdown',countdownSec:240,target:'sawmill',
-   objective:'Go to the lumber mill and turn it on',
-   popup:{title:'QUARRY RUNNING',text:'Loud, but it works. Now the Blackpine Lumber sawmill — press F at its control to start it. It draws zombies, so don’t linger.',secs:8},
-   goal:{on:'sawmill'}},
-  // Index 7 was the haul back to the farm. Index 8 was the shelter checklist.
-  // Both are the hymnal recovery now, so older saves land on it and Fort Harvest stays at index 9.
+  // Quarry and sawmill stay in the world, but they are not missions.
+  // A v1/v2 save on those indices (5 quarry, 6 sawmill) moves to hymnal.
+  // Later indices shift back by two, so hymnal, hymnalHold, fort, and H-9 keep their missions.
   {id:'hymnal',clock:'free',target:'eliza',
    objective:'Recover Eliza Hollow’s hymnal from her angel in Hollow Creek Cemetery and lay it on the chapel lectern',
    popup:{title:'A NAME ON THE SHORTWAVE',text:'The mills are running, and the radio isn’t sending you home to build. It keeps repeating one name: <b>Eliza Hollow</b>. Her reaching angel stands in the plaza of <b>Hollow Creek Cemetery</b>, west of the highway. Take her hymnal from the plinth (F), carry it through the chapel’s tower door, and lay it on the lectern in front of the altar (F).',secs:13},
@@ -55898,11 +55891,29 @@ window.STORY_CONFIG={
 <script id="story-runtime">
 /* ===== STORY RUNTIME (v0.23.0) — plays the steps in STORY_CONFIG. You should not need to edit this. ===== */
 (function(){
+/*CAMPAIGN_REWORK_BEGIN*/
+function migrateStoryIdx(ver, idx){
+  idx=idx|0;
+  if((ver|0)>=3) return idx;
+  if(idx<=4) return idx;
+  if(idx===5||idx===6) return 5;
+  return idx-2;
+}
+function resTipShouldShow(shown, fromId){
+  return !shown && fromId==='plant';
+}
+function migratedResTip(ver, idx, already){
+  idx=idx|0;
+  return !already && (ver|0)<3 && (idx===5||idx===6);
+}
+/*CAMPAIGN_REWORK_END*/
+window.migrateStoryIdx=migrateStoryIdx;
+window.resTipShouldShow=resTipShouldShow;
+window.migratedResTip=migratedResTip;
 const C=window.STORY_CONFIG;if(!C||!C.enabled)return;
 try{
 const PI=Math.PI,rnd=(a,b)=>a+Math.random()*(b-a);
 const nf=hr=>((hr%24)-6+24)%24/24;
-const NF=nf(C.nightfallHour);
 const findNode=s=>nodes.find(n=>{try{return String(n.pr()).includes(s)}catch(e){return false}});
 const plantN=findNode('START the grid')||findNode('SHUT DOWN the grid'),keypadN=findNode('Gate keypad'),genN=findNode('black-start generator');
 const FG=()=>window.FORT_GATE,fortB=()=>(window.ALLBK||[]).find(b=>b.m&&b.m.name==='Fort Harvest Military Outpost');
@@ -55966,7 +55977,7 @@ const gridOn=()=>{POWER.did=true;if(!POWER.on){POWER.on=true}POWER.wave=(POWER.l
 const gridOff=()=>{if(POWER.on)setGrid(false)};
 const setState=st=>{if(!st)return;if(st.grid===true)gridOn();else if(st.grid===false)gridOff();if(st.barn==='on'){barn.closed=true;barn.mode='on'}else if(st.barn==='off'){barn.mode='off';barn.closed=false}};
 let hold=true,speed=1;const _env=env;env=function(dt){const d0=dayT;_env(dt);if(hold)dayT=d0;else if(speed!==1)dayT=d0+(dayT-d0)*speed;tick(dt)};
-const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else if(s.clock==='countdown'){hold=false;speed=dayT<NF?Math.max(.02,(NF-dayT)*270/(s.countdownSec||120)):1}else{hold=false;speed=1}};
+const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else{hold=false;speed=1}};
 const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(typeof t==='object')return t;return null};
 const mkr=new T.Group();mkr.visible=false;scene.add(mkr);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;mkr.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;mkr.add(b);mkr.userData.d=d}
 const timeline=[],after=(s,f)=>timeline.push({t:s,f});
@@ -56004,11 +56015,31 @@ function hymnalActive(id){return id==='hymnal'||id==='hymnalHold'}
 function hymnalSkip(id,state){return id==='hymnalHold'&&!!(state&&state.delivered)}
 /*HYMNAL_RULES_END*/
 function hymnalWorld(local){const g=window.GYG,ox=g?g.position.x:-100,oz=g?g.position.z:-260;return{x:ox+local.x,y:local.y||0,z:oz+local.z}}
+function showResTip(){
+ if(window.__resTip)return;
+ window.__resTip=1;
+ const prevEl=document.getElementById('resTip');if(prevEl)prevEl.remove();
+ const el=document.createElement('div');
+ el.id='resTip';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');
+ el.style.cssText='position:fixed;left:50%;top:14%;transform:translateX(-50%);width:min(460px,90vw);max-height:72vh;overflow:auto;z-index:70;pointer-events:auto;background:rgba(8,10,8,.94);color:#ece6d0;border:1px solid rgba(255,210,90,.75);border-radius:12px;padding:16px 18px 14px;font:15px/1.45 system-ui,sans-serif;text-align:left';
+ el.innerHTML='<h3 style="margin:0 0 8px;color:#ffd24c;font:800 18px system-ui;letter-spacing:.04em;text-align:center">RESOURCES</h3>'
+  +'<p style="margin:0 0 8px">These are not missions. Gather when you want. On foot, press F at the prompt.</p>'
+  +'<p style="margin:0 0 8px"><b>Wood.</b> Press F at a log pile. The prompt says chop logs. The farm has piles, and they refill when the next day starts. The trees standing in the fields are not something you can chop. The sawmill also cuts wood: press F at its control to start it. It is loud and draws zombies. If the boiler is empty, press F there and feed it wood (1 wood adds 5 fuel). Press F at the output bay to take the wood.</p>'
+  +'<p style="margin:0 0 8px"><b>Stone and metal.</b> Press F at a stone rock to mine stone, or at an ore rock to mine metal. The farm has both, and they refill the next day. Ridgeline Quarry makes more of both if you start it. The grid has to be on, and the quarry main breaker has to be closed at the meter box by the entrance road. Press F at the operations console, then Start the quarry. It is loud and draws zombies. Take stone and metal from the bay, or ship the bay to the farm stash (a tenth is lost on the road). The rocks around the pit are not a mine.</p>'
+  +'<p style="margin:0 0 12px"><b>Buildings.</b> Press F at a crate inside a city building. A crate can hold wood, stone, metal, ammo, or a medkit, and crates come back the next day. There is no separate scrap pile.</p>'
+  +'<button type="button" id="resTipOk" style="display:block;width:100%;margin:0;padding:11px;border-radius:8px;border:1px solid #ffd24c;background:rgba(255,210,90,.25);color:#fff;font:700 15px system-ui;cursor:pointer">Got it</button>';
+ const close=ev=>{if(ev){ev.preventDefault();ev.stopPropagation()}el.remove();try{if(window.dhSave)window.dhSave.save()}catch(e){}};
+ el.addEventListener('pointerdown',ev=>{if(ev.target&&ev.target.id==='resTipOk')return;ev.stopPropagation()});
+ el.querySelector('#resTipOk').addEventListener('click',close);
+ document.body.appendChild(el);
+}
+window.showResTip=showResTip;
 const S=window.STORY={cfg:C,cur:null,idx:-1,t:0,steps:()=>C.steps.map(s=>s.id),goto:id=>{const i=typeof id==='number'?id:C.steps.findIndex(s=>s.id===id);if(i<0)return'unknown step';enter(i);return'→ '+C.steps[i].id},skip:()=>advance()};
 function enter(i){const prev=S.cur;if(prev&&prev.onExit&&FXN[prev.onExit])FXN[prev.onExit]();S.idx=i;S.cur=C.steps[i];S.t=0;setState(S.cur.state);clockFor(S.cur);if(S.cur.onEnter&&FXN[S.cur.onEnter])FXN[S.cur.onEnter]();
 if(hymnalSkip(S.cur.id,window.HYMNAL)){advance();return}
 const keepPop=!!(prev&&hymnalActive(prev.id)&&popT>2);
 if(!keepPop)popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)mkr.position.set(t.x,0,t.z);S.tgt=t;
+if(window.resTipShouldShow(!!window.__resTip, prev&&prev.id))showResTip();
 if(window.HYMNAL)hymnalSync();
 if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance()}
 function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
@@ -56063,16 +56094,12 @@ if(!S.cur)return;S.t+=dt;
 if(window.HYMNAL)hymnalSync();
 if(popT>0){popT-=dt;if(popT<=0)pEl.style.opacity=0}
 if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
-const ri=C.steps.findIndex(s=>s.id==='hymnal');
-if(ri>=0&&S.idx>=ri&&!nightShown&&dayT>=NF&&dayT<.9){nightShown=true;speed=1;popup(C.text.nightfall)}
-if(S.cur.clock==='countdown'&&nightShown)speed=1;
 {let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
 if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)o=window.HYMNAL.carried?'Lay Eliza Hollow’s hymnal on the Hollow Creek chapel lectern':'Take Eliza Hollow’s hymnal from the reaching angel in Hollow Creek Cemetery';
 if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
 if(gl.baseBuilt){const q=baseInfo();sub=(q.tc?'TC ✓':'TC ✗')+' · Foundations '+Math.min(q.f,2)+'/2 · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
 if(S.tgt)sub=(sub?sub+' · ':'')+Math.round(Math.hypot(S.tgt.x-actP().x,S.tgt.z-actP().z))+' m';
 if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)sub=(window.HYMNAL.carried?'Carrying the hymnal':'Hymnal is at the angel')+(sub?' · '+sub:'');
-if(S.cur.clock==='countdown'&&!nightShown&&dayT<NF){const sec=Math.max(0,Math.round((NF-dayT)*270/speed));sub+=(sub?' · ':'')+'nightfall in '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
 if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(sub?'<br><span style="color:#ffd24c;font-weight:700">'+sub+'</span>':'')}else oEl.style.display='none'}
 {const se=sEl;
  if(brk15){brk15.lever.rotation.x+=((brk15.on?-.75:.75)-brk15.lever.rotation.x)*Math.min(1,dt*9);brk15.lampM.color.setHex(brk15.on?0x35ff6a:(Math.sin(performance.now()/300)>0?0xff3020:0x501008));const u=brk15.glw.userData;if(u.t<2){u.t+=dt;const k=Math.max(0,1-u.t/.7);brk15.glw.material.opacity=k;brk15.glw.scale.setScalar(u.size*(.4+u.t*1.2))}else brk15.glw.material.opacity=0}
@@ -56133,7 +56160,7 @@ enter(0);
 <script id="will-save">
 /* ===== v0.24.1 SAVE / LOAD (Will, B7): localStorage autosave every 60 s + on page hide, Continue / New Game on start ===== */
 (function(){try{
-const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=2;/*WILL_FIX3_BUILDS*/let armed=false;
+const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=3;/*WILL_FIX3_BUILDS*/let armed=false;
 const prim=o=>{const r={};for(const k in o){const v=o[k];if(v==null||typeof v!=='object'&&typeof v!=='function')r[k]=v}return r};
 function snap(){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
@@ -56144,6 +56171,7 @@ function snap(){
   inv:JSON.parse(JSON.stringify(inv)),carry:{...carry},stored:{...stored},wi,wp:WP.map(w=>({mag:w.mag,res:w.res})),
   clock:{day,dayT,raidDay,farmHP},
   story:{idx:ST?ST.idx:0,night:!!RT.night},
+  resTip:window.__resTip?1:0,
   hymnal:window.HYMNAL?{carried:window.HYMNAL.carried?1:0,delivered:window.HYMNAL.delivered?1:0}:null,
   power:{on:!!POWER.on,wave:POWER.wave},
   barn:RT.barn?{closed:RT.barn.closed,mode:RT.barn.mode==='temp'?'on':RT.barn.mode}:null,
@@ -56155,17 +56183,19 @@ function snap(){
   brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
   builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
 function save(why){if(!armed)return false;try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(VKEY,String(VER));return true}catch(e){console.warn('[save] failed',e);return false}}
-function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');return d&&(d.v===1||d.v===2)&&d.v===vk?d:null}catch(e){return null}}
+function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2&&vk!==3)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!(d&&(d.v===1||d.v===2||d.v===3)&&d.v===vk))return null;if(d.story){const raw=d.story.idx|0;if(window.migratedResTip&&window.migratedResTip(d.v,raw,d.resTip))d._showResTip=1;if(window.migrateStoryIdx)d.story.idx=window.migrateStoryIdx(d.v,raw)}return d}catch(e){return null}}
 function apply(d){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
- // clock first (story countdown speed reads dayT on enter)
+ // clock first (a story step reads dayT when it starts)
  day=d.clock.day;dayT=d.clock.dayT;raidDay=d.clock.raidDay||0;farmHP=d.clock.farmHP??farmHP;
+ if(d.resTip)window.__resTip=1;
  // power off before the story step so the plant step doesn't auto-complete
  if(!d.power.on&&POWER.on&&typeof setGrid==='function')setGrid(false);
  if(window.HYMNAL&&d.story)window.HYMNAL.load(d.hymnal,d.story.idx|0);
  if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=ids.indexOf('plant');
   if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
   ST.goto(d.story.idx)}
+ if(d._showResTip&&window.showResTip)window.showResTip();
  if(d.power.on){POWER.did=true;POWER.on=true;POWER.wave=Math.max(POWER.wave,d.power.wave||0,(POWER.len2||1)+40)}
  if(Array.isArray(d.brkOff))for(const B of window.ALLBK||[]){B.brk=!d.brkOff.includes((B.m&&B.m.name)||B.name);B.bkT=0;B.bkW=0}/*DH26-BRK-LOAD*/
  if(RT.barn&&d.barn){RT.barn.closed=d.barn.closed;RT.barn.mode=d.barn.mode}
