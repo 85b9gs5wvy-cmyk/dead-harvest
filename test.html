@@ -53991,6 +53991,214 @@ for(const[x,z]of[[-4,-34.4],[11,16.2]])for(let k=0;k<4;k++)M.cyl(mRub,.5,.5,.26,
 {const g=new T.Group();g.position.set(22.6,0,7.8);g.rotation.y=-PI2/2+.08;PGp.add(g);const tm=gM(0xc9ccd0,.4,.7);pBx(g,mDm,0,.9,0,2.2,.35,10);const tank=new T.Mesh(new T.CylinderGeometry(1.2,1.2,7.2,20),tm);tank.rotation.x=PI2/2;tank.position.set(0,2.0,1.6);tank.castShadow=true;g.add(tank);for(const z of[-1.9,1.2,4.2])pBx(g,mRed,0,2.0,z,2.5,.06,.06).scale.set(1,1,1);
  pBx(g,mRed,0,1.95,-4.2,2.3,2.2,2.2);pBx(g,gM(0x4d6b7c,.2,.1),0,2.5,-5.35,2,1,.05);pBx(g,mDm,0,1.1,-5.2,2.4,.3,.5);for(const z of[-3.8,.9,2.4,4.6])for(const s of[-1,1]){const w=pCy(g,mRub,.55,.55,.4,s*1.1,.55,z,0,PI2/2,14)}
  pBx(g,mYl,0,2.0,6.2,.5,.5,.1);pW(22.6,7.8,6,1.4);pBx(g,new T.MeshBasicMaterial({color:0x2a1608}),0,.03,-6.5,2.5,.02,3.5)}
+/* PLANT_SITE_BEGIN */
+try{
+const Md=mkMG();
+const paint=gM(0x3c6078,.78,.06),cream=gM(0xd9d3c2,.86,.02),steel=gM(0x5c656c,.46,.62),dk=gM(0x2a3036,.55,.4);
+const red=gM(0x8d2c24,.58,.2),yel=gM(0xd7a21a,.55,.25),pipe=gM(0x8a5a3a,.5,.45),bodyC=gM(0x3a4650,.8,.05);
+const floorA=new T.MeshStandardMaterial({color:0x2a4a48,roughness:.92,metalness:.04,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorB=new T.MeshStandardMaterial({color:0x5a4636,roughness:.94,metalness:.02,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorC=new T.MeshStandardMaterial({color:0x3a342c,roughness:.95,metalness:.03,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const floorD=new T.MeshStandardMaterial({color:0x24344a,roughness:.9,metalness:.05,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const mScr=new T.MeshBasicMaterial({color:0x3ee07a}),mAmb=new T.MeshBasicMaterial({color:0xffb24a}),mCard=new T.MeshBasicMaterial({color:0xb6ffcf});
+const L={gate:[0,19],card:[-15.55,-8.2],door:[12.5,3.22],console:[14.65,7.32],gen:[13,-13.5],b0:[-15.72,0.4,4.5],b1:[-23.15,-6.35],b2:[-11.55,-19.55]};
+const SITE={locals:L,lamps:{},draws:0,tri:0,doorOpen:false,inst:plantI};
+SITE.world=function(lx,lz,y){return {x:plantI.x+lx*pS,z:plantI.z+lz*pS,y:y||0}};
+SITE.inside=function(x,z){const lx=(x-plantI.x)*pS,lz=(z-plantI.z)*pS;return lx>-38&&lx<22&&lz>-48&&lz<26};
+const solid=(x0,x1,z0,z1,y0,y1)=>boxes.push({x:plantI.x+((x0+x1)/2)*pS,z:plantI.z+((z0+z1)/2)*pS,hw:Math.abs(x1-x0)/2,hd:Math.abs(z1-z0)/2,y0:y0||0,y1:y1==null?2.6:y1,plantNew:1});
+const box=(m,x,y,z,w,h,d)=>{Md.box(m,x,y,z,w,h,d)};
+const cyl=(m,rt,rb,h,x,y,z,sg)=>{Md.cyl(m,rt,rb,h,x,y,z,0,0,0,sg||8)};
+function segWall(ax,a0,a1,f,y0,y1,mat,th,gaps,block){
+ const gs=(gaps||[]).slice().sort((p,q)=>p.a-q.a);let c=a0;const segs=[];
+ for(const g of gs){if(g.a>c+0.02)segs.push([c,g.a]);c=Math.max(c,g.b)}
+ if(a1>c+0.02)segs.push([c,a1]);
+ for(const [a,b] of segs){
+  if(ax==='x'){box(mat,(a+b)/2,(y0+y1)/2,f,b-a,y1-y0,th);if(block!==false)solid(a,b,f-th/2,f+th/2,y0,y1)}
+  else{box(mat,f,(y0+y1)/2,(a+b)/2,th,y1-y0,b-a);if(block!==false)solid(f-th/2,f+th/2,a,b,y0,y1)}
+ }
+}
+function lintel(ax,a,b,f,y0,y1,mat,th){
+ if(ax==='x'){box(mat,(a+b)/2,(y0+y1)/2,f,b-a,y1-y0,th);solid(a,b,f-th/2,f+th/2,y0,y1)}
+ else{box(mat,f,(y0+y1)/2,(a+b)/2,th,y1-y0,b-a);solid(f-th/2,f+th/2,a,b,y0,y1)}
+}
+function deck(m,x0,x1,z0,z1){box(m,(x0+x1)/2,0.09,(z0+z1)/2,x1-x0,0.02,z1-z0)}
+function lamp(key,col,x,y,z){const mesh=new T.Mesh(new T.SphereGeometry(0.07,8,6),new T.MeshBasicMaterial({color:col}));mesh.position.set(x,y,z);mesh.userData.plantNew=1;mesh.castShadow=false;PGp.add(mesh);SITE.lamps[key]=mesh.material;return mesh}
+function sign(lines,bg,fg,W,H,w,h,x,y,z,ry){const m=pSign(lines,bg,fg,W,H,w,h,x,y,z,ry);m.castShadow=false;m.userData.plantNew=1;return m}
+const floors=[];
+function flat(x0,x1,z0,z1,y){floors.push({x0,x1,z0,z1,y})}
+function ramp(x0,x1,zLow,zHigh,y0,y1){floors.push({x0,x1,z0:Math.min(zLow,zHigh),z1:Math.max(zLow,zHigh),zLow,zHigh,y0,y1})}
+const prevFA=floorAt;
+floorAt=function(px,pz,py){
+ let best=prevFA(px,pz,py);
+ const lx=(px-plantI.x)*pS,lz=(pz-plantI.z)*pS;
+ if(lx<-40||lx>24||lz<-50||lz>28)return best;
+ for(const r of floors){
+  if(lx<r.x0||lx>r.x1||lz<r.z0||lz>r.z1)continue;
+  let y=r.y;
+  if(y==null){const t=(lz-r.zLow)/(r.zHigh-r.zLow);y=r.y0+(r.y1-r.y0)*Math.max(0,Math.min(1,t))}
+  if(y<=py+0.7&&y>best)best=y;
+ }
+ return best;
+};
+// ---- tinted floors (no colliders; the slabs are decals) ----
+deck(floorA,-16.4,16.4,-10.4,10.4);
+deck(floorD,9.3,16.5,4.2,10.5);
+deck(floorB,-16.3,-6.4,-10.35,-7.65);
+deck(floorC,4.3,12.1,-21.5,-18.3);
+deck(floorC,-14.9,-8.6,-21.9,-18.95);
+deck(floorB,-15.8,-10.2,13.2,16.8);
+for(let x=-3.6;x<3.6;x+=0.45)box(mHz,x+0.16,0.1,9.7,0.28,0.015,1.3);
+box(mHz,12.5,0.1,3.7,1.5,0.015,0.35);
+// ---- hall paint, hazard band, cable tray ----
+segWall('x',-16.2,8.6,-10.55,0.1,1.35,paint,0.06,null,false);
+segWall('x',-16.2,8.6,-10.55,1.35,1.55,yel,0.07,null,false);
+segWall('z',-10.3,10.2,16.55,0.1,1.35,paint,0.06,null,false);
+segWall('z',4.3,10.3,9.15,0.1,3.05,cream,0.06,null,false);
+box(steel,13.2,2.85,7.3,6.2,0.08,0.18);box(steel,13.2,2.85,8.6,6.2,0.08,0.12);
+for(const z of [7.3,8.6]){box(pipe,11.2,2.55,z,0.08,0.7,0.08);box(pipe,15.4,2.55,z,0.08,0.7,0.08)}
+solid(10.2,16.2,7.15,7.45,2.7,3.05);
+// ---- control room: mimic board, consoles, screens, reader, door ----
+box(dk,12.6,1.85,10.42,4.6,1.7,0.08);box(mScr,11.4,1.95,10.36,1.5,0.7,0.03);box(mScr,13.2,1.95,10.36,1.5,0.7,0.03);box(mAmb,14.7,1.7,10.36,0.9,0.35,0.03);
+box(steel,11.3,0.78,6.6,1.5,0.9,0.7);box(steel,11.3,0.78,8.5,1.5,0.9,0.7);
+box(dk,11.3,1.28,6.6,1.35,0.08,0.55);box(dk,11.3,1.28,8.5,1.35,0.08,0.55);
+box(mScr,11.3,1.55,6.35,0.7,0.4,0.03);box(mAmb,11.3,1.55,8.25,0.7,0.4,0.03);
+for(const z of [6.15,7.05,8.05,8.95]){box(cream,10.55,0.48,z,0.42,0.5,0.42);box(dk,10.55,0.95,z,0.4,0.45,0.08)}
+box(steel,13.7,0.85,3.55,0.35,1.1,0.28);box(dk,13.7,1.15,3.4,0.28,0.22,0.04);
+lamp('reader',0xff3030,13.7,1.35,3.38);
+const doorBox={x:plantI.x+12.5*pS,z:plantI.z+4.02*pS,hw:0.48,hd:0.1,y0:0,y1:2.25,plantNew:1,plantDoor:1};
+boxes.push(doorBox);
+SITE.openDoor=function(){
+ if(SITE.doorOpen)return;SITE.doorOpen=true;
+ const i=boxes.indexOf(doorBox);if(i>=0)boxes.splice(i,1);
+ const wx=plantI.x+12.5*pS,wz=plantI.z+4*pS;
+ const d=(typeof bdoors!=='undefined'?bdoors:[]).find(q=>q.idoor&&Math.abs(q.x-wx)<0.8&&Math.abs(q.z-wz)<0.8);
+ if(d&&!d.open){toggleBDoor(d);d.t=1;for(const l of d.leaves)if(!l.roll)l.p.rotation.y=-l.sd*1.5}
+};
+sign([['CONTROL ROOM',34,48],['KEYCARD DOOR',20,92]],'#1f3b57','#f2f4f8',256,120,1.5,0.55,12.5,2.15,3.72,0);
+// move the master-switch plate onto the east wall of this room
+plantI.g.traverse(o=>{if(o.isMesh&&Math.abs(o.position.x-15.86)<0.03&&Math.abs(o.position.z+2.5)<0.03&&Math.abs(o.position.y-2.62)<0.05)o.position.set(16.5,1.7,7.32)});
+sign([['LOCAL GAUGES',28,46],['MASTER IS IN THE',16,84],['CONTROL ROOM',18,112]],'#16161a','#d9a516',256,140,1.3,0.7,15.7,2.1,-2.5,-Math.PI/2);
+// ---- maintenance locker + break room (inside the hall, north wall) ----
+segWall('x',-16.45,-6.35,-7.55,0.06,3.15,paint,0.12,[{a:-16.15,b:-14.75},{a:-9.35,b:-7.95}]);
+lintel('x',-16.15,-14.75,-7.55,2.35,3.15,paint,0.12);lintel('x',-9.35,-7.95,-7.55,2.35,3.15,paint,0.12);
+segWall('z',-10.45,-7.55,-6.35,0.06,3.15,paint,0.12);
+segWall('z',-10.35,-7.6,-10.7,0.06,2.3,cream,0.08,[{a:-9.15,b:-8.05}]);
+lintel('z',-9.15,-8.05,-10.7,2.3,3.05,cream,0.08);
+for(let i=0;i<4;i++){const z=-9.85+i*0.55;box(steel,-16.15,1.05,z,0.4,2.0,0.48);box(dk,-15.92,1.15,z,0.04,1.5,0.36)}
+box(bodyC,-15.55,0.22,-9.05,0.85,0.28,0.42);box(bodyC,-15.95,0.18,-9.05,0.28,0.16,0.2);box(cream,-15.15,0.2,-9.05,0.22,0.16,0.22);
+box(mCard,-15.45,0.4,-8.95,0.18,0.012,0.26);solid(-15.95,-15.2,-9.35,-8.75,0,0.55);
+box(red,-16.35,1.15,-7.85,0.16,0.55,0.16);box(dk,-16.35,1.5,-7.85,0.08,0.16,0.08);
+box(cream,-8.7,0.42,-9.3,1.3,0.08,0.7);for(const x of [-9.2,-8.2])for(const z of [-9.6,-9.0])box(dk,x,0.22,z,0.08,0.4,0.08);
+box(steel,-7.15,0.7,-9.6,0.55,1.3,0.5);box(mAmb,-7.15,1.15,-9.32,0.3,0.2,0.03);
+box(cream,-8.4,1.5,-10.35,1.1,0.7,0.04);
+sign([['LOCKER ROOM',30,50],['SHIFT OFFICE',18,96]],'#1a1a1a','#f2f4f8',256,120,1.6,0.5,-15.4,2.15,-7.4,Math.PI);
+sign([['BREAK ROOM',32,64]],'#5a3a32','#f2f4f8',256,80,1.2,0.4,-8.6,2.05,-7.4,Math.PI);
+// ---- turbine catwalk stair (west wall) + breaker ----
+flat(-16.7,-15.32,-9.9,9.5,4.48);flat(-15.55,-14.15,0.7,1.35,4.48);
+ramp(-15.55,-14.2,8.6,1.05,0.06,4.48);
+for(let i=0;i<16;i++){const z0=8.55-i*0.47,z1=z0-0.47,t=(8.6-z0)/(8.6-1.05),y=0.06+t*4.42;box(steel,-14.85,y/2,(z0+z1)/2,1.15,Math.max(0.08,y),0.46);box(yel,-14.22,y+0.45,(z0+z1)/2,0.06,0.9,0.06)}
+for(let z=-9;z<=9;z+=1.6){if(z>0.35&&z<1.7)continue;box(steel,-15.28,5.15,z,0.06,1.3,0.06);solid(-15.36,-15.2,z-0.06,z+0.06,4.48,5.75)}
+box(steel,-15.28,5.75,-4.2,0.06,0.06,9.2);box(steel,-15.28,5.75,5.2,0.06,0.06,8.4);
+solid(-15.36,-15.2,-9,0.35,5.6,5.9);solid(-15.36,-15.2,1.7,9,5.6,5.9);
+box(dk,-16.35,5.35,0.4,0.28,0.7,0.45);box(yel,-16.18,5.35,0.4,0.06,0.4,0.2);lamp('b0',0xff3020,-16.18,5.7,0.4);
+sign([['TG-1 BREAKER',26,48],['CATWALK',16,88]],'#16161a','#d9a516',256,110,0.9,0.4,-16.15,5.15,1.15,Math.PI/2);
+// ---- yard pipe rack + stair ----
+flat(-10.4,-3.6,-16.4,-13.4,3.2);
+ramp(-7.5,-5.1,-11.7,-13.45,0.06,3.2);
+for(const x of [-10,-8,-6,-4]){box(steel,x,1.6,-16.2,0.16,3.2,0.16);box(steel,x,1.6,-13.6,0.16,3.2,0.16);solid(x-0.12,x+0.12,-16.32,-16.08,0,3.2);if(x<-7.6||x>-4.4)solid(x-0.12,x+0.12,-13.72,-13.48,0,3.2)}
+box(pipe,-7,3.45,-14.9,7.2,0.28,0.28);box(pipe,-7,3.05,-14.9,7.2,0.2,0.2);box(steel,-7,3.2,-13.45,6.6,0.08,1.1);
+for(let i=0;i<8;i++){const z=-13.4+i*0.22,t=i/7,y=3.2-t*3.1;box(steel,-6.3,Math.max(0.08,y)/2,z,1.3,Math.max(0.1,y),0.2)}
+box(yel,-5.15,1.6,-12.5,0.06,3.2,0.06);
+// ---- boiler house ----
+segWall('x',4.3,12.2,-21.55,0,6.2,paint,0.16);segWall('x',4.3,12.2,-18.25,0,6.2,paint,0.16,[{a:7.3,b:9.1}]);
+lintel('x',7.3,9.1,-18.25,2.4,6.2,paint,0.16);
+segWall('z',-21.55,-18.25,4.3,0,6.2,paint,0.16);segWall('z',-21.55,-18.25,12.2,0,6.2,paint,0.16);
+box(steel,6.2,1.7,-19.9,1.5,3.2,1.5);box(steel,10.2,1.7,-19.9,1.5,3.2,1.5);
+cyl(pipe,0.55,0.55,2.4,6.2,4.2,-19.9,8);cyl(pipe,0.55,0.55,2.4,10.2,4.2,-19.9,8);
+box(pipe,8.2,4.5,-19.9,5.2,0.4,0.4);box(red,8.2,1.15,-18.45,0.5,0.5,0.2);
+for(let y=0.4;y<6;y+=0.7)box(yel,4.45,y,-19.9,0.08,0.18,2.6);
+sign([['BOILER HOUSE',34,52],['UNIT 1 + 2',18,96]],'#3a2a22','#f2f4f8',256,120,2.2,0.7,8.2,3.2,-18.1,0);
+// ---- pump house, cooling-water valve ----
+segWall('x',-14.95,-8.55,-22.05,0,4.2,paint,0.14);segWall('x',-14.95,-8.55,-18.85,0,4.2,paint,0.14,[{a:-12.5,b:-10.8}]);
+lintel('x',-12.5,-10.8,-18.85,2.35,4.2,paint,0.14);
+segWall('z',-22.05,-18.85,-14.95,0,4.2,paint,0.14);segWall('z',-22.05,-18.85,-8.55,0,4.2,paint,0.14);
+cyl(pipe,0.45,0.45,1.5,-12.4,0.9,-20.6,8);cyl(pipe,0.45,0.45,1.5,-10.2,0.9,-20.6,8);
+box(pipe,-11.3,1.15,-20.6,2.8,0.28,0.28);cyl(red,0.22,0.22,0.08,-11.3,1.55,-20.2,8);lamp('b2',0xff3020,-11.3,1.75,-20.2);
+sign([['PUMP HOUSE',32,50],['COOLING WATER',16,92]],'#102028','#d7e6ea',256,110,1.8,0.55,-11.6,2.5,-18.7,0);
+// ---- switchyard cabinet + extra bus hardware ----
+box(dk,-23.15,0.85,-6.35,0.7,1.6,0.45);box(yel,-22.75,1.1,-6.35,0.06,0.7,0.3);lamp('b1',0xff3020,-22.75,1.55,-6.35);
+for(const z of [-9.2,-5.2,-1.4]){cyl(cream,0.16,0.2,1.1,-18.4,0.7,z,6);box(steel,-18.4,1.45,z,0.5,0.12,0.5)}
+for(const dx of [-1.3,1.3])for(const dz of [-1.3,1.3]){box(steel,-8+dx,8,-45+dz,0.28,16,0.28);solid(-8+dx-0.18,-8+dx+0.18,-45+dz-0.18,-45+dz+0.18,0,16)}
+box(steel,-8,14.2,-45,3.4,0.28,3.4);box(steel,-8,10.5,-45,3.8,0.18,0.18);box(steel,-8,10.5,-45,0.18,0.18,3.8);box(steel,-8,7.2,-45,2.6,0.16,2.6);
+sign([['SWITCHYARD',36,50],['138 kV  LIVE',18,96]],'#8d2c24','#f2f4f8',256,120,2.2,0.7,-23.2,2.4,-4.2,0);
+// ---- diesel cabinet lamp (the set itself already stands here) ----
+box(dk,13,1.15,-13.35,0.55,1.5,0.35);lamp('gen',0xff3020,13.28,1.7,-13.35);
+sign([['BACKUP DIESEL',28,46],['BLACK START',16,90]],'#d9a516','#16161a',256,110,1.5,0.55,13,1.9,-13.05,0);
+// ---- second stack, basins, loading bay, site office, clutter ----
+cyl(cream,1.15,1.45,28,-33,14,-38,8);box(dk,-33,28.2,-38,2.5,0.3,2.5);solid(-34.2,-31.8,-39.2,-36.8,0,28);
+for(const x of [-9,9]){cyl(steel,6.3,6.3,0.7,x,0.45,-30,12);box(pipe,x,1.3,-22.6,0.45,0.45,2.2)}
+box(floorC,-32.2,0.12,-18,3.4,0.16,7.2);box(steel,-32.2,1.15,-16.2,2.2,1.3,1.4);box(dk,-32.2,1.7,-17.6,2.1,0.7,1.6);
+box(dk,-32.2,0.45,-19.6,2.3,0.4,0.8);solid(-33.4,-31,-17.2,-15.4,0,2.2);
+segWall('x',-15.9,-10.1,16.85,0,3.05,cream,0.12);segWall('x',-15.9,-10.1,13.15,0,3.05,cream,0.12,[{a:-13.3,b:-11.7}]);
+lintel('x',-13.3,-11.7,13.15,2.3,3.05,cream,0.12);
+segWall('z',13.15,16.85,-15.9,0,3.05,cream,0.12);segWall('z',13.15,16.85,-10.1,0,3.05,cream,0.12);
+box(cream,-13.2,0.75,15.6,1.4,0.08,0.7);box(dk,-14.8,1.1,16.4,0.5,1.6,0.4);box(mAmb,-14.8,1.55,16.15,0.4,0.3,0.03);
+sign([['SITE OFFICE',30,56]],'#1f3b57','#f2f4f8',256,80,1.5,0.4,-12.5,2.2,13.05,Math.PI);
+sign([['DANGER',40,46],['STACK 2',22,96]],'#8d2c24','#f2f4f8',256,110,1.4,0.6,-31.4,3.2,-38,Math.PI/2);
+// barrels + crates instanced, each with a collider
+const barrels=[[-4.2,8.2],[-2.6,8.5],[5.5,8.6],[16.2,-3.4],[11.4,-17.2],[-28.4,-8.2],[-31.2,-16.4],[-5.2,-8.4],[2.4,-8.2],[-18.6,8.4],[8.6,16.4],[-6.5,14.2]];
+const crates=[[-3.2,6.4],[6.4,6.2],[-9.2,6.8],[15.2,2.4],[-27.2,-6.4],[9.4,-17.6],[-1.5,14.6],[-14.2,12.2]];
+const bGeo=new T.CylinderGeometry(0.28,0.32,0.86,7),cGeo=new T.BoxGeometry(0.7,0.55,0.7);
+const bMesh=new T.InstancedMesh(bGeo,red,barrels.length),cMesh=new T.InstancedMesh(cGeo,cream,crates.length);
+const dm=new T.Object3D();
+barrels.forEach((p,i)=>{dm.position.set(p[0],0.5,p[1]);dm.rotation.set(0,i,0);dm.updateMatrix();bMesh.setMatrixAt(i,dm.matrix);solid(p[0]-0.32,p[0]+0.32,p[1]-0.32,p[1]+0.32,0,0.9)});
+crates.forEach((p,i)=>{dm.position.set(p[0],0.34,p[1]);dm.rotation.set(0,i*0.4,0);dm.updateMatrix();cMesh.setMatrixAt(i,dm.matrix);solid(p[0]-0.35,p[0]+0.35,p[1]-0.35,p[1]+0.35,0,0.6)});
+bMesh.castShadow=cMesh.castShadow=false;bMesh.receiveShadow=cMesh.receiveShadow=true;bMesh.userData.plantNew=cMesh.userData.plantNew=1;PGp.add(bMesh,cMesh);
+// extinguishers, tool carts, papers
+[[-16.2,2.2],[16.2,4.6],[-6.2,-6.4],[6.0,-20.2],[-13.4,-20.8],[4.6,10.2]].forEach((p)=>{box(red,p[0],0.55,p[1],0.16,0.7,0.16);box(dk,p[0],0.95,p[1],0.1,0.12,0.1);solid(p[0]-0.12,p[0]+0.12,p[1]-0.12,p[1]+0.12,0,1)});
+[[1.5,5.5],[-4.5,-6.2],[10.6,-20.4]].forEach(p=>{box(steel,p[0],0.45,p[1],0.9,0.7,0.55);box(dk,p[0],0.9,p[1],0.7,0.2,0.4);solid(p[0]-0.45,p[0]+0.45,p[1]-0.28,p[1]+0.28,0,1)});
+[[-8.55,0.78,-9.15],[-8.2,0.79,-9.4],[-14.7,0.78,15.4],[-13.4,0.79,15.7]].forEach(p=>box(cream,p[0],p[1],p[2],0.28,0.012,0.2));
+const made=Md.flush(PGp,false);
+for(const o of made){o.castShadow=false;o.receiveShadow=true;o.userData.plantNew=1}
+let tri=0,draws=0;
+PGp.traverse(o=>{if(!(o.userData&&o.userData.plantNew&&o.geometry))return;draws++;const g=o.geometry;const n=g.index?g.index.count/3:(g.attributes.position?g.attributes.position.count/3:0);tri+=n*(o.isInstancedMesh?o.count:1)});
+SITE.tri=Math.round(tri);SITE.draws=draws;
+SITE.views={
+ overview:{eye:[-42,30,18],look:[-6,8,-16]},
+ turbine:{eye:[-1.2,2.5,8.2],look:[-8,2.4,-1.5]},
+ control:{eye:[11.6,1.65,5.6],look:[15.6,1.55,9.2]},
+ switchyard:{eye:[-22,8,10],look:[-27,2,-7]},
+ keycard:{eye:[-14.2,1.6,-7.75],look:[-15.55,0.55,-9.05]}
+};
+SITE.spawns=[[2.2,6.2,1],[-1.5,1.5,1],[-6.5,-1.5,1],[-12.2,-4.6,1],[-14.8,-8.4,1],[11.2,-12.4,0],[-21.5,-3.5,0],[-11.2,-17.2,0]];
+SITE.floorLocal=function(lx,lz,py){const w=SITE.world(lx,lz);return floorAt(w.x,w.z,py==null?0:py)};
+SITE.blockedLocal=function(lx,lz,y){const w=SITE.world(lx,lz);return !!blockedAt(w.x,y,w.z)};
+SITE.place=function(lx,lz,y){const w=SITE.world(lx,lz);pl.set(w.x,y==null?0.1:y,w.z);pl.y=floorAt(pl.x,pl.z,pl.y)};
+SITE.walkTo=function(lx,lz){
+ const g=SITE.world(lx,lz);
+ for(let n=0;n<700;n++){
+  const dx=g.x-pl.x,dz=g.z-pl.z,d=Math.hypot(dx,dz);
+  if(d<0.08)break;
+  const st=Math.min(0.12,d);
+  pl.x+=dx/d*st;pl.z+=dz/d*st;
+  const y=pl.y;
+  for(const b of boxes)if(!b.c&&(b.y0==null||(y<b.y1&&y+1.8>b.y0))){
+   const ox=b.hw+0.4-Math.abs(pl.x-b.x),oz=b.hd+0.4-Math.abs(pl.z-b.z);
+   if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(pl.x-b.x||1)*ox;else pl.z+=Math.sign(pl.z-b.z||1)*oz}
+  }
+  for(const I of insts)if(Math.abs(pl.x-I.x)<40&&Math.abs(pl.z-I.z)<40)for(const c of I.cols)if(c.lv==null||Math.abs(y-c.lv*FH)<2.5){
+   const ox=c.hw+0.4-Math.abs(pl.x-c.x),oz=c.hd+0.4-Math.abs(pl.z-c.z);
+   if(ox>0&&oz>0){if(ox<oz)pl.x+=Math.sign(pl.x-c.x||1)*ox;else pl.z+=Math.sign(pl.z-c.z||1)*oz}
+  }
+  const ty=floorAt(pl.x,pl.z,pl.y);
+  pl.y=ty>pl.y?Math.min(ty,pl.y+0.55):Math.max(ty,pl.y-0.7);
+ }
+ return {y:+pl.y.toFixed(2),lx:+((pl.x-plantI.x)*pS).toFixed(2),lz:+((pl.z-plantI.z)*pS).toFixed(2)};
+};
+window.PLANT_SITE=SITE;
+}catch(e){console.error('[plant-site]',e);window.PLANT_SITE_ERROR=String(e&&e.stack||e);if(typeof dhErr==='function')dhErr('plant-site',e)}
+/* PLANT_SITE_END */
+
 M.flush(PGp);
 }
 // ---- v0.24.3 power-station ticks: everything keys off the grid (POWER.on) with a slow spin-up/spin-down (rn)
@@ -54790,6 +54998,11 @@ const MUSIC=(()=>{
  bf.style.cssText='pointer-events:auto;padding:5px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#e8e4d8;font:600 12px system-ui,sans-serif;cursor:pointer';
  bf.addEventListener('pointerdown',e=>{e.stopPropagation();if(!foot)exitV();farmSpawn();toast('Teleported to Farm',2)});
  hbar.appendChild(bf);
+ const bp=document.createElement('button');
+ bp.textContent='\u26A1 Power Station';
+ bp.style.cssText='pointer-events:auto;padding:5px 9px;border-radius:7px;border:1px solid rgba(120,190,255,.45);background:rgba(20,60,90,.88);color:#e8e4d8;font:600 12px system-ui,sans-serif;cursor:pointer';
+ bp.addEventListener('pointerdown',e=>{e.stopPropagation();const I=insts.find(q=>q.m&&q.m.name==='Riverside Power Station');if(!I)return;if(!foot)exitV();const D=I.m.door;pl.set(I.x,0,I.z+(D.po+5.2)*I.s);yaw=I.s>0?0:Math.PI;pit=-.04;toast('Teleported to Riverside Power Station',3)});
+ hbar.appendChild(bp);
  document.body.appendChild(hbar);
  // Start the player right in front of 42 Maple Crest looking at the new residential row so the 3 houses are immediately visible!
  // (v0.20.5: removed the old Maple Crest start teleport; the farm barn is the only spawn)
@@ -56177,9 +56390,18 @@ window.STORY_CONFIG={
    objective:'Stand by…',
    popup:{title:'IT HOLDS… MAYBE',text:'The lights flicker on. Wait and see if the wiring survives.',secs:4},
    goal:{wait:7}},
-  {id:'plant',clock:'free',target:'plant',onExit:'restoreBarn',
-   objective:'Reach the power plant and START the grid',
-   popup:{title:'IT’S THE GRID',text:'The wiring was fine — the grid is down. Head to the power plant and restart the grid. Use the 📍 fast-travel button if the walk is too long.',secs:9},
+  {id:'plant-arrive',clock:'free',target:'plantGate',
+   objective:'Reach Riverside Power Station',
+   popup:{title:'IT IS THE GRID',text:'The barn wiring held. The grid itself is down. The master breaker is in the locked Control Room, and the plant will not restart until the backup diesel is running and the yard breakers are reset. Get to Riverside Power Station. The fast-travel list can drop you at the gate.',secs:12}},
+  {id:'plant-keycard',clock:'free',target:'plantCard',onEnter:'plantZombies',
+   objective:'Take the Control Room keycard from the shift supervisor',
+   popup:{title:'LOCKED DOOR',text:'The Control Room door wants a keycard. The night-shift supervisor is still in the locker room, on the north side of the turbine hall. Press F at the body. Infected are in the hall and out in the yard.',secs:12}},
+  {id:'plant-prep',clock:'free',target:'plantPrep',
+   objective:'Start the backup diesel and reset the plant breakers',
+   popup:{title:'RESTART LIST',text:'The keycard is not enough. Start the backup diesel east of the hall, reset the breaker on the turbine-hall catwalk, close the switchyard isolator, and open the cooling-water valve in the pump house. Press F at each one. The marker moves to whatever is still open.',secs:13}},
+  {id:'plant-control',clock:'free',target:'plantConsole',onExit:'restoreBarn',
+   objective:'Open the Control Room and start the grid',
+   popup:{title:'CONTROL ROOM',text:'Use the keycard on the Control Room door (F), then start the grid at the master console (F). The yard has to be ready or the switch stays locked out.',secs:11},
    goal:{plantBreaker:true}},
   // Quarry and sawmill stay in the world, but they are not missions.
   // A v1/v2 save on those indices (5 quarry, 6 sawmill) moves to hymnal.
@@ -56222,21 +56444,26 @@ window.STORY_CONFIG={
 function migrateStoryIdx(ver, idx){
   // Live Test Play order. New campaign steps go here, in front of the H-9 finale, same as the story-config hook.
   // Older catalogs stay frozen and saves are matched by mission id, so an H-9 save stays on that mission.
-  const NOW=['calm','surge','barn','barnLights','plant','hymnal','hymnalHold','fort','courier-wreck','courier-case','courier-return','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
+  // v4 "plant" (and older) restarts at plant-arrive. Versions from 5 up keep their index.
+  const NOW=['calm','surge','barn','barnLights','plant-arrive','plant-keycard','plant-prep','plant-control','hymnal','hymnalHold','fort','courier-wreck','courier-case','courier-return','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
   idx=idx|0; ver=ver|0;
-  if(ver>=4) return idx<0?0:(idx>=NOW.length?NOW.length-1:idx);
+  const clamp=i=>i<0?0:(i>=NOW.length?NOW.length-1:i);
+  if(ver>=5) return clamp(idx);
+  const V4=['calm','surge','barn','barnLights','plant','hymnal','hymnalHold','fort','courier-wreck','courier-case','courier-return','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
   const V3=['calm','surge','barn','barnLights','plant','hymnal','hymnalHold','fort','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
   let id;
-  if(ver<3){
+  if(ver>=4) id=V4[idx];
+  else if(ver<3){
     const V2=['calm','surge','barn','barnLights','plant','quarry','sawmill','hymnal','hymnalHold','fort','h9-gate','h9-power','h9-card','h9-stairs','h9-director','h9-seal','h9-boss'];
     id=(idx===5||idx===6)?'hymnal':V2[idx];
   }else id=V3[idx];
-  if(!id) return idx<0?0:(idx>=NOW.length?NOW.length-1:idx);
+  if(id==='plant') id='plant-arrive';
+  if(!id) return clamp(idx);
   const at=NOW.indexOf(id);
   return at<0?0:at;
 }
 function resTipShouldShow(shown, fromId){
-  return !shown && fromId==='plant';
+  return !shown && (fromId==='plant'||fromId==='plant-control');
 }
 function migratedResTip(ver, idx, already){
   idx=idx|0;
@@ -56315,7 +56542,7 @@ const gridOff=()=>{if(POWER.on)setGrid(false)};
 const setState=st=>{if(!st)return;if(st.grid===true)gridOn();else if(st.grid===false)gridOff();if(st.barn==='on'){barn.closed=true;barn.mode='on'}else if(st.barn==='off'){barn.mode='off';barn.closed=false}};
 let hold=true,speed=1;const _env=env;env=function(dt){const d0=dayT;_env(dt);if(hold)dayT=d0;else if(speed!==1)dayT=d0+(dayT-d0)*speed;tick(dt)};
 const clockFor=s=>{if(s.clock==='hold'){hold=true;speed=1}else{hold=false;speed=1}};
-const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(t==='courierBus'||t==='courierCase'||t==='courierRadio'){const P=window.COURIER&&window.COURIER.spots;return P?P[t]:null}if(typeof t==='object')return t;return null};
+const place=t=>{if(!t)return null;if(t==='barnBox')return{x:bbx,z:bbz+1};if(t==='plant'||t==='plantGate'||t==='plantCard'||t==='plantPrep'||t==='plantConsole'){const S=window.PLANT_SITE,Q=window.PLANTQ;if(t==='plant')return plantN?{x:plantN.x,z:plantN.z}:null;if(!S||!S.world)return plantN?{x:plantN.x,z:plantN.z}:null;if(t==='plantPrep')return Q&&Q.spot?Q.spot():S.world(S.locals.gen[0],S.locals.gen[1]);if(t==='plantConsole'&&Q&&!Q.door)return S.world(S.locals.door[0],S.locals.door[1]);const key=t==='plantGate'?'gate':t==='plantCard'?'card':'console';const Lp=S.locals[key];return S.world(Lp[0],Lp[1]);}if(t==='fort')return keypadN?{x:keypadN.x,z:keypadN.z}:null;if(t==='barn')return{x:C.places.barn.x,z:C.places.barn.z};if(t==='quarry'){const n=findNode('quarry operations console');return n?{x:n.x,z:n.z}:null}if(t==='sawmill'){const n=findNode('F: start the sawmill')||findNode('F: shut down the sawmill');return n?{x:n.x,z:n.z}:null}if(t==='eliza'||t==='lectern'){const H=window.HYMNAL;return H&&H.spots?H.spots[t]:null}if(t==='courierBus'||t==='courierCase'||t==='courierRadio'){const P=window.COURIER&&window.COURIER.spots;return P?P[t]:null}if(typeof t==='object')return t;return null};
 const mkr=new T.Group();mkr.visible=false;scene.add(mkr);{const d=new T.Mesh(new T.OctahedronGeometry(.7),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.9,depthTest:false}));d.renderOrder=9;d.position.y=3;mkr.add(d);const b=new T.Mesh(new T.CylinderGeometry(.12,.12,70,8,1,true),new T.MeshBasicMaterial({color:0xffd24c,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending}));b.position.y=35;mkr.add(b);mkr.userData.d=d}
 const timeline=[],after=(s,f)=>timeline.push({t:s,f});
 const FXN={
@@ -56324,6 +56551,7 @@ after(1.6,()=>{if(plantN)try{blip(180,.6,'sawtooth')}catch(e){}})},
 barnLightsOn(){barn.closed=true;barn.mode='temp';barn.temp=C.steps.find(s=>s.id==='barnLights').goal.wait;toast('💡 The barn lights flicker on…',3)},
 barnBurst(){burstBarn()},
 restoreBarn(){after(4,()=>{toast(barn.closed?'💡 Power is back at the barn.':'⚡ The grid is back, but the barn breaker is still tripped.',3.5)})},
+plantZombies(){if(window.PLANTQ&&window.PLANTQ.spawnZ)window.PLANTQ.spawnZ()},
 courierWreck(){courierSpawn('wreck')},
 courierCase(){courierSpawn('case')},
 courierReturn(){courierSpawn('return')}};
@@ -56432,6 +56660,27 @@ function showResTip(){
  document.body.appendChild(el);
 }
 window.showResTip=showResTip;
+
+/*PLANT_QUEST_BEGIN*/
+function plantBlank(){return {card:false,door:false,gen:false,b0:false,b1:false,b2:false}}
+function plantLoad(raw, storyIdx, controlIdx){
+ const past=typeof storyIdx==='number'&&typeof controlIdx==='number'&&controlIdx>=0&&storyIdx>controlIdx;
+ if(past) return {card:true,door:true,gen:true,b0:true,b1:true,b2:true};
+ if(!raw||typeof raw!=='object') return plantBlank();
+ return {card:!!(raw.card===1||raw.card===true),door:!!(raw.door===1||raw.door===true),gen:!!(raw.gen===1||raw.gen===true),b0:!!(raw.b0===1||raw.b0===true),b1:!!(raw.b1===1||raw.b1===true),b2:!!(raw.b2===1||raw.b2===true)};
+}
+function plantReady(q){return !!(q&&q.gen&&q.b0&&q.b1&&q.b2)}
+function plantGoal(id,q){if(!q)return false;if(id==='plant-keycard')return !!q.card;if(id==='plant-prep')return plantReady(q);return false}
+function plantReduce(q,ev){
+ const s=Object.assign(plantBlank(),q||{});
+ if(ev==='card'){if(s.card)return {q:s,ok:false,why:'held'};s.card=true;return {q:s,ok:true,why:'card'}}
+ if(ev==='door'){if(s.door)return {q:s,ok:false,why:'open'};if(!s.card)return {q:s,ok:false,why:'nokey'};s.door=true;return {q:s,ok:true,why:'door'}}
+ if(ev==='gen'||ev==='b0'||ev==='b1'||ev==='b2'){if(s[ev])return {q:s,ok:false,why:'done'};s[ev]=true;return {q:s,ok:true,why:ev}}
+ if(ev==='death')return {q:s,ok:true,why:'kept'};
+ return {q:s,ok:false,why:'unknown'};
+}
+function plantLeft(q){const n=[];if(!q.gen)n.push('backup diesel');if(!q.b0)n.push('turbine-hall breaker');if(!q.b1)n.push('switchyard isolator');if(!q.b2)n.push('cooling-water valve');return n}
+/*PLANT_QUEST_END*/
 const S=window.STORY={cfg:C,cur:null,idx:-1,t:0,steps:()=>C.steps.map(s=>s.id),goto:id=>{const i=typeof id==='number'?id:C.steps.findIndex(s=>s.id===id);if(i<0)return'unknown step';enter(i);return'→ '+C.steps[i].id},skip:()=>advance()};
 function enter(i){const prev=S.cur;if(prev&&prev.onExit&&FXN[prev.onExit])FXN[prev.onExit]();S.idx=i;S.cur=C.steps[i];S.t=0;setState(S.cur.state);clockFor(S.cur);if(S.cur.onEnter&&FXN[S.cur.onEnter])FXN[S.cur.onEnter]();
 if(hymnalSkip(S.cur.id,window.HYMNAL)){advance();return}
@@ -56440,7 +56689,8 @@ if(!keepPop)popup(S.cur.popup);const t=place(S.cur.target);mkr.visible=!!t;if(t)
 if(window.resTipShouldShow(!!window.__resTip, prev&&prev.id))showResTip();
 if(window.HYMNAL)hymnalSync();
 if(S.cur.goal&&S.cur.goal.plantBreaker&&POWER.on)advance();
-if(window.courierGoal&&window.COURIER&&window.courierGoal(S.cur.id,window.COURIER)){advance();return}}
+if(window.courierGoal&&window.COURIER&&window.courierGoal(S.cur.id,window.COURIER)){advance();return}
+if(window.plantStepMet&&window.plantStepMet(S.cur)){advance();return}}
 function advance(){if(S.idx<C.steps.length-1)enter(S.idx+1)}
 const actP=()=>!foot&&typeof car!=='undefined'&&car?car.position:pl;const reached=(t,r)=>{const p=place(t);const q=actP();return p&&Math.hypot(q.x-p.x,q.z-p.z)<r};
 const baseInfo=()=>{const set=new Set(FDm.keys()),F=[...set].map(k=>k.split(',').map(Number));let need=0,have=0,door=false;
@@ -56492,10 +56742,13 @@ if(barn.glow){const u=barn.glow.userData;if(S.cur&&S.cur.id==='barn'){u.t=0;barn
 if(!S.cur)return;S.t+=dt;
 if(window.HYMNAL)hymnalSync();
 if(popT>0){popT-=dt;if(popT<=0){pEl.style.opacity=0;pEl.classList.remove('on')}}
+if(S.cur.id.indexOf('plant-')===0){const tg=place(S.cur.target);S.tgt=tg;if(tg)mkr.position.set(tg.x,0,tg.z)}
 if(S.tgt){mkr.visible=true;mkr.userData.d.rotation.y+=dt*2;mkr.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}else mkr.visible=false;
 {let o=S.cur.objective,sub='';const gl=S.cur.goal||{};
 if(hymnalActive(S.cur.id)&&window.HYMNAL&&!window.HYMNAL.delivered)o=window.HYMNAL.carried?'Lay Eliza Hollow’s hymnal on the Hollow Creek chapel lectern':'Take Eliza Hollow’s hymnal from the reaching angel in Hollow Creek Cemetery';
 if(S.cur.id==='courier-return'&&window.COURIER&&window.COURIER.carried)o='Open the H-9 courier case at the Fort Harvest gate';
+if(S.cur.id==='plant-prep'&&window.PLANTQ)o=window.PLANTQ.prepText();
+if(window.PLANTQ&&window.PLANTQ.card&&(S.cur.id==='plant-keycard'||S.cur.id==='plant-prep'||S.cur.id==='plant-control'))sub=(sub?sub+' · ':'')+'Control Room keycard';
 if((S.cur.id==='courier-case'||S.cur.id==='courier-return')&&window.COURIER&&window.COURIER.carried)sub=(sub?sub+' · ':'')+'Carrying the H-9 courier case';
 if(S.cur.id==='gate'||(gl.gateOpen&&FG()))o+=' ('+(FG()?FG().found.filter(v=>v!=null).length:0)+'/4)';
 if(gl.baseBuilt){const q=baseInfo();sub=(q.tc?'TC ✓':'TC ✗')+' · Foundations '+Math.min(q.f,2)+'/2 · Walls '+q.have+'/'+q.need+' · Door '+(q.door?'✓':'✗')}
@@ -56509,6 +56762,7 @@ if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(s
   se.style.display='block';se.innerHTML='<b>SIDE MISSION</b>Restore power to the Fort Harvest gate keycard reader<br><span style="color:#6fd6ff;font-weight:700">Plot 15 basement &middot; '+hint+'</span>'}
  else if(SIDE.done&&SIDE.t<6){SIDE.t+=dt;se.style.display='block';se.innerHTML='<b>SIDE MISSION COMPLETE</b>&#10003; Keycard reader powered'}
  else se.style.display='none'}
+if(window.plantStepMet&&window.plantStepMet(S.cur)){advance();return}
 if(goalMet(S.cur))advance()}
 function hymnalSync(){const H=window.HYMNAL;if(!H)return;H.step=!!(S.cur&&hymnalActive(S.cur.id));
  if(H.book)H.book.visible=!H.carried&&!H.delivered;if(H.sign)H.sign.visible=!H.carried&&!H.delivered;if(H.onStand)H.onStand.visible=!!H.delivered;if(H.glow){H.glow.visible=!H.carried&&!H.delivered;if(H.glow.visible){H.glow.material.opacity=.75+.2*Math.sin(performance.now()/280);H.glow.scale.setScalar(2.2)}}
@@ -56580,6 +56834,46 @@ function courierSpawn(kind){if(courierSpawned[kind]||typeof addZ!=='function')re
  if(busN)nodes.push(busN);if(boxN)nodes.push(boxN);if(radioN)nodes.push(radioN);
  window.COURIER.nodes={bus:busN,case:boxN,radio:radioN}}
 /*COURIER_WORLD_END*/
+
+/*PLANT_QUEST_WORLD*/
+window.plantGoal=plantGoal;
+function plantNear(){const S=window.PLANT_SITE;if(!S||!S.inside)return false;const p=(!foot&&typeof car!=='undefined'&&car)?car.position:pl;return S.inside(p.x,p.z)}
+function plantStepMet(step){if(!step||!window.PLANTQ)return false;if(step.id==='plant-arrive')return plantNear();if(step.id==='plant-keycard')return !!window.PLANTQ.card;if(step.id==='plant-prep')return window.PLANTQ.ready();return false}
+window.plantStepMet=plantStepMet;window.plantNear=plantNear;
+window.PLANTQ=(function(){
+ let q=plantBlank();
+ const names={gen:'Backup diesel',b0:'Turbine-hall breaker',b1:'Switchyard isolator',b2:'Cooling-water valve'};
+ function sync(){const L=window.PLANT_SITE&&window.PLANT_SITE.lamps;if(L){if(L.gen)L.gen.color.setHex(q.gen?0x35ff6a:0xff3020);if(L.b0)L.b0.color.setHex(q.b0?0x35ff6a:0xff3020);if(L.b1)L.b1.color.setHex(q.b1?0x35ff6a:0xff3020);if(L.b2)L.b2.color.setHex(q.b2?0x35ff6a:0xff3020);if(L.reader)L.reader.color.setHex(q.door?0x35ff6a:0xff3030)}if(q.door&&window.PLANT_SITE&&window.PLANT_SITE.openDoor)window.PLANT_SITE.openDoor()}
+ function apply(ev){const r=plantReduce(q,ev);q=r.q;sync();if(r.ok&&window.STORY&&window.plantStepMet&&window.plantStepMet(window.STORY.cur))window.STORY.skip();return r}
+ return {
+  get card(){return q.card},get door(){return q.door},get state(){return q},
+  ready(){return plantReady(q)},
+  left(){const n=plantLeft(q);return n.length?n[0]:''},
+  prepText(){const n=plantLeft(q);return 'Start the backup diesel and reset the plant breakers ('+(4-n.length)+'/4)'+(n[0]?' — next: '+n[0]:'')},
+  spot(){const S=window.PLANT_SITE;if(!S)return null;const order=['gen','b0','b1','b2'];const k=order.find(id=>!q[id])||'gen';const Lp=S.locals[k];return S.world(Lp[0],Lp[1])},
+  take(){const r=apply('card');if(r.why==='card')toast('Control Room keycard. It stays with you.',3.5);else if(r.why==='held')toast('You already have the Control Room keycard.',2);return r},
+  useDoor(){const r=apply('door');if(r.why==='door')toast('Control Room unlocked.',2.5);else if(r.why==='nokey')toast('The reader wants the shift supervisor keycard.',3);else if(r.why==='open')toast('The Control Room is already open.',2);return r},
+  hit(ev){const r=apply(ev);if(r.ok)toast((names[ev]||ev)+' set.',2.2);else if(r.why==='done')toast('Already done.',1.6);return r},
+  load(raw,idx){const ids=window.STORY?window.STORY.steps():[];q=plantLoad(raw,idx|0,ids.indexOf('plant-control'));sync()},
+  snap(){return {card:q.card?1:0,door:q.door?1:0,gen:q.gen?1:0,b0:q.b0?1:0,b1:q.b1?1:0,b2:q.b2?1:0}},
+  spawnZ(){if(q._z||!window.PLANT_SITE||typeof addZ!=='function')return;q._z=1;const S=window.PLANT_SITE;for(const s of S.spawns){const w=S.world(s[0],s[1]);const zed=addZ(w.x,w.z,s[2]?S.inst:null,false,null);if(zed)zed.plant=1}}
+ };
+})();
+(function(){
+ const S=window.PLANT_SITE;if(!S||!plantN)return;
+ const act0=plantN.act,pr0=plantN.pr,c=S.locals.console,w=S.world(c[0],c[1]);
+ plantN.x=w.x;plantN.z=w.z;plantN.rad=2.35;
+ plantN.pr=()=>{const Q=window.PLANTQ;if(POWER.on)return pr0();if(!Q||!Q.door)return 'F: Control Room console — door locked (keycard)';if(!Q.ready())return 'F: Console locked out — '+(Q.left()||'restart list');return pr0()};
+ plantN.act=()=>{const Q=window.PLANTQ;if(!POWER.on){if(!Q||!Q.door){toast('The Control Room door is locked. The keycard was on the shift supervisor.',4);return}if(!Q.ready()){toast('Master switch locked out. Still need the '+Q.left()+'.',4);return}}act0()};
+ function node(key,yl,pr,act){const Lp=S.locals[key],p=S.world(Lp[0],Lp[1]),n={x:p.x,z:p.z,t:'ctl',amt:1,max:1,g:null,rad:2.05,pr,act};if(yl)n.yl=yl;nodes.push(n);return n}
+ node('card',0,()=>window.PLANTQ&&window.PLANTQ.card?'F: Shift supervisor (keycard taken)':'F: Take the Control Room keycard',()=>window.PLANTQ&&window.PLANTQ.take());
+ node('door',0,()=>window.PLANTQ&&window.PLANTQ.door?'F: Control Room door (open)':'F: Use the Control Room keycard',()=>window.PLANTQ&&window.PLANTQ.useDoor());
+ node('gen',0,()=>window.PLANTQ&&window.PLANTQ.state.gen?'F: Backup diesel (running)':'F: Start the backup diesel',()=>window.PLANTQ&&window.PLANTQ.hit('gen'));
+ node('b0',4.5,()=>window.PLANTQ&&window.PLANTQ.state.b0?'F: Turbine-hall breaker (reset)':'F: Reset the turbine-hall breaker',()=>window.PLANTQ&&window.PLANTQ.hit('b0'));
+ node('b1',0,()=>window.PLANTQ&&window.PLANTQ.state.b1?'F: Switchyard isolator (closed)':'F: Close the switchyard isolator',()=>window.PLANTQ&&window.PLANTQ.hit('b1'));
+ node('b2',0,()=>window.PLANTQ&&window.PLANTQ.state.b2?'F: Cooling-water valve (open)':'F: Open the cooling-water valve',()=>window.PLANTQ&&window.PLANTQ.hit('b2'));
+})();
+/*PLANT_QUEST_WORLD_END*/
 // ---------------- START ----------------
 POWER.did=true;POWER.on=true;POWER.wave=(POWER.len2||1)+40;
 dayT=nf(C.startHour);day=1;hold=true;
@@ -56593,7 +56887,7 @@ enter(0);
 <script id="will-save">
 /* ===== v0.24.1 SAVE / LOAD (Will, B7): localStorage autosave every 60 s + on page hide, Continue / New Game on start ===== */
 (function(){try{
-const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=4;/*WILL_FIX3_BUILDS*/let armed=false;
+const KEY='dhSaveTest',VKEY='dhSaveVerTest',VER=5;/*WILL_FIX3_BUILDS*/let armed=false;
 const prim=o=>{const r={};for(const k in o){const v=o[k];if(v==null||typeof v!=='object'&&typeof v!=='function')r[k]=v}return r};
 function snap(){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
@@ -56607,6 +56901,7 @@ function snap(){
   resTip:window.__resTip?1:0,
   hymnal:window.HYMNAL?{carried:window.HYMNAL.carried?1:0,delivered:window.HYMNAL.delivered?1:0}:null,
   courier:window.COURIER?{note:window.COURIER.note?1:0,carried:window.COURIER.carried?1:0,opened:window.COURIER.opened?1:0}:null,
+  plant:window.PLANTQ?window.PLANTQ.snap():null,
   power:{on:!!POWER.on,wave:POWER.wave},
   barn:RT.barn?{closed:RT.barn.closed,mode:RT.barn.mode==='temp'?'on':RT.barn.mode}:null,
   mills:Object.fromEntries(Object.keys(MS).map(k=>[k,{on:MS[k].on,lv:MS[k].lv,fuel:MS[k].fuel,wear:MS[k].wear,jam:MS[k].jam,out:{...MS[k].out}}])),
@@ -56617,7 +56912,7 @@ function snap(){
   brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
   builds:(typeof pieces!=='undefined'?pieces:[]).filter(p=>!p.dead).map(p=>{const q=p.d||{},d={x:q.x,y:q.y,z:q.z,rot:q.rot,k:q.k};for(const f of['E','L','dx','dz'])if(q[f]!==undefined)d[f]=q[f];return{kind:p.kind,t:p.t,hp:p.hp,open:!!p.open,d}})}}
 function save(why){if(!armed)return false;try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(VKEY,String(VER));return true}catch(e){console.warn('[save] failed',e);return false}}
-function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2&&vk!==3&&vk!==4)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!(d&&(d.v===1||d.v===2||d.v===3||d.v===4)&&d.v===vk))return null;if(d.story){const raw=d.story.idx|0;if(window.migratedResTip&&window.migratedResTip(d.v,raw,d.resTip))d._showResTip=1;if(window.migrateStoryIdx)d.story.idx=window.migrateStoryIdx(d.v,raw)}return d}catch(e){return null}}
+function read(){try{const vk=+localStorage.getItem(VKEY);if(vk!==1&&vk!==2&&vk!==3&&vk!==4&&vk!==5)return null;const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!(d&&(d.v===1||d.v===2||d.v===3||d.v===4||d.v===5)&&d.v===vk))return null;if(d.story){const raw=d.story.idx|0;if(window.migratedResTip&&window.migratedResTip(d.v,raw,d.resTip))d._showResTip=1;if(window.migrateStoryIdx)d.story.idx=window.migrateStoryIdx(d.v,raw)}return d}catch(e){return null}}
 function apply(d){
  const ST=window.STORY,FG=window.FORT_GATE,SD=window.SIDE,RB=window.RESBASE,RT=window.__willRt||{};
  // clock first (a story step reads dayT when it starts)
@@ -56627,7 +56922,8 @@ function apply(d){
  if(!d.power.on&&POWER.on&&typeof setGrid==='function')setGrid(false);
  if(window.HYMNAL&&d.story)window.HYMNAL.load(d.hymnal,d.story.idx|0);
  if(window.COURIER&&d.story)window.COURIER.load(d.courier,d.story.idx|0);
- if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=ids.indexOf('plant');
+ if(window.PLANTQ&&d.story)window.PLANTQ.load(d.plant,d.story.idx|0);
+ if(ST&&d.story.idx>0){const ids=ST.steps(),si=ids.indexOf('surge'),pi=Math.max(ids.indexOf('plant-control'),ids.indexOf('plant'));
   if(si>=0&&d.story.idx>si&&d.story.idx<=pi)ST.goto(si); // replay the fuse blow-out so the poles look dead again
   ST.goto(d.story.idx)}
  if(d._showResTip&&window.showResTip)window.showResTip();
