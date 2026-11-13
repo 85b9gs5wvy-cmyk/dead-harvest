@@ -35,7 +35,8 @@ function script(html, id) {
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold', 'fort',
+  'hymnal', 'hymnalHold',
+  'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
 ];
@@ -72,7 +73,7 @@ test('the plant chain replaces the single switch and the viewer shares the site'
   assert.equal(indexHtml.includes('plant-arrive'), false);
   assert.equal(indexHtml.includes('/* PLANT_SITE_BEGIN */'), false);
   assert.match(script(testHtml, 'will-save'), /plant:window\.PLANTQ/);
-  assert.match(script(testHtml, 'will-save'), /VER=5/);
+  assert.match(script(testHtml, 'will-save'), /VER=6/);
   const site = between(testHtml, '/* PLANT_SITE_BEGIN */', '/* PLANT_SITE_END */');
   assert.equal(site.includes('new T.PointLight'), false);
   assert.equal(site.includes('new T.SpotLight'), false);
@@ -280,7 +281,7 @@ test('headless test play runs the plant quest and the new walls stop the body', 
         const ids = STORY.steps();
         out.hymnal = ids.indexOf('hymnal');
         out.arriveIdx = ids.indexOf('plant-arrive');
-        base.v = 5; base.story.idx = ids.indexOf('h9-gate'); base.plant = { card: 1 };
+        base.v = 5; base.story.idx = 14; base.plant = { card: 1 };
         localStorage.setItem('dhSaveTest', JSON.stringify(base));
         localStorage.setItem('dhSaveVerTest', '5');
         const later = window.dhSave.read();
