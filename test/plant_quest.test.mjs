@@ -35,7 +35,7 @@ function script(html, id) {
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold',
+  'cem-gate', 'cem-journal', 'cem-key', 'cem-crypt', 'cem-cover', 'cem-lectern', 'cem-bell', 'hymnalHold',
   'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
@@ -73,7 +73,7 @@ test('the plant chain replaces the single switch and the viewer shares the site'
   assert.equal(indexHtml.includes('plant-arrive'), false);
   assert.equal(indexHtml.includes('/* PLANT_SITE_BEGIN */'), false);
   assert.match(script(testHtml, 'will-save'), /plant:window\.PLANTQ/);
-  assert.match(script(testHtml, 'will-save'), /VER=6/);
+  assert.match(script(testHtml, 'will-save'), /VER=7/);
   const site = between(testHtml, '/* PLANT_SITE_BEGIN */', '/* PLANT_SITE_END */');
   assert.equal(site.includes('new T.PointLight'), false);
   assert.equal(site.includes('new T.SpotLight'), false);
@@ -279,7 +279,7 @@ test('headless test play runs the plant quest and the new walls stop the body', 
         const old = window.dhSave.read();
         out.oldIdx = old && old.story && old.story.idx;
         const ids = STORY.steps();
-        out.hymnal = ids.indexOf('hymnal');
+        out.hymnal = ids.indexOf('cem-gate');
         out.arriveIdx = ids.indexOf('plant-arrive');
         base.v = 5; base.story.idx = 14; base.plant = { card: 1 };
         localStorage.setItem('dhSaveTest', JSON.stringify(base));
@@ -323,7 +323,7 @@ test('headless test play runs the plant quest and the new walls stop the body', 
     assert.equal(play.doorOpen, true);
     assert.ok(play.doorOpenWalk.lz > 4.8, JSON.stringify({walk:play.doorOpenWalk, flag:play.doorFlag, blockers:play.blockers, cols:play.cols}));
     assert.equal(play.powerOn, true);
-    assert.equal(play.afterPower, 'hymnal');
+    assert.equal(play.afterPower, 'cem-gate');
     assert.equal(play.tip, true);
     assert.equal(play.tipCovers, false);
     assert.equal(play.cardKept, true);
@@ -335,7 +335,7 @@ test('headless test play runs the plant quest and the new walls stop the body', 
     assert.equal(play.saved.b2, 1);
     assert.equal(play.oldIdx, play.arriveIdx);
     assert.equal(play.laterIdx, ORDER.indexOf('h9-gate'));
-    assert.equal(play.hymnal, ORDER.indexOf('hymnal'));
+    assert.equal(play.hymnal, ORDER.indexOf('cem-gate'));
   } finally {
     if (ws) ws.close();
     chrome.kill('SIGKILL');
