@@ -85,6 +85,19 @@ body.plat-mobile #hbar button{min-height:42px;font-size:13px!important;text-alig
 #dhNote #ntx{font:14px monospace;padding:10px 18px;border-radius:8px;border:1px solid #8a7440;background:#d8c690;color:#2b2118;width:100%;cursor:pointer;touch-action:manipulation}
 #h9End{box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 12px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 12px) calc(env(safe-area-inset-left, 0px) + 12px)}
 #h9End .dhFit{width:min(520px,100%);max-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));background:rgba(10,12,14,.96);border:1px solid rgba(255,210,90,.75);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center}
+#sqBoard{position:fixed;z-index:44;left:calc(env(safe-area-inset-left,0px) + 8px);width:min(380px,calc(100vw - var(--trw) - 24px - env(safe-area-inset-left,0px)));display:none;flex-direction:column;overflow:hidden;box-sizing:border-box;padding:0;border-radius:12px;background:rgba(8,10,8,.94);border:1px solid rgba(120,190,255,.75);color:#ece6d0;font:14px/1.35 system-ui,sans-serif;pointer-events:auto}
+#sqBoard h3{color:#8fd4ff}
+#sqBoard .sqRow{border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 10px;margin:0 0 8px;background:rgba(255,255,255,.04)}
+#sqBoard .sqTop{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+#sqBoard .sqSt{flex:0 0 auto;font:700 10px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#d9d0b4}
+#sqBoard .sqSt.on{color:#7fd0ff}#sqBoard .sqSt.done{color:#8dcb7a}
+#sqBoard .sqHook{margin:4px 0;color:#e6dec8}#sqBoard .sqMeta,#sqBoard .sqProg{margin:0;opacity:.85;font-size:12px}
+#sqBoard button.sqGo,#sqBoard #sqClose{margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid #7fd0ff;background:rgba(80,160,220,.25);color:#fff;font:700 13px system-ui;cursor:pointer;touch-action:manipulation}
+#sqBoard button.sqGo:disabled{opacity:.4;cursor:default}
+#sqBoard #sqClose{display:block;width:100%;margin:0}
+@media (pointer:coarse),(max-width:760px){
+ #sqBoard{width:min(380px,calc(100vw - var(--trw) - 20px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)))}
+}
 </style></head><body>
 <div id="hud"><div id="loc">Farm</div><div id="spd">0 km/h</div></div>
 <div id="help">Drive: WASD · Space handbrake · E to get out</div>
@@ -53836,9 +53849,10 @@ GUN_DEF.forEach((def,i)=>{
  let x=def.x,z=def.z,y=.12;if(def.model){const I=byName(def.model);const p=I&&doorPoint(I,true,0.8);if(!p)return;x=p.x;z=p.z;y=.12}
  const box={x,z,hw:.38,hd:.22,y0:0,y1:.5,low:true,gun:def.id};boxes.push(box);
  const item={id:def.id,where:def.where,x,z,y,i,box,ry:(i*0.7)%PI};
- item.sync=()=>{const own=!!(WP.find(w=>w.id===item.id)||{}).own;dummy.position.set(item.x,own?-40:item.y,item.z);dummy.rotation.set(0,item.ry,0);dummy.scale.set(1,1,1);dummy.updateMatrix();gunMesh.setMatrixAt(item.i,dummy.matrix);item.box.c=own};
+ item.sync=()=>{const own=!!(WP.find(w=>w.id===item.id)||{}).own;const locked=!!(window.SIDEQ&&window.SIDEQ.locked(item.id));dummy.position.set(item.x,own?-40:(locked?.34:item.y),item.z);dummy.rotation.set(0,item.ry,0);dummy.scale.set(locked?1.45:1,locked?2.5:1,locked?1.65:1);dummy.updateMatrix();gunMesh.setMatrixAt(item.i,dummy.matrix);if(gunMesh.setColorAt){gunMesh.setColorAt(item.i,new T.Color(locked?0x8a5a32:0xffffff));if(gunMesh.instanceColor)gunMesh.instanceColor.needsUpdate=true}item.box.c=own};
  item.sync();
- const node={x,z,t:'ctl',max:1,g:null,rad:2.2,yl:0,pr:()=>'F: Pick up the '+(WP.find(w=>w.id===def.id)||{n:def.id}).n,act:()=>{
+ const node={x,z,t:'ctl',max:1,g:null,rad:2.2,yl:0,pr:()=>{const S=window.SIDEQ,w=WP.find(q=>q.id===def.id)||{n:def.id};if(S&&S.canOpen(def.id))return 'F: Open the locker';if(S&&S.locked(def.id))return 'F: Locked - side quest';return 'F: Pick up the '+w.n},act:()=>{
+  const S=window.SIDEQ;if(S&&S.canOpen(def.id)){S.openLocker(def.id);return}if(S&&S.locked(def.id)){toast('Locked - side quest',2.4);try{blip(140,.14,'square')}catch(e){}return}
   if(!window.grantWeapon)return;const w=WP.find(q=>q.id===def.id);if(w&&w.own){toast('You already have the '+w.n+'.',2);node.amt=0;return}
   window.grantWeapon(def.id);toast('Picked up the '+(w?w.n:def.id)+'.',3);node.amt=0;item.sync();try{blip(520,.08,'triangle')}catch(e){}}};
  Object.defineProperty(node,'amt',{get(){const w=WP.find(q=>q.id===def.id);return w&&w.own?0:1},set(){}});
@@ -53891,6 +53905,197 @@ const invTick0=invTick;invTick=function(dt){invTick0(dt);window.HOUSE_CRATES.onD
 window.WORLD_LOOT={guns,houses,smallWood,stats,rollLoot};
 }catch(e){console.error('[world-loot]',e);window.WORLD_LOOT_ERROR=String(e&&e.stack||e)}
 /* WORLD_LOOT_END */
+
+/*SIDE_QUEST_RULES_BEGIN*/
+const SQ_BOARD={x:6.4,z:23.6,yaw:Math.PI,landmark:'Dead Harvest farm, beside the car'};
+const SQ_DEFS=[
+ {id:'revolver',type:'fetch',name:'The Barn Ledger',hook:'The farm ledger blew off the porch and snagged the empty farmhouse. Bring it back to the board.',landmark:'empty farmhouse, north wall',clue:{x:24,z:-4.2},gun:{x:-16.8,z:-5.6}},
+ {id:'shotgun',type:'clear',name:'Bay One',hook:'Four infected are packed onto the Redline forecourt. Put them down and the shotgun locker opens.',landmark:'Redline Auto & Speed Shop',need:4,spot:{x:38,z:-715.8},gun:{x:38.8,z:-719.6}},
+ {id:'pump',type:'hold',name:'The Log Ring',hook:'Hold the painted ring in the lumber yard. They come when you step in. Twenty seconds.',landmark:'Blackpine Lumber, east yard',need:20,radius:5.2,wave:3,wave2:2,spot:{x:58,z:-484},gun:{x:66,z:-491}},
+ {id:'smg',type:'search',name:"Nurse's Key",hook:'The school nurse locked the SMG away. The key is in the drop-off lane. Find it, then open the locker.',landmark:'Blackpine High drop-off',clue:{x:-117.8,z:-706.8},gun:{x:-104.2,z:-716}},
+ {id:'thompson',type:'search',name:'Last Call',hook:'The Anchor lockbox code is scratched into the porch rail. Read it, then open the locker inside.',landmark:'The Rusty Anchor porch',clue:{x:170.9,z:-647},gun:{x:172.8,z:-650.8}},
+ {id:'ak',type:'clear',name:'Lobby Watch',hook:'Five infected still pace the Police Station steps. Clear them and the evidence locker opens.',landmark:'Police Station steps',need:5,spot:{x:-29,z:-620.6},gun:{x:-29.8,z:-616.8}},
+ {id:'sar',type:'hold',name:'Triage Ring',hook:'Stay inside the ring on the St. Mercy apron. A short wave walks out of the ambulance lane. Eighteen seconds.',landmark:'St. Mercy Hospital apron',need:18,radius:5,wave:3,wave2:2,spot:{x:35,z:-614.6},gun:{x:34.2,z:-610.8}}
+];
+function sqById(id){for(const q of SQ_DEFS)if(q.id===id)return q;return null}
+function sqBlank(){const quests={};for(const q of SQ_DEFS)quests[q.id]={st:'available',prog:0,item:0};return {active:'',quests}}
+function sqCopy(state){const quests={};for(const id in state.quests)quests[id]=Object.assign({st:'available',prog:0,item:0},state.quests[id]);const s={active:state.active||'',quests};for(const q of SQ_DEFS)if(!s.quests[q.id])s.quests[q.id]={st:'available',prog:0,item:0};return s}
+function sqLoad(raw){
+ const s=sqBlank();
+ if(!raw||typeof raw!=='object')return s;
+ const src=raw.quests&&typeof raw.quests==='object'?raw.quests:{};
+ let active='';
+ for(const q of SQ_DEFS){
+  const r=src[q.id]; if(!r||typeof r!=='object')continue;
+  if(r.st!=='active'&&r.st!=='complete'&&r.st!=='available')continue;
+  s.quests[q.id]={st:r.st,prog:Math.max(0,+r.prog||0),item:r.item?1:0};
+  if(r.st==='active'&&!active)active=q.id;
+ }
+ if(active){s.active=active;for(const q of SQ_DEFS)if(q.id!==active&&s.quests[q.id].st==='active')s.quests[q.id]={st:'available',prog:0,item:0}}
+ else s.active='';
+ return s}
+function sqSnap(state){const quests={};for(const q of SQ_DEFS){const r=state.quests[q.id]||{st:'available',prog:0,item:0};quests[q.id]={st:r.st,prog:q.type==='hold'?Math.round(r.prog*10)/10:r.prog|0,item:r.item?1:0}}return {active:state.active||'',quests}}
+function sqFinish(state,id){const s=sqCopy(state);s.quests[id].st='complete';const q=sqById(id);if(q&&q.need)s.quests[id].prog=Math.max(s.quests[id].prog,q.need);if(s.active===id)s.active='';return {state:s,award:id,done:true,ok:true,why:'complete'}}
+function sqReduce(state,ev){
+ const s0=state&&state.quests?state:sqBlank();
+ const id=ev&&ev.id; const q=sqById(id); const st=q&&s0.quests[id];
+ if(!q||!st)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'missing'};
+ if(ev.type==='accept'){
+  if(st.st==='complete')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'done'};
+  if(s0.active&&s0.active!==id)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'busy'};
+  const s=sqCopy(s0);s.active=id;s.quests[id]={st:'active',prog:0,item:0};return {state:s,award:'',done:false,ok:true,why:'accepted'}}
+ if(ev.type==='drop'){
+  if(st.st!=='active')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'idle'};
+  const s=sqCopy(s0);s.quests[id]={st:'available',prog:0,item:0};if(s.active===id)s.active='';return {state:s,award:'',done:false,ok:true,why:'dropped'}}
+ if(st.st!=='active')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'idle'};
+ if(ev.type==='take'){
+  if(q.type!=='fetch'&&q.type!=='search')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'kind'};
+  if(st.item)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'held'};
+  const s=sqCopy(s0);s.quests[id].item=1;return {state:s,award:'',done:false,ok:true,why:'took'}}
+ if(ev.type==='turnin'){
+  if(q.type!=='fetch')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'kind'};
+  if(!st.item)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'empty'};
+  return sqFinish(s0,id)}
+ if(ev.type==='open'){
+  if(q.type!=='search')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'kind'};
+  if(!st.item)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'locked'};
+  return sqFinish(s0,id)}
+ if(ev.type==='kill'){
+  if(q.type!=='clear')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'kind'};
+  const s=sqCopy(s0);s.quests[id].prog=st.prog+1;if(s.quests[id].prog>=q.need)return sqFinish(s,id);return {state:s,award:'',done:false,ok:true,why:'kill'}}
+ if(ev.type==='hold'){
+  if(q.type!=='hold')return {state:sqCopy(s0),award:'',done:false,ok:false,why:'kind'};
+  if(!ev.inside)return {state:sqCopy(s0),award:'',done:false,ok:false,why:'out'};
+  const s=sqCopy(s0);s.quests[id].prog=st.prog+(+ev.dt||0);if(s.quests[id].prog>=q.need)return sqFinish(s,id);return {state:s,award:'',done:false,ok:true,why:'tick'}}
+ return {state:sqCopy(s0),award:'',done:false,ok:false,why:'unknown'}}
+function sqLocked(state,id){const st=state&&state.quests&&state.quests[id];return !!(st&&st.st!=='complete'&&sqById(id))}
+function sqCanOpen(state,id){const q=sqById(id),st=state&&state.quests&&state.quests[id];return !!(q&&q.type==='search'&&st&&st.st==='active'&&st.item)}
+function sqStatus(state,id){const st=state&&state.quests&&state.quests[id];return !st||st.st==='available'?'Available':st.st==='active'?'Active':'Complete'}
+function sqMarker(state){
+ if(!state||!state.active)return null; const q=sqById(state.active),st=state.quests[state.active];
+ if(!q||!st||st.st!=='active')return null;
+ if(q.type==='fetch')return st.item?{x:SQ_BOARD.x,z:SQ_BOARD.z}:{x:q.clue.x,z:q.clue.z};
+ if(q.type==='search')return st.item?{x:q.gun.x,z:q.gun.z}:{x:q.clue.x,z:q.clue.z};
+ return q.spot?{x:q.spot.x,z:q.spot.z}:null}
+function sqLine(state){
+ if(!state||!state.active)return ''; const q=sqById(state.active),st=state.quests[state.active]; if(!q||!st||st.st!=='active')return '';
+ if(q.type==='clear')return q.name+' — '+Math.min(st.prog|0,q.need)+'/'+q.need+' at '+q.landmark;
+ if(q.type==='hold')return q.name+' — '+Math.min(q.need,Math.floor(st.prog))+'/'+q.need+'s inside the ring';
+ if(q.type==='fetch')return st.item?q.name+' — bring it back to the board':q.name+' — '+q.landmark;
+ return st.item?q.name+' — open the locker':q.name+' — '+q.landmark}
+/*SIDE_QUEST_RULES_END*/
+/*SIDE_QUEST_WORLD_BEGIN*/
+(function(){try{
+ if(typeof scene==='undefined'||typeof T==='undefined'||typeof M2==='undefined')return;
+ const g=new T.Group();g.name='sqBoard';g.position.set(SQ_BOARD.x,0,SQ_BOARD.z);g.rotation.y=SQ_BOARD.yaw;
+ function sqBox(w,h,d,x,y,z,rx,ry,rz){const geo=new T.BoxGeometry(w,h,d);geo.applyMatrix4(new T.Matrix4().compose(new T.Vector3(x,y,z),new T.Quaternion().setFromEuler(new T.Euler(rx||0,ry||0,rz||0)),new T.Vector3(1,1,1)));return geo.index?geo.toNonIndexed():geo}
+ function sqMerge(parts){let n=0;for(const p of parts)n+=p.attributes.position.count;const P=new Float32Array(n*3),N=new Float32Array(n*3);let o=0;for(const p of parts){const a=p.attributes.position.array,b=p.attributes.normal.array;P.set(a,o);N.set(b,o);o+=a.length}const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(P,3));geo.setAttribute('normal',new T.BufferAttribute(N,3));return geo}
+ function sqAdd(parts,mat){const m=new T.Mesh(sqMerge(parts),mat);m.castShadow=false;m.receiveShadow=false;g.add(m);return m}
+ const wood=[],paper=[],tacks=[];
+ wood.push(sqBox(.16,2.25,.16,-1.22,1.125,0),sqBox(.16,2.25,.16,1.22,1.125,0));
+ wood.push(sqBox(.32,.08,.32,-1.22,.04,0),sqBox(.32,.08,.32,1.22,.04,0));
+ wood.push(sqBox(.24,.07,.24,-1.22,2.28,0),sqBox(.24,.07,.24,1.22,2.28,0));
+ for(let i=0;i<5;i++)wood.push(sqBox(2.28,.15,.07,0,.92+i*.22,0));
+ wood.push(sqBox(2.36,.08,.1,0,2.08,.02),sqBox(.08,.7,.08,-1.05,1.45,-.08),sqBox(.08,.7,.08,1.05,1.45,-.08));
+ wood.push(sqBox(1.42,.05,.78,-.64,2.46,.06,0,0,.28),sqBox(1.42,.05,.78,.64,2.46,.06,0,0,-.28),sqBox(.14,.06,.82,0,2.62,.06));
+ const notes=[[-.78,1.15,.22,.28,-.08],[.05,1.22,.2,.32,.06],[.72,1.12,.24,.3,-.04],[-.7,1.62,.26,.24,.05],[.12,1.7,.22,.28,-.07],[.78,1.64,.2,.26,.08],[-.15,1.98,.34,.16,0]];
+ for(const n of notes){paper.push(sqBox(n[2],n[3],.012,n[0],n[1],.055,0,n[4],0));tacks.push(sqBox(.045,.045,.02,n[0],n[1]+n[3]*.32,.07))}
+ sqAdd(wood,M2.wood);sqAdd(paper,M2.cream);sqAdd(tacks,M2.dark);
+ g.userData.sqDraws=3;scene.add(g);window.SQ_MESH=g;
+ boxes.push({x:SQ_BOARD.x,z:SQ_BOARD.z,hw:1.28,hd:.3,y0:0,y1:2.4,sqBoard:1});
+ const clue=new T.Mesh(new T.BoxGeometry(.28,.06,.36),M2.card);clue.castShadow=false;clue.receiveShadow=false;clue.visible=false;scene.add(clue);
+ const ring=new T.Mesh(new T.TorusGeometry(1,.07,6,28),M2.yel);ring.rotation.x=Math.PI/2;ring.position.y=.08;ring.castShadow=false;ring.receiveShadow=false;ring.visible=false;scene.add(ring);
+ const sqMkr=new T.Group();sqMkr.visible=false;scene.add(sqMkr);
+ const sqMat=new T.MeshBasicMaterial({color:0x6fd6ff,transparent:true,opacity:.9,depthTest:false});
+ const sqBeam=new T.MeshBasicMaterial({color:0x6fd6ff,transparent:true,opacity:.22,depthWrite:false,blending:T.AdditiveBlending});
+ const diamond=new T.Mesh(new T.OctahedronGeometry(.55),sqMat);diamond.position.y=3;diamond.renderOrder=9;sqMkr.add(diamond);
+ const beam=new T.Mesh(new T.CylinderGeometry(.1,.1,70,8,1,true),sqBeam);beam.position.y=35;sqMkr.add(beam);
+ let state=sqBlank();
+ const runtime={count:{},hold1:{},hold2:{}};
+ const panel=document.createElement('div');panel.id='sqBoard';panel.className='dhCard';panel.setAttribute('role','dialog');panel.style.zIndex='44';panel.style.display='none';
+ panel.innerHTML='<div class="dhCardHead"><h3>SIDE QUESTS</h3><button type="button" class="dhCardX" id="sqX" aria-label="Close">\u00d7</button></div><div class="dhScroll" id="sqList"></div><div class="dhCardFoot"><button type="button" id="sqClose">Close</button></div>';
+ document.body.appendChild(panel);if(window.dhBindCard)window.dhBindCard(panel);
+ const listEl=panel.querySelector('#sqList');
+ function esc(s){return String(s).replace(/[&<>]/g,c=>c==='&'?'&amp;':c==='<'?'&lt;':'&gt;')}
+ function weaponName(id){const w=typeof WP!=='undefined'&&WP.find(q=>q.id===id);return w?w.n:id}
+ function placePanel(){
+  const pop=document.getElementById('sPop'),joy=window.JB,gb=document.getElementById('gb');
+  const shown=el=>el&&el.getBoundingClientRect().height>16&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden';
+  let top=8;
+  for(const id of ['sObj','sSide']){const el=document.getElementById(id);if(shown(el)&&el.innerText.trim())top=Math.max(top,el.getBoundingClientRect().bottom+8)}
+  if(pop&&pop.classList.contains('on')&&shown(pop))top=Math.max(top,pop.getBoundingClientRect().bottom+8);
+  let limit=innerHeight-8;
+  for(const el of [joy,gb,document.getElementById('pch'),document.getElementById('pcv'),document.getElementById('jbx')])if(shown(el))limit=Math.min(limit,el.getBoundingClientRect().top-8);
+  let height=limit-top;if(height<200){top=Math.max(8,limit-200);height=limit-top}
+  panel.style.top=top+'px';panel.style.height=Math.max(180,height)+'px';panel.style.maxHeight=Math.max(180,height)+'px'}
+ function renderList(){
+  const busy=state.active;
+  listEl.innerHTML=SQ_DEFS.map(q=>{
+   const st=sqStatus(state,q.id),on=st==='Active',done=st==='Complete';
+   const prog=on?esc(sqLine(state)):'';
+   const btn=done?'':on?'<button type="button" class="sqGo" data-drop="'+q.id+'">Drop</button>':'<button type="button" class="sqGo" data-go="'+q.id+'"'+(busy?' disabled':'')+'>Accept</button>';
+   return '<article class="sqRow"><div class="sqTop"><b>'+esc(q.name)+'</b><span class="sqSt'+(on?' on':done?' done':'')+'">'+st+'</span></div><p class="sqHook">'+esc(q.hook)+'</p><p class="sqMeta">'+esc(weaponName(q.id))+' \u00b7 '+esc(q.landmark)+'</p>'+(prog?'<p class="sqProg">'+prog+'</p>':'')+btn+'</article>'}).join('')}
+ function refreshGuns(){if(window.GUN_LOOT)window.GUN_LOOT.refresh()}
+ function award(id){
+  const q=sqById(id); if(window.grantWeapon)window.grantWeapon(id);
+  refreshGuns();
+  const n=weaponName(id);
+  toast((q?q.name:'Side quest')+' complete \u2014 '+n+' unlocked.',4.5);
+  try{blip(520,.1,'triangle');setTimeout(()=>blip(740,.14,'triangle'),130)}catch(e){}}
+ function applyReduce(r){state=r.state;if(r.award)award(r.award);else if(r.ok&&r.why!=='tick')refreshGuns();if(panel.style.display==='flex'&&r.why!=='tick'&&r.why!=='out')renderList();return r}
+ const api=window.SIDEQ={
+  get state(){return state},
+  snap(){return sqSnap(state)},
+  load(raw){state=sqLoad(raw);for(const q of SQ_DEFS)if(state.quests[q.id].st==='complete'&&window.grantWeapon)window.grantWeapon(q.id,0);refreshGuns()},
+  locked(id){if(!sqLocked(state,id))return false;const w=typeof WP!=='undefined'&&WP.find(q=>q.id===id);return !(w&&w.own)},
+  canOpen(id){if(!sqCanOpen(state,id))return false;const w=typeof WP!=='undefined'&&WP.find(q=>q.id===id);return !(w&&w.own)},
+  marker(){const m=sqMarker(state);if(!m)return null;const q=sqById(state.active);if(q&&q.type==='search'&&state.quests[q.id].item){const live=window.GUN_LOOT&&window.GUN_LOOT.list.find(g=>g.id===q.id);if(live)return {x:live.x,z:live.z}}return m},
+  blip(){const m=this.marker();return m?['\u2726',m.x,m.z]:null},
+  hud(){const t=sqLine(state);if(!t)return '';const m=this.marker();const d=m&&typeof pl!=='undefined'?Math.round(Math.hypot(m.x-pl.x,m.z-pl.z))+' m':'';return t+(d?' \u00b7 '+d:'')},
+  open(){if(panel.style.display==='flex'){this.close();return}renderList();panel.style.display='flex';placePanel();try{if(document.pointerLockElement)document.exitPointerLock()}catch(e){}},
+  close(){panel.style.display='none'},
+  accept(id){const r=sqReduce(state,{type:'accept',id});if(!r.ok){toast(r.why==='busy'?'Finish the side quest on the board first.':r.why==='done'?'That one is already done.':'Cannot take that quest.',2.4);return r}delete runtime.count[id];delete runtime.hold1[id];delete runtime.hold2[id];applyReduce(r);toast(sqById(id).name+' accepted.',2.2);return r},
+  drop(id){return applyReduce(sqReduce(state,{type:'drop',id}))},
+  clueReady(id){const q=sqById(id),st=state.quests[id];return !!(q&&(q.type==='fetch'||q.type==='search')&&st&&st.st==='active'&&!st.item)},
+  cluePrompt(id){if(!this.clueReady(id))return 'F: Nothing here';const q=sqById(id);return q.type==='fetch'?'F: Pick up the ledger':'F: Read the '+ (q.id==='smg'?'key note':'porch code')},
+  takeClue(id){if(!this.clueReady(id))return;const r=applyReduce(sqReduce(state,{type:'take',id}));if(r.ok)toast(id==='revolver'?'Farm ledger. Take it back to the board.':id==='smg'?'Nurse\u2019s key. The locker will open now.':'The rail reads 317. The locker will open now.',3.2)},
+  tryTurnin(){const id=state.active,q=sqById(id);if(!q||q.type!=='fetch'||!state.quests[id]||!state.quests[id].item)return false;applyReduce(sqReduce(state,{type:'turnin',id}));return true},
+  openLocker(id){const r=sqReduce(state,{type:'open',id});if(!r.ok){toast('Locked - side quest',2.2);return}applyReduce(r)},
+  onKill(z){if(!z||!z.sq||z.sq!==state.active)return;applyReduce(sqReduce(state,{type:'kill',id:z.sq}))},
+  tick(dt){
+   const id=state.active,q=sqById(id);if(!q){sqMkr.visible=false;ring.visible=false;clue.visible=false;return}
+   const m=this.marker();
+   if(m){sqMkr.visible=true;sqMkr.position.set(m.x,0,m.z);diamond.rotation.y+=dt*2;diamond.position.y=3+Math.sin(performance.now()/400)*.25}else sqMkr.visible=false;
+   const showRing=(q.type==='hold'||q.type==='clear')&&state.quests[id].st==='active';
+   ring.visible=!!showRing;if(showRing){const rad=q.radius||(q.type==='clear'?6:5);ring.scale.set(rad,rad,1);ring.position.set(q.spot.x,.08,q.spot.z)}
+   const showClue=this.clueReady(id);
+   clue.visible=!!showClue;if(showClue){clue.position.set(q.clue.x,.4,q.clue.z);clue.rotation.y+=dt}
+   if(q.type==='hold'&&typeof pl!=='undefined'){const inside=Math.hypot(pl.x-q.spot.x,pl.z-q.spot.z)<(q.radius||5);applyReduce(sqReduce(state,{type:'hold',id,dt,inside}))}
+   if((q.type==='clear'||q.type==='hold')&&typeof addZ==='function'&&typeof pl!=='undefined'&&Math.hypot(pl.x-(q.spot.x),pl.z-(q.spot.z))<80){
+    const living=typeof zs!=='undefined'?zs.filter(z=>z.sq===id&&!z.dead).length:0;
+    if(q.type==='clear'){const left=q.need-(state.quests[id].prog|0);const made=runtime.count[id]||0;if(left>living&&made<q.need+2&&zs.length<84){const n=Math.min(2,left-living,q.need+2-made);runtime.count[id]=made+spawnN(q,n,made)}}
+    else{if(!runtime.hold1[id]){runtime.hold1[id]=1;spawnN(q,q.wave||3,0)}if(!runtime.hold2[id]&&state.quests[id].prog>=q.need*.5){runtime.hold2[id]=1;spawnN(q,q.wave2||2,4)}}
+   }
+  }
+ };
+ function spawnN(q,n,salt){let made=0;for(let i=0;i<n;i++){if(typeof zs!=='undefined'&&zs.length>84)break;const a=(i+salt)/Math.max(1,n)*6.2832;const rad=(q.radius||4)+2.4;const z=addZ(q.spot.x+Math.cos(a)*rad,q.spot.z+Math.sin(a)*rad,null,false,null);if(!z)continue;z.sq=q.id;z.al=true;z.hp=Math.min(z.hp,64);z.dmg=Math.min(z.dmg,8);made++}return made}
+ panel.querySelector('#sqX').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();api.close()});
+ panel.querySelector('#sqClose').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();api.close()});
+ listEl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();e.stopPropagation();if(b.dataset.go)api.accept(b.dataset.go);else if(b.dataset.drop)api.drop(b.dataset.drop)});
+ addEventListener('resize',()=>{if(panel.style.display==='flex')placePanel()});
+ setInterval(()=>{if(panel.style.display==='flex'){placePanel();renderList()}},400);
+ nodes.push({x:SQ_BOARD.x,z:SQ_BOARD.z-1.45,t:'ctl',max:1,g:null,rad:2.5,yl:0,pr:()=>'F: Side quest board',act:()=>{if(api.tryTurnin()){api.open();return}api.open()}});
+ Object.defineProperty(nodes[nodes.length-1],'amt',{get(){return 1},set(){}});
+ for(const q of SQ_DEFS)if(q.clue){const n={x:q.clue.x,z:q.clue.z,t:'ctl',g:null,rad:2.3,yl:0,pr:()=>api.cluePrompt(q.id),act:()=>api.takeClue(q.id)};Object.defineProperty(n,'amt',{get(){return api.clueReady(q.id)?1:0},set(){}});nodes.push(n)}
+ const _sqKill=killZ;killZ=function(z){_sqKill(z);if(z&&z.sq)api.onKill(z)};
+ window.SQ_DRAW={board:3,marker:2,ring:1,clue:1,locker:0,lights:0,shadows:0,sample(){try{return ren.info.render.calls}catch(e){return -1}}};
+ refreshGuns();
+ try{if(window.GUN_LOOT)for(const item of window.GUN_LOOT.list){const q=sqById(item.id);if(q&&Math.hypot(q.gun.x-item.x,q.gun.z-item.z)>1)console.warn('[side-quest] gun drift',item.id,item.x,item.z,q.gun)}}catch(e){}
+ const shot=new URLSearchParams(location.search).get('sqshot');
+ if(shot)setTimeout(()=>{try{pl.set(SQ_BOARD.x+2.4,0,SQ_BOARD.z-4.4);yaw=Math.atan2(-(SQ_BOARD.x-pl.x),-(SQ_BOARD.z-pl.z));pit=-.2;const pop=document.getElementById('sPop');if(pop){pop.style.opacity='0';pop.classList.remove('on')}const menu=document.getElementById('willSaveMenu');if(menu)menu.remove();if(shot==='panel'||shot==='1')api.open()}catch(e){}},1200);
+}catch(e){console.error('[side-quest]',e);window.SIDEQ_ERROR=String(e&&e.stack||e)}
+})();
+/*SIDE_QUEST_WORLD_END*/
 
 const locEl=document.getElementById('loc'),spdEl=document.getElementById('spd');
 const _tg=new T.Vector3();
@@ -55593,6 +55798,7 @@ function drawCompass(P){const g=cg,W=840,H=84,span=170,ppd=W/span;cam.getWorldDi
  g.fillStyle='#e0a030';g.beginPath();g.moveTo(W/2-8,44);g.lineTo(W/2+8,44);g.lineTo(W/2,54);g.fill();
  const L=[['🏠',TCX(),TCZ()],['⛏',QX,QZ],['🪵',SMX,SMZ],['✝',GX,GZ]];if(plantI)L.push(['⚡',plantI.x,plantI.z]);if(barI2)L.push(['🍺',barI2.x,barI2.z]);const garI2=insts.find(q=>q.m===GARAGE);if(garI2)L.push(['🔧',garI2.x,garI2.z]);
  const schI2=insts.find(q=>q.m===SCHOOL);if(schI2)L.push(['🏫',schI2.x,schI2.z]);
+ if(window.SIDEQ&&window.SIDEQ.blip){const b=window.SIDEQ.blip();if(b)L.push(b)}
  for(const p of L){const dx=p[1]-P.x,dz=p[2]-P.z,d=Math.hypot(dx,dz),b=Math.atan2(dx,-dz)*180/Math.PI,off=((b-hd+540)%360)-180;if(Math.abs(off)>span/2-5)continue;const x=W/2+off*ppd;
   g.font='26px system-ui';g.fillStyle='#fff';g.fillText(p[0],x,27);g.font='bold 14px system-ui';g.fillStyle='rgba(232,228,216,.9)';g.fillText(d<1000?Math.round(d)+'m':(d/1000).toFixed(1)+'k',x,43)}}
 // ---- crosshair + hints
@@ -57376,6 +57582,7 @@ bLights.forEach((l,i)=>{l.intensity+=(bBase[i]*k-l.intensity)*Math.min(1,dt*(k<l
 for(const m of bBulbs)m.color.setHex(k>.5?0xffe2a8:0x2a2620);
 if(barn.lever)barn.lever.rotation.x=barn.closed?-.75:.75;if(barn.lamp)barn.lamp.material.color.setHex(!barn.closed?0xff3020:(barn.mode==='temp'||gridUp()?0x35ff6a:0xffc020));
 if(barn.glow){const u=barn.glow.userData;if(S.cur&&S.cur.id==='barn'){u.t=0;barn.glow.material.opacity=.35+.35*Math.sin(performance.now()/260);barn.glow.scale.setScalar(1.6)}else barn.glow.material.opacity=0}}
+if(window.SIDEQ&&window.SIDEQ.tick)try{window.SIDEQ.tick(dt)}catch(e){}
 if(!S.cur)return;S.t+=dt;
 if(window.HYMNAL)hymnalSync();
 if(popT>0){popT-=dt;if(popT<=0){pEl.style.opacity=0;pEl.classList.remove('on')}}
@@ -57397,7 +57604,7 @@ if(o&&o!=='…'){oEl.style.display='block';oEl.innerHTML='<b>OBJECTIVE</b>'+o+(s
 {const se=sEl;
  if(brk15){brk15.lever.rotation.x+=((brk15.on?-.75:.75)-brk15.lever.rotation.x)*Math.min(1,dt*9);brk15.lampM.color.setHex(brk15.on?0x35ff6a:(Math.sin(performance.now()/300)>0?0xff3020:0x501008));const u=brk15.glw.userData;if(u.t<2){u.t+=dt;const k=Math.max(0,1-u.t/.7);brk15.glw.material.opacity=k;brk15.glw.scale.setScalar(u.size*(.4+u.t*1.2))}else brk15.glw.material.opacity=0}
  if(sideMk.visible){sideMk.userData.d.rotation.y+=dt*2;sideMk.userData.d.position.y=3+Math.sin(performance.now()/400)*.35}
- se.style.display='none'}
+ const sqLine=window.SIDEQ&&window.SIDEQ.hud&&window.SIDEQ.hud();if(sqLine){se.style.display='block';se.innerHTML='<b>SIDE QUEST</b>'+sqLine}else se.style.display='none'}
 if(window.plantStepMet&&window.plantStepMet(S.cur)){advance();return}
 if(window.CEMQ&&window.CEMQ.tick)window.CEMQ.tick();
 if(window.cemStepMet&&window.cemStepMet(S.cur)){advance();return}
@@ -57635,6 +57842,7 @@ function snap(){
   fort:FG?{locked:FG.locked,open:FG.open,found:FG.found.slice()}:null,
   side:SD?{started:SD.started,done:SD.done}:null,
   fortq:window.FORTQ?{log:window.FORTQ.state.log?1:0,power:window.FORTQ.state.power?1:0,gate:window.FORTQ.state.gate?1:0,yard:window.FORTQ.state.yard|0,key:window.FORTQ.state.key?1:0,boss:window.FORTQ.state.boss?1:0,rifle:window.FORTQ.state.rifle?1:0}:null,
+  sq:window.SIDEQ?window.SIDEQ.snap():null,
   /* H9_SAVE_BEGIN */ h9:RB&&RB.st?{badge:RB.st.badge,crates:RB.st.crates,power:RB.st.power?1:0,director:RB.st.director?1:0,seal:RB.st.seal?1:0,office:RB.st.office?1:0,upstairs:RB.st.upstairs?1:0,kills:RB.st.kills|0,bossDead:RB.st.bossDead?1:0,freeRoam:RB.st.freeRoam?1:0}:null, /* H9_SAVE_END */
   flb:typeof flBat!=='undefined'?Math.round(flBat*1000)/1000:null,/*DH26-FLB-SAVE*/
   brkOff:(window.ALLBK||[]).filter(B=>!B.brk).map(B=>(B.m&&B.m.name)||B.name),/*DH26-BRK-SAVE*/
@@ -57665,7 +57873,7 @@ function apply(d){
  if(!foot&&typeof exitV==='function')exitV();
  pl.set(d.pl.x,d.pl.y,d.pl.z);yaw=d.pl.yaw;pit=d.pl.pit;pHP=d.pl.hp;window.__willRsp=d.willRsp?1:0;window.__willRspNote=d.willRspNote?1:0;
  for(const k in d.inv)inv[k]=d.inv[k];Object.assign(carry,d.carry);Object.assign(stored,d.stored);
- if(Array.isArray(d.wp)){const old=(d.v|0)<6;if(old)WP.forEach(w=>{w.own=true});d.wp.forEach((w,i)=>{const slot=w&&w.id?WP.find(q=>q.id===w.id):WP[i];if(!slot)return;if(typeof w.mag==='number')slot.mag=w.mag;if(typeof w.res==='number')slot.res=w.res;if(!old)slot.own=!!w.own});if(!WP.some(w=>w.own)){const p=WP.find(w=>w.id==='pistol')||WP[0];if(p)p.own=true}let wi2=d.wi|0;if(!WP[wi2]||!WP[wi2].own)wi2=Math.max(0,WP.findIndex(w=>w.own));if(typeof setW==='function')setW(wi2);else wi=wi2;if(window.FORTQ&&window.FORTQ.state.rifle&&window.grantWeapon&&!WP.some(w=>w.id==='rifle'&&w.own))window.grantWeapon('rifle',48);if(window.GUN_LOOT)window.GUN_LOOT.refresh()}
+ if(Array.isArray(d.wp)){const old=(d.v|0)<6;if(old)WP.forEach(w=>{w.own=true});d.wp.forEach((w,i)=>{const slot=w&&w.id?WP.find(q=>q.id===w.id):WP[i];if(!slot)return;if(typeof w.mag==='number')slot.mag=w.mag;if(typeof w.res==='number')slot.res=w.res;if(!old)slot.own=!!w.own});if(!WP.some(w=>w.own)){const p=WP.find(w=>w.id==='pistol')||WP[0];if(p)p.own=true}let wi2=d.wi|0;if(!WP[wi2]||!WP[wi2].own)wi2=Math.max(0,WP.findIndex(w=>w.own));if(typeof setW==='function')setW(wi2);else wi=wi2;if(window.FORTQ&&window.FORTQ.state.rifle&&window.grantWeapon&&!WP.some(w=>w.id==='rifle'&&w.own))window.grantWeapon('rifle',48);if(window.GUN_LOOT)window.GUN_LOOT.refresh()}if(window.SIDEQ)window.SIDEQ.load(d.sq);
  for(const k in d.mills)if(MS[k]){const m=d.mills[k];Object.assign(MS[k],{on:m.on,lv:m.lv,fuel:m.fuel,wear:m.wear,jam:m.jam});Object.assign(MS[k].out,m.out)}
  if(FG&&d.fort){FG.found=d.fort.found.slice();if(!d.fort.locked){FG.locked=false;if(d.fort.open&&FG.unlock){FG.unlock();FG.found=d.fort.found.slice()}}}
  if(SD&&d.side){SD.started=d.side.started;SD.done=d.side.done;SD.t=99;if(RT.brk15)RT.brk15.on=SD.done;if(RT.sideMk)RT.sideMk.visible=SD.started&&!SD.done}

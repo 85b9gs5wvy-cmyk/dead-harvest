@@ -49243,7 +49243,7 @@ const THREE={"ACESFilmicToneMapping":ACESFilmicToneMapping,"AddEquation":AddEqua
 (function(){
   var q=new URLSearchParams(location.search);
   var comp=q.get('comp')||'';
-  var comps={farm:1,sawmill:1,quarry:1,cemetery:1,h9:1,plant:1};
+  var comps={farm:1,sawmill:1,quarry:1,cemetery:1,h9:1,plant:1,farmboard:1};
   if(comp&&!comps[comp])comp='';
   var plot=parseInt(q.get('plot')||'1',10);
   if(!(plot>=1&&plot<=24))plot=1;
@@ -53860,9 +53860,10 @@ GUN_DEF.forEach((def,i)=>{
  let x=def.x,z=def.z,y=.12;if(def.model){const I=byName(def.model);const p=I&&doorPoint(I,true,0.8);if(!p)return;x=p.x;z=p.z;y=.12}
  const box={x,z,hw:.38,hd:.22,y0:0,y1:.5,low:true,gun:def.id};boxes.push(box);
  const item={id:def.id,where:def.where,x,z,y,i,box,ry:(i*0.7)%PI};
- item.sync=()=>{const own=!!(WP.find(w=>w.id===item.id)||{}).own;dummy.position.set(item.x,own?-40:item.y,item.z);dummy.rotation.set(0,item.ry,0);dummy.scale.set(1,1,1);dummy.updateMatrix();gunMesh.setMatrixAt(item.i,dummy.matrix);item.box.c=own};
+ item.sync=()=>{const own=!!(WP.find(w=>w.id===item.id)||{}).own;const locked=!!(window.SIDEQ&&window.SIDEQ.locked(item.id));dummy.position.set(item.x,own?-40:(locked?.34:item.y),item.z);dummy.rotation.set(0,item.ry,0);dummy.scale.set(locked?1.45:1,locked?2.5:1,locked?1.65:1);dummy.updateMatrix();gunMesh.setMatrixAt(item.i,dummy.matrix);if(gunMesh.setColorAt){gunMesh.setColorAt(item.i,new T.Color(locked?0x8a5a32:0xffffff));if(gunMesh.instanceColor)gunMesh.instanceColor.needsUpdate=true}item.box.c=own};
  item.sync();
- const node={x,z,t:'ctl',max:1,g:null,rad:2.2,yl:0,pr:()=>'F: Pick up the '+(WP.find(w=>w.id===def.id)||{n:def.id}).n,act:()=>{
+ const node={x,z,t:'ctl',max:1,g:null,rad:2.2,yl:0,pr:()=>{const S=window.SIDEQ,w=WP.find(q=>q.id===def.id)||{n:def.id};if(S&&S.canOpen(def.id))return 'F: Open the locker';if(S&&S.locked(def.id))return 'F: Locked - side quest';return 'F: Pick up the '+w.n},act:()=>{
+  const S=window.SIDEQ;if(S&&S.canOpen(def.id)){S.openLocker(def.id);return}if(S&&S.locked(def.id)){toast('Locked - side quest',2.4);try{blip(140,.14,'square')}catch(e){}return}
   if(!window.grantWeapon)return;const w=WP.find(q=>q.id===def.id);if(w&&w.own){toast('You already have the '+w.n+'.',2);node.amt=0;return}
   window.grantWeapon(def.id);toast('Picked up the '+(w?w.n:def.id)+'.',3);node.amt=0;item.sync();try{blip(520,.08,'triangle')}catch(e){}}};
  Object.defineProperty(node,'amt',{get(){const w=WP.find(q=>q.id===def.id);return w&&w.own?0:1},set(){}});
@@ -56761,6 +56762,19 @@ addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProje
 
 if(window.__DH_ONE){(function(){try{
   var one=window.__DH_ONE;
+  if(one.comp==='farmboard'&&typeof M2!=='undefined'){(function(){
+    var g=new T.Group();g.name='sqBoard';g.position.set(6.4,0,23.6);g.rotation.y=Math.PI;
+    function box(w,h,d,x,y,z,rx,ry,rz){var geo=new T.BoxGeometry(w,h,d);geo.applyMatrix4(new T.Matrix4().compose(new T.Vector3(x,y,z),new T.Quaternion().setFromEuler(new T.Euler(rx||0,ry||0,rz||0)),new T.Vector3(1,1,1)));return geo.index?geo.toNonIndexed():geo}
+    function merge(parts){var n=0,i;for(i=0;i<parts.length;i++)n+=parts[i].attributes.position.count;var P=new Float32Array(n*3),N=new Float32Array(n*3),o=0;for(i=0;i<parts.length;i++){var a=parts[i].attributes.position.array,b=parts[i].attributes.normal.array;P.set(a,o);N.set(b,o);o+=a.length}var geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(P,3));geo.setAttribute('normal',new T.BufferAttribute(N,3));return geo}
+    function add(parts,mat){var m=new T.Mesh(merge(parts),mat);m.castShadow=false;m.receiveShadow=false;g.add(m)}
+    var wood=[box(.16,2.25,.16,-1.22,1.125,0),box(.16,2.25,.16,1.22,1.125,0),box(.32,.08,.32,-1.22,.04,0),box(.32,.08,.32,1.22,.04,0),box(.24,.07,.24,-1.22,2.28,0),box(.24,.07,.24,1.22,2.28,0)];
+    for(var i=0;i<5;i++)wood.push(box(2.28,.15,.07,0,.92+i*.22,0));
+    wood.push(box(2.36,.08,.1,0,2.08,.02),box(.08,.7,.08,-1.05,1.45,-.08),box(.08,.7,.08,1.05,1.45,-.08),box(1.42,.05,.78,-.64,2.46,.06,0,0,.28),box(1.42,.05,.78,.64,2.46,.06,0,0,-.28),box(.14,.06,.82,0,2.62,.06));
+    var notes=[[-.78,1.15,.22,.28,-.08],[.05,1.22,.2,.32,.06],[.72,1.12,.24,.3,-.04],[-.7,1.62,.26,.24,.05],[.12,1.7,.22,.28,-.07],[.78,1.64,.2,.26,.08],[-.15,1.98,.34,.16,0]];
+    var paper=[],tacks=[];
+    for(var k=0;k<notes.length;k++){var n=notes[k];paper.push(box(n[2],n[3],.012,n[0],n[1],.055,0,n[4],0));tacks.push(box(.045,.045,.02,n[0],n[1]+n[3]*.32,.07))}
+    add(wood,M2.wood);add(paper,M2.cream);add(tacks,M2.dark);g.userData.sqDraws=3;scene.add(g);one.board=g;
+  })()}
   document.body.classList.add('dh-inspect');
   try{scene.fog=null;scene.background=new T.Color(0xc5d0d4);if(typeof hemi!=='undefined'){hemi.intensity=1.15;hemi.color.setHex(0xffffff);hemi.groundColor.setHex(0x8d887c)}if(typeof sun!=='undefined'){sun.intensity=.9;sun.castShadow=false}ren.shadowMap.enabled=false;ren.toneMapping=0}catch(e){}
   vm.visible=false;
@@ -56787,7 +56801,7 @@ if(window.__DH_ONE){(function(){try{
     var south=p.rot!==0,x=p.bc+p.jx,front=south?p.st+10+p.sb:p.st-14-p.sb;
     if(south){pl.set(x,0,front-5);yaw=Math.PI}else{pl.set(x,0,front+5);yaw=0}pit=-.05;
   }
-  var COMP={farm:{x:-23.7,z:-1.4,yaw:0},sawmill:{x:50,z:-505,yaw:0},quarry:{x:-55,z:-505,yaw:Math.PI},cemetery:{x:-100,z:-260,yaw:0},h9:{x:-335,z:-780,yaw:0}};
+  var COMP={farm:{x:-23.7,z:-1.4,yaw:0},farmboard:{x:8.8,z:20.2,yaw:2.53},sawmill:{x:50,z:-505,yaw:0},quarry:{x:-55,z:-505,yaw:Math.PI},cemetery:{x:-100,z:-260,yaw:0},h9:{x:-335,z:-780,yaw:0}};
   if(one.comp==='plant'){var P=insts.find(function(q){return q.m&&q.m.name==='Riverside Power Station'});if(P){pl.set(P.x,0,P.z+P.s*(P.m.hd+6));yaw=P.s>0?0:Math.PI;pit=-.08}}
   else if(one.comp&&COMP[one.comp]){var c=COMP[one.comp];pl.set(c.x,0,c.z);yaw=c.yaw;pit=-.08}
   else if(I)go(0);else standPlot();
@@ -56807,7 +56821,8 @@ if(window.__DH_ONE){(function(){try{
   one.plantShot=function(name){var V=window.PLANT_SITE&&window.PLANT_SITE.views;if(!V||!V[name])return false;one._shot=V[name];one.shotName=name;setOrbit(false);return true};
   one.fortShot=function(name){var V=window.FORT_CHAPTER&&window.FORT_CHAPTER.views;if(!V||!V[name])return false;one._shot=Object.assign({fort:1},V[name]);one.shotName=name;setOrbit(false);return true};
   var shotQ=new URLSearchParams(location.search).get('shot')||'';if(one.comp==='plant'&&shotQ)one.plantShot(shotQ);if(!one.comp&&one.plot===22&&shotQ)one.fortShot(shotQ);
-  ren.render=function(s,c){if(s)s.fog=null;applyCut();if(one._shot&&one._shot.fort&&s===scene)fortFrame();else if(one._shot&&s===scene)plantFrame();else if(orb.on&&s===scene)orbApply();vm.visible=false;return _ren(s,c)};
+  function boardFrame(){if(one.comp!=='farmboard')return false;cam.position.set(9.4,2.25,18.35);cam.lookAt(6.4,1.4,23.6);return true}
+  ren.render=function(s,c){if(s)s.fog=null;applyCut();if(one.comp==='farmboard'&&s===scene)boardFrame();else if(one._shot&&one._shot.fort&&s===scene)fortFrame();else if(one._shot&&s===scene)plantFrame();else if(orb.on&&s===scene)orbApply();vm.visible=false;return _ren(s,c)};
   function setOrbit(on){orb.on=!!on;one.orbit=orb.on;vm.visible=false;if(orb.on){try{if(document.pointerLockElement)document.exitPointerLock()}catch(e){}}else cam.rotation.order='YXZ'}
   one.setOrbit=setOrbit;
   one.toggleCut=function(){one.cut=!one.cut;if(one.cut)setOrbit(true);applyCut()};
@@ -56846,7 +56861,7 @@ if(window.__DH_ONE){(function(){try{
   bar.appendChild(document.createTextNode('PLOT VIEWER · low graphics · '+label+' · Walk or Orbit · [ ] floor · C cutaway · saves off '));
   var sel=document.createElement('select');
   for(var n=1;n<=24;n++){var o=document.createElement('option');o.value='plot='+n;o.textContent='Plot '+n;if(!one.comp&&one.plot===n)o.selected=true;sel.appendChild(o)}
-  ['farm','sawmill','quarry','cemetery','h9','plant'].forEach(function(name){var o=document.createElement('option');o.value='comp='+name;o.textContent=name;if(one.comp===name)o.selected=true;sel.appendChild(o)});
+  ['farm','farmboard','sawmill','quarry','cemetery','h9','plant'].forEach(function(name){var o=document.createElement('option');o.value='comp='+name;o.textContent=name==='farmboard'?'farm board':name;if(one.comp===name)o.selected=true;sel.appendChild(o)});
   sel.addEventListener('change',function(){location.search='?'+sel.value+'&gfx=3'});
   bar.appendChild(sel);
   function btn(t,fn){var b=document.createElement('button');b.type='button';b.textContent=t;b.addEventListener('pointerdown',function(ev){ev.preventDefault();ev.stopPropagation();fn()});bar.appendChild(b)}
