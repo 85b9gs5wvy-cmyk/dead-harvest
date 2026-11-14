@@ -22,7 +22,7 @@ const viewerHtml = read('plot-viewer.html');
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold',
+  'cem-gate', 'cem-journal', 'cem-key', 'cem-crypt', 'cem-cover', 'cem-lectern', 'cem-bell', 'hymnalHold',
   'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
@@ -172,7 +172,7 @@ test('a save already on an H-9 step stays on that step', () => {
   const { courierLoad } = box;
   for (let i = 0; i < V3.length; i++) {
     const at = migrateStoryIdx(3, i);
-    const want = V3[i] === 'plant' ? 'plant-arrive' : V3[i];
+    const want = V3[i] === 'plant' ? 'plant-arrive' : (V3[i] === 'hymnal' || V3[i] === 'hymnalHold') ? 'cem-gate' : V3[i];
     assert.equal(ORDER[at], want, `v3 ${i} ${V3[i]}`);
     if (V3[i].startsWith('h9-')) assert.ok(at >= ORDER.indexOf('h9-gate'));
   }
@@ -185,10 +185,11 @@ test('a save already on an H-9 step stays on that step', () => {
   assert.equal(ORDER[migrateStoryIdx(4, 17)], 'h9-boss');
   assert.equal(ORDER[migrateStoryIdx(5, 13)], 'courier-return');
   assert.equal(ORDER[migrateStoryIdx(5, 10)], 'fort');
-  assert.equal(ORDER[migrateStoryIdx(6, ORDER.indexOf('fort-boss'))], 'fort-boss');
+  assert.equal(ORDER[migrateStoryIdx(6, 16)], 'fort-boss');
+  assert.equal(ORDER[migrateStoryIdx(6, 8)], 'cem-gate');
 
   for (let i = 0; i < V2.length; i++) {
-    const want = V2[i] === 'quarry' || V2[i] === 'sawmill' ? 'hymnal' : V2[i] === 'plant' ? 'plant-arrive' : V2[i];
+    const want = V2[i] === 'quarry' || V2[i] === 'sawmill' || V2[i] === 'hymnal' || V2[i] === 'hymnalHold' ? 'cem-gate' : V2[i] === 'plant' ? 'plant-arrive' : V2[i];
     assert.equal(ORDER[migrateStoryIdx(2, i)], want, `v2 ${i}`);
   }
 
@@ -201,8 +202,8 @@ test('a save already on an H-9 step stays on that step', () => {
   assert.equal(courierLoad({ opened: 1 }, ORDER.indexOf('courier-case'), ret).opened, true);
 
   const save = script(testHtml, 'will-save');
-  assert.match(save, /VER=6/);
-  assert.match(save, /vk!==1&&vk!==2&&vk!==3&&vk!==4&&vk!==5&&vk!==6/);
+  assert.match(save, /VER=7/);
+  assert.match(save, /vk!==1&&vk!==2&&vk!==3&&vk!==4&&vk!==5&&vk!==6&&vk!==7/);
   assert.match(save, /courier:window\.COURIER\?/);
   assert.match(save, /window\.COURIER\.load\(d\.courier/);
 });
@@ -341,7 +342,7 @@ test('headless test play boots the courier quest without a death softlock', { ti
     assert.equal(state.spawned.wreck, 1);
     assert.equal(state.spawned.case, 1);
     assert.equal(state.spawned.return, 1);
-    assert.equal(state.ver, 6);
+    assert.equal(state.ver, 7);
     assert.equal(state.oldGate, ORDER.indexOf('h9-gate'));
     assert.equal(state.oldFort, ORDER.indexOf('fort'));
     assert.equal(state.oldBoss, ORDER.indexOf('h9-boss'));

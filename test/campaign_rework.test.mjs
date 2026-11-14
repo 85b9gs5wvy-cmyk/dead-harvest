@@ -23,7 +23,7 @@ const viewerHtml = read('plot-viewer.html');
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold',
+  'cem-gate', 'cem-journal', 'cem-key', 'cem-crypt', 'cem-cover', 'cem-lectern', 'cem-bell', 'hymnalHold',
   'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
@@ -114,15 +114,15 @@ test('the resource note opens once after the plant, and old quarry saves move to
   assert.equal(migratedResTip(3, 6, false), false);
 
   for (let i = 0; i < OLD.length; i++) {
-    const want = OLD[i] === 'quarry' || OLD[i] === 'sawmill' ? 'hymnal' : OLD[i] === 'plant' ? 'plant-arrive' : OLD[i];
+    const want = OLD[i] === 'quarry' || OLD[i] === 'sawmill' || OLD[i] === 'hymnal' || OLD[i] === 'hymnalHold' ? 'cem-gate' : OLD[i] === 'plant' ? 'plant-arrive' : OLD[i];
     assert.equal(ORDER[migrateStoryIdx(2, i)], want, `v2 index ${i} ${OLD[i]}`);
   }
-  assert.equal(ORDER[migrateStoryIdx(3, 6)], 'hymnalHold');
-  assert.equal(migrateStoryIdx(3, 6), ORDER.indexOf('hymnalHold'));
+  assert.equal(ORDER[migrateStoryIdx(3, 6)], 'cem-gate');
+  assert.equal(migrateStoryIdx(3, 6), ORDER.indexOf('cem-gate'));
   assert.equal(ORDER[migrateStoryIdx(4, 4)], 'plant-arrive');
-  assert.equal(ORDER[migrateStoryIdx(4, 5)], 'hymnal');
+  assert.equal(ORDER[migrateStoryIdx(4, 5)], 'cem-gate');
   assert.equal(migrateStoryIdx(5, ORDER.indexOf('plant-control')), ORDER.indexOf('plant-control'));
-  assert.equal(ORDER[migrateStoryIdx(1, 5)], 'hymnal');
+  assert.equal(ORDER[migrateStoryIdx(1, 5)], 'cem-gate');
   assert.equal(ORDER[migrateStoryIdx(2, 16)], 'h9-boss');
 
   const runtime = script(testHtml, 'story-runtime');
@@ -134,7 +134,7 @@ test('the resource note opens once after the plant, and old quarry saves move to
   assert.match(runtime, /if\(window\.__resTip\)return/);
   const save = script(testHtml, 'will-save');
   assert.match(save, /resTip:window\.__resTip\?1:0/);
-  assert.match(save, /VER=6/);
+  assert.match(save, /VER=7/);
   assert.match(save, /vk!==1&&vk!==2&&vk!==3/);
   assert.match(save, /if\(d\.resTip\)window\.__resTip=1/);
   assert.match(save, /if\(d\._showResTip&&window\.showResTip\)window\.showResTip\(\)/);
@@ -315,7 +315,7 @@ test('headless test play boots, shows the resource note once, and migrates saves
     const play = played.result && played.result.result && played.result.result.value;
     assert.equal(logs.length, 0, logs.join('\n').slice(0, 1200));
     assert.ok(play, JSON.stringify(played.result));
-    assert.equal(play.open.step, 'hymnal');
+    assert.equal(play.open.step, 'cem-gate');
     assert.equal(play.open.shown, true);
     assert.equal(play.open.button, 'Got it');
     assert.equal(play.open.flag, 1);
@@ -325,15 +325,15 @@ test('headless test play boots, shows the resource note once, and migrates saves
     assert.equal(play.again, false);
     assert.equal(play.midBlocked, false);
     assert.equal(play.saved.resTip, 1);
-    assert.equal(play.saved.v, 6);
-    assert.equal(play.saved.idx, ORDER.indexOf('hymnal'));
-    assert.deepEqual(play.quarry, { idx: ORDER.indexOf('hymnal'), tip: 1 });
-    assert.deepEqual(play.saw, { idx: ORDER.indexOf('hymnal'), tip: 1 });
-    assert.deepEqual(play.hymnal, { idx: ORDER.indexOf('hymnal'), tip: 0 });
+    assert.equal(play.saved.v, 7);
+    assert.equal(play.saved.idx, ORDER.indexOf('cem-gate'));
+    assert.deepEqual(play.quarry, { idx: ORDER.indexOf('cem-gate'), tip: 1 });
+    assert.deepEqual(play.saw, { idx: ORDER.indexOf('cem-gate'), tip: 1 });
+    assert.deepEqual(play.hymnal, { idx: ORDER.indexOf('cem-gate'), tip: 0 });
     assert.equal(play.fort, ORDER.indexOf('fort'));
     assert.equal(play.boss, ORDER.indexOf('h9-boss'));
-    assert.deepEqual(play.hold, { idx: ORDER.indexOf('hymnalHold'), tip: 0 });
-    assert.deepEqual(play.seen, { idx: ORDER.indexOf('hymnal'), tip: 0 });
+    assert.deepEqual(play.hold, { idx: ORDER.indexOf('cem-gate'), tip: 0 });
+    assert.deepEqual(play.seen, { idx: ORDER.indexOf('cem-gate'), tip: 0 });
   } finally {
     if (ws) ws.close();
     chrome.kill('SIGKILL');

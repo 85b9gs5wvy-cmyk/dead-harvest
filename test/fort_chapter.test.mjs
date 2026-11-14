@@ -20,7 +20,7 @@ const indexHtml = read('index.html');
 const ORDER = [
   'calm', 'surge', 'barn', 'barnLights',
   'plant-arrive', 'plant-keycard', 'plant-prep', 'plant-control',
-  'hymnal', 'hymnalHold',
+  'cem-gate', 'cem-journal', 'cem-key', 'cem-crypt', 'cem-cover', 'cem-lectern', 'cem-bell', 'hymnalHold',
   'fort', 'fort-log', 'fort-power', 'fort-gate', 'fort-yard', 'fort-key', 'fort-boss',
   'courier-wreck', 'courier-case', 'courier-return',
   'h9-gate', 'h9-power', 'h9-card', 'h9-stairs', 'h9-director', 'h9-seal', 'h9-boss',
@@ -108,11 +108,13 @@ test('fort rules, save migration, and the pistol-only loadout', () => {
   assert.equal(ORDER[migrateStoryIdx(5, V5.indexOf('fort'))], 'fort');
   assert.equal(ORDER[migrateStoryIdx(5, V5.indexOf('courier-wreck'))], 'courier-wreck');
   assert.equal(ORDER[migrateStoryIdx(5, V5.indexOf('h9-boss'))], 'h9-boss');
-  assert.equal(ORDER[migrateStoryIdx(6, ORDER.indexOf('fort-boss'))], 'fort-boss');
+  assert.equal(ORDER[migrateStoryIdx(6, 16)], 'fort-boss');
+  assert.equal(ORDER[migrateStoryIdx(6, 8)], 'cem-gate');
+  assert.equal(ORDER[migrateStoryIdx(6, 9)], 'cem-gate');
   assert.equal(ORDER[migrateStoryIdx(2, 9)], 'fort');
 
   const save = script(testHtml, 'will-save');
-  assert.match(save, /VER=6/);
+  assert.match(save, /VER=7/);
   assert.match(save, /fortq:window\.FORTQ/);
   assert.match(save, /own:w\.own\?1:0/);
   assert.match(between(testHtml, '/* WORLD_LOOT_BEGIN */', '/* WORLD_LOOT_END */'), /w\.id==='pistol'/);
